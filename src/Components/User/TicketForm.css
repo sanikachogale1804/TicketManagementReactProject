@@ -1,0 +1,124 @@
+.ticket-interface {
+    padding: 20px;
+}
+
+.ticket-interface h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.navigation {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.ticket-interface {
+    padding: 20px;
+    background-color: #f4f4f9;
+    border-radius: 8px;
+  }
+  
+  .navigation {
+    margin-bottom: 20px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  .content {
+    margin-top: 20px;
+  }
+  
+  .attach-file {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+  }
+  
+  .attach-file input[type="file"] {
+    margin-top: 10px;
+  }
+  
+  .attach-file button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .attach-file button:hover {
+    background-color: #218838;
+  }
+  
+.navigation button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.content {
+    margin-top: 20px;
+}
+
+.ticket-form,
+.ticket-status {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.ticket-form h2,
+.ticket-status h2 {
+    text-align: center;
+}
+
+.ticket-form form {
+    display: flex;
+    flex-direction: column;
+}
+
+.ticket-form label {
+    margin: 8px 0;
+}
+
+.ticket-form input,
+.ticket-form textarea,
+.ticket-form button {
+    margin-bottom: 12px;
+    padding: 8px;
+    font-size: 16px;
+}
+
+.ticket-form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.ticket-form button:hover {
+    background-color: #45a049;
+}
+
+.ticket-status button {
+    margin: 10px 5px;
+    padding: 10px;
+    cursor: pointer;
+}

@@ -1,0 +1,18 @@
+/* TicketStatus.css */
+.ticket-status table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ticket-status table, th, td {
+    border: 1px solid #ddd;
+}
+
+.ticket-status th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+.ticket-status th {
+    background-color: #f2f2f2;
+}
