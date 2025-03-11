@@ -1,50 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import NewTicketForm from './NewTicketForm'; // Import the form component
-import { getTickets } from '../Services/TicketService';
+import NewTicketForm from './NewTicketForm'; // Import form to create new tickets
+import { getTickets } from '../Services/TicketService'; // Service to fetch tickets
 
 function Ticket() {
-  const [tickets, setTickets] = useState([]); // Tickets state to store fetched tickets
-  const [loading, setLoading] = useState(true); // Loading state for data fetching
+  const [tickets, setTickets] = useState([]); // State to hold the tickets
+  const [loading, setLoading] = useState(true); // State for loading status
 
-  // Fetch tickets when the component mounts
   useEffect(() => {
+    // Fetch tickets when the component mounts
     const fetchTickets = async () => {
       try {
-        const data = await getTickets(); // Fetch tickets using the API
-        setTickets(data); // Store the tickets in the state
+        const response = await getTickets(); // Fetch tickets from the backend
+        const ticketsData = response._embedded?.tickets || []; // Get tickets from response
+        setTickets(ticketsData); // Store tickets in state
+        setLoading(false); // Set loading to false after data is fetched
       } catch (error) {
         console.error('Error fetching tickets:', error);
-      } finally {
-        setLoading(false); // Once data is fetched or error happens, stop loading
+        setLoading(false); // Set loading to false if there's an error
       }
     };
 
-    fetchTickets(); // Call the fetchTickets function
-  }, []);
+    fetchTickets(); // Call fetchTickets function when component mounts
+  }, []); // Empty dependency array means it runs only once on mount
 
-  // This function is called when a new ticket is created
   const handleTicketCreated = (newTicket) => {
-    setTickets([newTicket, ...tickets]); // Add the new ticket to the state
+    setTickets([newTicket, ...tickets]); // Add the new ticket to the list
   };
 
   return (
     <div>
-      <NewTicketForm onTicketCreated={handleTicketCreated} /> {/* Form for creating a ticket */}
+      <NewTicketForm onTicketCreated={handleTicketCreated} /> {/* Form to add new ticket */}
 
       <div className="card-body">
         {loading ? (
           <p>Loading...</p> // Show loading message while fetching data
         ) : (
           <ul>
-            {tickets.map((ticket) => (
-              <li key={ticket.id}>
-                <h3>{ticket.title}</h3>
-                <p>{ticket.description}</p>
-                <p>Status: {ticket.status}</p>
-                <p>Assigned to: {ticket.assignedToUserId || 'Not assigned'}</p>
-                <p>Created At: {ticket.createdAt}</p>
-              </li>
-            ))}
+            {tickets.length > 0 ? (
+              tickets.map((ticket) => {
+                const ticketId = ticket._links?.self?.href.split('/').pop(); // Get ticket ID from the self link
+                return (
+                  <li key={ticketId}>
+                    <h3>Ticket ID: {ticketId}</h3> {/* Display Ticket ID */}
+                    <h3>{ticket.title}</h3>
+                    <p>{ticket.description}</p>
+                    <p>Status: {ticket.status}</p>
+                    <p>Created At: {ticket.createdAt}</p>
+                  </li>
+                );
+              })
+            ) : (
+              <p>No tickets available.</p> // Show a message if no tickets are available
+            )}
           </ul>
         )}
       </div>

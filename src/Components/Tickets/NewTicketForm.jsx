@@ -1,21 +1,36 @@
-import React, { useState } from 'react';
-import { addTickets } from '../Services/TicketService'; // Service to add tickets
+import React, { useState, useEffect } from 'react';
+import { addTickets } from '../Services/TicketService';
+import { getUsers } from '../Services/UserService';
 
 function NewTicketForm({ onTicketCreated }) {
-  const [ticket, setTicket] = useState({
-    title: '',
-    description: '',
-    status: 'OPEN',
-    customerUserId: '', // Set default user ID (can be changed as needed)
-  });
+  const [ticket, setTicket] = useState({ title: '', description: '', status: 'OPEN', customerUserId: '' });
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Update the state when input fields change
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getUsers();
+        const users = data._embedded?.users || [];
+        const customerList = users.map(user => ({
+          id: user._links?.self?.href.split('/').pop(),
+          name: user.userName,
+        }));
+        setCustomers(customerList);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+        setLoading(false);
+      }
+    };
+    fetchCustomers();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTicket({ ...ticket, [name]: value });
   };
 
-  // Handle form submission
   const submitHandler = (e) => {
     e.preventDefault();
 
@@ -23,89 +38,61 @@ function NewTicketForm({ onTicketCreated }) {
       title: ticket.title,
       description: ticket.description,
       status: ticket.status,
-      assignedToUserId: 0, // Default assigned to no one
-      customerUserId: ticket.customerUserId, // Default customer user ID
-      createdAt: new Date().toISOString(), // Set current timestamp for createdAt
-      updatedAt: new Date().toISOString(), // Set current timestamp for updatedAt
+      assignedToUserId: 0,
+      customerUserId: ticket.customerUserId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
-    // Add the new ticket using the API service
     addTickets(newTicket)
       .then((data) => {
-        console.log('Ticket added successfully:', data);
-        setTicket({
-          title: '',
-          description: '',
-          status: 'OPEN',
-          customerUserId: '', // Reset the form after submission
-        });
-
-        if (onTicketCreated) {
-          onTicketCreated(data); // Notify parent component with the new ticket
-        }
+        setTicket({ title: '', description: '', status: 'OPEN', customerUserId: '' });
+        if (onTicketCreated) onTicketCreated(data);
       })
-      .catch((error) => {
-        console.error('Failed to add ticket:', error);
-      });
+      .catch((error) => console.error('Failed to add ticket:', error));
   };
 
   return (
-    <div>
-      <form className="w-3 border border-dark p-4" onSubmit={submitHandler}>
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter Ticket Title"
-            name="title"
-            value={ticket.title}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Description</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter Ticket Description"
-            name="description"
-            value={ticket.description}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Status</label>
+    <form onSubmit={submitHandler}>
+      <div>
+        <label>Site ID</label>
+        <input
+          type="text"
+          name="title"
+          // value={ticket.title}
+          // onChange={handleChange}
+        />
+      </div>
+      <div>
+        <label>Description</label>
+        <input
+          type="text"
+          name="description"
+          value={ticket.description}
+          onChange={handleChange}
+        />
+      </div>
+      <div>
+        <label>Customer Name</label>
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
           <select
-            className="form-control"
-            name="status"
-            value={ticket.status}
-            onChange={handleChange}
-          >
-            <option value="OPEN">Open</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="CLOSED">Closed</option>
-          </select>
-        </div>
-
-        {/* Optionally, allow for customer selection */}
-        <div className="form-group">
-          <label>Customer User ID</label>
-          <input
-            type="number"
-            className="form-control"
-            placeholder="Enter Customer User ID"
             name="customerUserId"
             value={ticket.customerUserId}
             onChange={handleChange}
-          />
-        </div>
-
-        <button type="submit">Submit</button>
-      </form>
-    </div>
+          >
+            <option value="">Select Customer</option>
+            {customers.map((customer) => (
+              <option key={customer.id} value={customer.id}>
+                {customer.name}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+      <button type="submit">Submit</button>
+    </form>
   );
 }
 

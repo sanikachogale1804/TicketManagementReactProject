@@ -6,6 +6,9 @@ import TicketStatus from './Components/User/TicketStatus';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Ticket from './Components/Tickets/Ticket';
 import NewTicketForm from './Components/Tickets/NewTicketForm';
+import AdminPanel from './Components/Tickets/AdminPanel';
+import TeamMemberPanel from './Components/Tickets/TeamMemberPanel';
+
 
 
 const routes=createBrowserRouter([
@@ -28,6 +31,14 @@ const routes=createBrowserRouter([
   {
     path:"/newticketForm",
     element:<NewTicketForm/>
+  },
+  {
+    path:"/adminPanel",
+    element:<AdminPanel/>
+  },
+  {
+    path:"/teamMember",
+    element:<TeamMemberPanel/>
   }
 ])
 
