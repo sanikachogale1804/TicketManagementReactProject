@@ -1,0 +1,60 @@
+/* NewTicketForm.css */
+
+/* Style for the whole form */
+.ticket-form {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  /* Style for the table */
+  .ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .ticket-table td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  /* Style for the form inputs */
+  .form-input, .form-select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  /* Style for the submit button */
+  .submit-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .submit-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Optional: Add some styles for loading state */
+  p {
+    color: #888;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  

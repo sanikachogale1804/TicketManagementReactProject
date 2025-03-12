@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { getTickets, assignTicketToTeamMember, updateTicketStatus, getTeamMembers, addCommentToTicket } from "../Services/TicketService";
+import {
+  getTickets,
+  assignTicketToTeamMember,
+  updateTicketStatus,
+  getTeamMembers,
+  addCommentToTicket,
+} from "../Services/TicketService";
+import '../CSS/AdminPanel.css'; // Importing the CSS file
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");  // For ticket status
-  const [newComment, setNewComment] = useState(""); // For comment text
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState("");  // For filtering tickets by status
+  const [selectedFilter, setSelectedFilter] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all tickets and team members
+        setLoading(true);
         const ticketResponse = await getTickets();
         const fetchedTickets = ticketResponse._embedded?.tickets || [];
         const fetchedTeamMembers = await getTeamMembers();
@@ -41,28 +48,28 @@ function AdminPanel() {
     }
   };
 
-  const handleUpdateTicketStatus = async () => {
-    if (!selectedTicketId || !selectedStatus) return;
+  const handleUpdateTicketStatus = async (ticketId) => {
+    if (!ticketId || !selectedStatus) return;
     try {
-      await updateTicketStatus(selectedTicketId, selectedStatus);
+      await updateTicketStatus(ticketId, selectedStatus);
       alert(`Ticket status updated to ${selectedStatus}`);
     } catch (error) {
       console.error("Error updating ticket status:", error);
     }
   };
 
-  const handleAddComment = async () => {
-    if (!selectedTicketId || !newComment) return;
+  const handleAddComment = async (ticketId) => {
+    if (!ticketId || !newComment) return;
     try {
-      await addCommentToTicket(selectedTicketId, newComment);
+      await addCommentToTicket(ticketId, newComment);
       alert("Comment added successfully");
-      setNewComment("");  // Clear the comment input after adding it
+      setNewComment(""); // Clear comment input after adding
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
 
-  const filteredTickets = tickets.filter(ticket => {
+  const filteredTickets = tickets.filter((ticket) => {
     if (!selectedFilter) return true;
     return ticket.status === selectedFilter;
   });
@@ -112,44 +119,61 @@ function AdminPanel() {
         </select>
       </div>
 
-      {/* Display Tickets based on filter */}
+      {/* Display Tickets in a Table Format */}
       <div>
         <h3>Tickets</h3>
         {filteredTickets.length > 0 ? (
-          filteredTickets.map((ticket) => (
-            <div key={ticket.ticket_id}>
-              <h4>{ticket.title}</h4>
-              <p>Status: {ticket.status}</p>
-              <p>Assigned To: {ticket.assignedTo}</p>
-            </div>
-          ))
+          <table className="ticket-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Assigned To</th>
+                <th>Update Status</th>
+                <th>Add Comment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTickets.map((ticket) => (
+                <tr key={ticket.ticket_id}>
+                  <td>{ticket.title}</td>
+                  <td>{ticket.status}</td>
+                  <td>{ticket.assignedTo || "Not Assigned"}</td>
+                  <td>
+                    <select
+                      onChange={(e) => setSelectedStatus(e.target.value)}
+                      value={selectedStatus}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Open">Open</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Closed">Closed</option>
+                    </select>
+                    <button onClick={() => handleUpdateTicketStatus(ticket.ticket_id)}>
+                      Update Status
+                    </button>
+                  </td>
+                  <td>
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Add your comment here"
+                    />
+                    <button onClick={() => handleAddComment(ticket.ticket_id)}>
+                      Add Comment
+                    </button>
+                  </td>
+                  <td>
+                    {/* Any other actions (e.g., Assign) */}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
           <p>No tickets to display</p>
         )}
-      </div>
-
-      {/* Update Ticket Status */}
-      <div>
-        <h3>Update Ticket Status</h3>
-        <select onChange={(e) => setSelectedStatus(e.target.value)}>
-          <option value="">Select Status</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Closed">Closed</option>
-        </select>
-
-        <button onClick={handleUpdateTicketStatus}>Update Status</button>
-      </div>
-
-      {/* Add Comment to Ticket */}
-      <div>
-        <h3>Add Comment to Ticket</h3>
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Add your comment here"
-        />
-        <button onClick={handleAddComment}>Add Comment</button>
       </div>
     </div>
   );

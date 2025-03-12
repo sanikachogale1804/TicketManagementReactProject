@@ -1,4 +1,5 @@
 import axios from "axios";
+import { data } from "react-router-dom";
 
 // API URL for your ticket-related endpoints
 const API_LINK = "http://localhost:8080/tickets";
@@ -15,6 +16,12 @@ export const getTickets = async () => {
     throw error; // Throw error if fetching fails
   }
 };
+
+// export const getTickets=()=>{
+//   return fetch(API_LINK).
+//   then((data)=>data.json())
+//   .then(data=>data)
+// }
 
 // Function to create a new ticket
 export const addTickets = (ticket) => {
@@ -100,7 +107,6 @@ export const getTeamMembers = async () => {
   }
 };
 
-
 // Function to assign a ticket to a specific team member
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   try {
@@ -111,5 +117,17 @@ export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   } catch (error) {
     console.error("Error assigning ticket to team member:", error);
     throw error;
+  }
+};
+
+
+// Fetch assigned tickets for a user
+export const getAssignedTickets = async (userId) => {
+  try {
+    const response = await axios.get(`/api/tickets/assigned/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    return [];
   }
 };
