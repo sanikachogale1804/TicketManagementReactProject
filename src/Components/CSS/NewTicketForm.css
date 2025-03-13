@@ -1,6 +1,4 @@
-/* NewTicketForm.css */
 
-/* Style for the whole form */
 .ticket-form {
     width: 100%;
     max-width: 600px;
@@ -11,7 +9,7 @@
     background-color: #f9f9f9;
   }
   
-  /* Style for the table */
+
   .ticket-table {
     width: 100%;
     border-collapse: collapse;
@@ -22,7 +20,7 @@
     text-align: left;
   }
   
-  /* Style for the form inputs */
+ 
   .form-input, .form-select {
     width: 100%;
     padding: 8px;
@@ -30,8 +28,7 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-  
-  /* Style for the submit button */
+
   .submit-btn {
     width: 100%;
     padding: 10px;
@@ -48,7 +45,7 @@
     background-color: #0056b3;
   }
   
-  /* Optional: Add some styles for loading state */
+ 
   p {
     color: #888;
   }

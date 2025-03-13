@@ -6,19 +6,17 @@ import {
   getTeamMembers,
   addCommentToTicket,
 } from "../Services/TicketService";
-import '../CSS/AdminPanel.css'; // Importing the CSS file
+import '../CSS/AdminPanel.css';
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("");
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState(""); // Status filter
+  const [selectedFilter, setSelectedFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [ticketStatuses, setTicketStatuses] = useState({});
   const [ticketComments, setTicketComments] = useState({});
 
   useEffect(() => {
@@ -31,6 +29,7 @@ function AdminPanel() {
 
         setTickets(fetchedTickets);
         setTeamMembers(fetchedTeamMembers);
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -47,7 +46,7 @@ function AdminPanel() {
     try {
       const response = await assignTicketToTeamMember(selectedTicketId, selectedTeamMember);
 
-      if (response && response.ticketId) {  // Assuming response contains the updated ticket
+      if (response && response.ticketId) {
         setTickets((prevTickets) =>
           prevTickets.map((ticket) =>
             ticket.ticketId === selectedTicketId
@@ -66,32 +65,39 @@ function AdminPanel() {
     }
   };
 
-  // Update Ticket Status
-  const handleUpdateTicketStatus = async (ticketId) => {
-    if (!ticketId || !ticketStatuses[ticketId]) return;
+  const handleUpdateTicketStatus = async (ticketId, newStatus) => {
+    if (!ticketId || !newStatus) return;
+
     try {
-      await updateTicketStatus(ticketId, ticketStatuses[ticketId]);
-      alert(`Ticket status updated to ${ticketStatuses[ticketId]}`);
+      await updateTicketStatus(ticketId, newStatus);
+
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.ticket_id === ticketId
+            ? { ...ticket, status: newStatus } 
+            : ticket
+        )
+      );
+
+      alert(`Ticket status updated to ${newStatus}`);
     } catch (error) {
       console.error("Error updating ticket status:", error);
     }
   };
 
-  // Add Comment to Ticket
   const handleAddComment = async (ticketId) => {
     if (!ticketId || !ticketComments[ticketId]) return;
+
     try {
       await addCommentToTicket(ticketId, ticketComments[ticketId]);
       alert("Comment added successfully");
-      setTicketComments((prev) => ({ ...prev, [ticketId]: "" })); // Clear comment input
+      setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
 
-  // Filter tickets by status and search query
   const filteredTickets = tickets.filter((ticket) => {
-    console.log("Selected filter:", selectedFilter); // Log the selected filter
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -112,7 +118,7 @@ function AdminPanel() {
         <select onChange={(e) => setSelectedTicketId(e.target.value)}>
           <option value="">Select Ticket</option>
           {tickets
-            .filter((ticket) => ticket.status === "OPEN") // Filter for open tickets only
+            .filter((ticket) => ticket.status === "OPEN")
             .map((ticket) => (
               <option key={ticket.ticket_id} value={ticket.ticket_id}>
                 {ticket.title} (ID: {ticket.ticket_id})
@@ -178,7 +184,7 @@ function AdminPanel() {
             </thead>
             <tbody>
               {filteredTickets.map((ticket) => (
-                <tr key={ticket.id}>
+                <tr key={ticket.ticket_id}>
                   <td>{ticket.ticket_id}</td>
                   <td>{ticket.site_id || "N/A"}</td>
                   <td>{ticket.title}</td>
@@ -186,17 +192,14 @@ function AdminPanel() {
                   <td>{ticket.assignedTo || "Not Assigned"}</td>
                   <td>
                     <select
-                      onChange={(e) =>
-                        setTicketStatuses((prev) => ({ ...prev, [ticket.ticket_id]: e.target.value }))
-                      }
-                      value={ticketStatuses[ticket.ticket_id] || ""}
+                      onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}
+                      value={ticket.status} // Keep track of individual ticket status
                     >
-                      <option value="">Select Status</option>
                       <option value="OPEN">Open</option>
                       <option value="IN_PROGRESS">In Progress</option>
                       <option value="CLOSED">Closed</option>
                     </select>
-                    <button onClick={() => handleUpdateTicketStatus(ticket.ticket_id)}>
+                    <button onClick={() => handleUpdateTicketStatus(ticket.ticket_id, ticket.status)}>
                       Update Status
                     </button>
                   </td>
@@ -204,7 +207,10 @@ function AdminPanel() {
                     <textarea
                       value={ticketComments[ticket.ticket_id] || ""}
                       onChange={(e) =>
-                        setTicketComments((prev) => ({ ...prev, [ticket.ticket_id]: e.target.value }))
+                        setTicketComments((prev) => ({
+                          ...prev,
+                          [ticket.ticket_id]: e.target.value,
+                        }))
                       }
                       placeholder="Add your comment here"
                     />

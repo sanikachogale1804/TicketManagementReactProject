@@ -1,29 +1,21 @@
 import axios from "axios";
 import { data } from "react-router-dom";
 
-// API URL for your ticket-related endpoints
 const API_LINK = "http://localhost:8080/tickets";
 const BASE_URL = "http://localhost:8080";
 
-// Function to fetch all tickets
 export const getTickets = async () => {
   try {
     const response = await fetch(API_LINK);
     const data = await response.json();
-    return data; // Returning the whole response data, including tickets
+    return data; 
   } catch (error) {
     console.error("Error fetching tickets:", error);
-    throw error; // Throw error if fetching fails
+    throw error; 
   }
 };
 
-// export const getTickets=()=>{
-//   return fetch(API_LINK).
-//   then((data)=>data.json())
-//   .then(data=>data)
-// }
 
-// Function to create a new ticket
 export const addTickets = (ticket) => {
   return fetch(API_LINK, {
     method: "POST",
@@ -36,7 +28,6 @@ export const addTickets = (ticket) => {
     .then((data) => data);
 };
 
-// Function to update a ticket's status and assignee
 export const updateTicket = (ticketId, updatedTicket) => {
   return fetch(`${API_LINK}/${ticketId}`, {
     method: "PUT",
@@ -49,7 +40,6 @@ export const updateTicket = (ticketId, updatedTicket) => {
     .then((data) => data);
 };
 
-// Function to add a comment to a ticket
 export const addCommentToTicket = (ticketId, commentData) => {
   return fetch(`${API_LINK}/${ticketId}/comments`, {
     method: "POST",
@@ -62,24 +52,24 @@ export const addCommentToTicket = (ticketId, commentData) => {
     .then((data) => data);
 };
 
-// Fetch all tickets assigned to a specific user (team member)
+
 export const getTicketsByUser = async (userId) => {
   try {
     const response = await axios.get(`${BASE_URL}/tickets?assignedTo=${userId}`);
-    return response.data; // Return the ticket data
+    return response.data; 
   } catch (error) {
     console.error("Error fetching tickets by user:", error);
     throw error;
   }
 };
 
-// Function to update the status of a specific ticket (e.g., closing the ticket)
+
 export const updateTicketStatus = async (ticketId, status) => {
   try {
     const response = await axios.put(`${BASE_URL}/tickets/${ticketId}`, {
-      status: status, // Pass the status (e.g., 'CLOSED')
+      status: status, 
     });
-    return response.data; // Return the updated ticket
+    return response.data; 
   } catch (error) {
     console.error("Error updating ticket status:", error);
     throw error;
@@ -88,41 +78,34 @@ export const updateTicketStatus = async (ticketId, status) => {
 
 export const getTeamMembers = async () => {
   try {
-    const response = await fetch("http://localhost:8080/users"); // Use the correct endpoint
+    const response = await fetch("http://localhost:8080/users"); 
     const data = await response.json();
 
-    // Log the response to verify the data structure
     console.log("Team Members Response: ", data);
 
-    // Extract the team members from the '_embedded' object
     const teamMembers = data._embedded?.users || [];
 
-    // Filter out only users with the "TEAMMEMBER" role
     const filteredTeamMembers = teamMembers.filter(user => user.role === "TEAMMEMBER");
 
-    return filteredTeamMembers; // Return only the team members
+    return filteredTeamMembers; 
   } catch (error) {
     console.error("Error fetching team members:", error);
-    return []; // Return an empty array in case of an error
+    return []; 
   }
 };
-// Function to assign ticket to team member
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   try {
-    // Ensure your backend is expecting this structure
     const response = await axios.post(`${BASE_URL}/tickets/${ticketId}/assignTo`, {
-      assignedTo: { id: teamMemberId }, // Make sure this matches what your backend expects
+      assignedTo: { id: teamMemberId }, 
     });
-    return response.data; // Assuming the backend returns the updated ticket
+    return response.data; 
   } catch (error) {
     console.error("Error assigning ticket to team member:", error);
-    throw error; // Rethrow error for handling in calling function
+    throw error; 
   }
 };
 
 
-
-// Fetch assigned tickets for a user
 export const getAssignedTickets = async (userId) => {
   try {
     const response = await axios.get(`/api/tickets/assignedTo/${userId}`);

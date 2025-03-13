@@ -1,37 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import NewTicketForm from './NewTicketForm'; // Import form to create new tickets
-import { getTickets } from '../Services/TicketService'; // Service to fetch tickets
+import NewTicketForm from './NewTicketForm'; 
+import { getTickets } from '../Services/TicketService'; 
 import '../CSS/Ticket.css'
 
 function Ticket() {
-  const [tickets, setTickets] = useState([]); // State to hold the tickets
-  const [loading, setLoading] = useState(true); // State for loading status
+  const [tickets, setTickets] = useState([]); 
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
-    // Fetch tickets when the component mounts
+   
     const fetchTickets = async () => {
       try {
-        const response = await getTickets(); // Fetch tickets from the backend
+        const response = await getTickets(); 
         
-        const ticketsData = response._embedded?.tickets || []; // Get tickets from response   
-        setTickets(ticketsData); // Store tickets in state
-        setLoading(false); // Set loading to false after data is fetched
+        const ticketsData = response._embedded?.tickets || []; 
+        setTickets(ticketsData); 
+        setLoading(false); 
       } catch (error) {
         console.error('Error fetching tickets:', error);
-        setLoading(false); // Set loading to false if there's an error
+        setLoading(false); 
       }
     };
 
-    fetchTickets(); // Call fetchTickets function when component mounts
-  }, []); // Empty dependency array means it runs only once on mount
+    fetchTickets(); 
+  }, []); 
 
   const handleTicketCreated = (newTicket) => {
-    setTickets([newTicket, ...tickets]); // Add the new ticket to the list
+    setTickets([newTicket, ...tickets]); 
   };
 
   return (
     <div>
-      <NewTicketForm onTicketCreated={handleTicketCreated} /> {/* Form to add new ticket */}
+      <NewTicketForm onTicketCreated={handleTicketCreated} /> 
 
       <div className="ticket-list">
         {loading ? (
@@ -43,7 +43,7 @@ function Ticket() {
                 <thead>
                   <tr>
                     <th>Ticket ID</th>
-                    <th>Title</th>
+                    <th>Reason For Footage Request</th>
                     <th>Description</th>
                     <th>Status</th>
                     <th>Created At</th>

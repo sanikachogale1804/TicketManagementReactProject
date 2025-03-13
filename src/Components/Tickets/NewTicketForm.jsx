@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { addTickets } from '../Services/TicketService';
 import { getUsers } from '../Services/UserService';
-import '../CSS/NewTicketForm.css'; // Importing the CSS file
+import '../CSS/NewTicketForm.css'; 
 
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
@@ -18,7 +18,7 @@ function NewTicketForm({ onTicketCreated }) {
     const fetchCustomers = async () => {
       try {
         const userData = await getUsers();
-        const users = userData._embedded?.users || [];
+        const users = userData._embedded?.users;
         const customerList = users.map(user => ({
           id: user._links?.self?.href.split('/').pop(),
           name: user.userName,
@@ -51,7 +51,7 @@ function NewTicketForm({ onTicketCreated }) {
       updatedAt: new Date().toISOString(),
     };
 
-    // Debugging step: Check if the title is being captured correctly
+
     console.log("Ticket Title:", newTicket.title);
 
     addTickets(newTicket)
@@ -78,7 +78,7 @@ function NewTicketForm({ onTicketCreated }) {
                   name="ticketId"
                   onChange={handleChange}
                   className="form-input"
-                  value={ticket.ticketId}
+             
                 />
               </td>
             </tr>
