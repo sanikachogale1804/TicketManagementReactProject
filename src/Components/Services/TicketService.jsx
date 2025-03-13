@@ -107,18 +107,22 @@ export const getTeamMembers = async () => {
   }
 };
 
-// Function to assign a ticket to a specific team member
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   try {
-    const response = await axios.post(`${BASE_URL}/tickets/${ticketId}/assign`, {
+    // Use the correct method (PUT instead of POST)
+    const ticketUrl = `http://localhost:8080/tickets/${ticketId}/assignedTo`;
+
+    const response = await axios.put(ticketUrl, {
       assignedTo: teamMemberId, // Assign the ticket to the team member
     });
-    return response.data; // Return the updated ticket with the assigned team member
+
+    return response.data; // Return the updated ticket data
   } catch (error) {
     console.error("Error assigning ticket to team member:", error);
-    throw error;
+    throw error; // Throw error for further handling in the AdminPanel component
   }
 };
+
 
 
 // Fetch assigned tickets for a user

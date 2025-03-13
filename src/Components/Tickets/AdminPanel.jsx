@@ -17,6 +17,7 @@ function AdminPanel() {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,16 +39,35 @@ function AdminPanel() {
     fetchData();
   }, []);
 
+  // Assign Ticket to Team Member
   const handleAssignTicket = async () => {
     if (!selectedTicketId || !selectedTeamMember) return;
     try {
-      await assignTicketToTeamMember(selectedTicketId, selectedTeamMember);
-      alert("Ticket assigned successfully");
+      // Call the API to assign the ticket
+      const response = await assignTicketToTeamMember(selectedTicketId, selectedTeamMember);
+
+      // Check if the response is successful (based on your API response structure)
+      if (response.success) {
+        // Update the assigned ticket in the local state to reflect the changes in the UI
+        setTickets((prevTickets) =>
+          prevTickets.map((ticket) =>
+            ticket.ticket_id === selectedTicketId
+              ? { ...ticket, assignedTo: selectedTeamMember }
+              : ticket
+          )
+        );
+
+        alert("Ticket assigned successfully");
+      } else {
+        alert("Failed to assign ticket. Please try again.");
+      }
     } catch (error) {
       console.error("Error assigning ticket:", error);
+      alert("Error assigning ticket. Please try again.");
     }
   };
 
+  // Update Ticket Status
   const handleUpdateTicketStatus = async (ticketId) => {
     if (!ticketId || !selectedStatus) return;
     try {
@@ -58,6 +78,7 @@ function AdminPanel() {
     }
   };
 
+  // Add Comment to Ticket
   const handleAddComment = async (ticketId) => {
     if (!ticketId || !newComment) return;
     try {
@@ -69,9 +90,17 @@ function AdminPanel() {
     }
   };
 
+  // Filter tickets by status and search query
   const filteredTickets = tickets.filter((ticket) => {
-    if (!selectedFilter) return true;
-    return ticket.status === selectedFilter;
+    // Filter by status
+    const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
+
+    // Filter by search query (case-insensitive)
+    const matchesSearchQuery =
+      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesStatus && matchesSearchQuery;
   });
 
   if (loading) return <p>Loading...</p>;
@@ -85,11 +114,13 @@ function AdminPanel() {
         <h3>Assign Ticket</h3>
         <select onChange={(e) => setSelectedTicketId(e.target.value)}>
           <option value="">Select Ticket</option>
-          {tickets.map((ticket) => (
-            <option key={ticket.ticket_id} value={ticket.ticket_id}>
-              {ticket.title} (ID: {ticket.ticket_id})
-            </option>
-          ))}
+          {tickets
+            .filter((ticket) => ticket.status === "OPEN") // Filter for open tickets only
+            .map((ticket) => (
+              <option key={ticket.ticket_id} value={ticket.ticket_id}>
+                {ticket.title} (ID: {ticket.ticket_id})
+              </option>
+            ))}
         </select>
 
         <select onChange={(e) => setSelectedTeamMember(e.target.value)}>
@@ -119,6 +150,18 @@ function AdminPanel() {
         </select>
       </div>
 
+      {/* Search Box */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          id="searchQuery"
+          placeholder="Search here"
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <div id="searchHelp" className="form-text">Search here.</div>
+      </div>
+
       {/* Display Tickets in a Table Format */}
       <div>
         <h3>Tickets</h3>
@@ -126,7 +169,9 @@ function AdminPanel() {
           <table className="ticket-table">
             <thead>
               <tr>
-                <th>Title</th>
+                <th>Ticket ID</th>
+                <th>Site ID</th>
+                <th>Reason For Footage Request</th>
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Update Status</th>
@@ -137,6 +182,8 @@ function AdminPanel() {
             <tbody>
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.ticket_id}>
+                  <td>{ticket.ticket_Id}</td>
+                  <td>{ticket.site_id || "N/A"}</td>
                   <td>{ticket.title}</td>
                   <td>{ticket.status}</td>
                   <td>{ticket.assignedTo || "Not Assigned"}</td>

@@ -51,6 +51,9 @@ function NewTicketForm({ onTicketCreated }) {
       updatedAt: new Date().toISOString(),
     };
 
+    // Debugging step: Check if the title is being captured correctly
+    console.log("Ticket Title:", newTicket.title);
+
     addTickets(newTicket)
       .then((data) => {
         setTicket({ ticketId: '', title: '', description: '', status: 'OPEN', customerUserId: '' });
@@ -65,23 +68,23 @@ function NewTicketForm({ onTicketCreated }) {
       <form onSubmit={submitHandler} className="ticket-form">
         <table className="ticket-table">
           <tbody>
-            {/* Ticket ID Row */}
-            {/* <tr>
-              <td><label>Ticket ID</label></td>
-              <td>
-                <input
-                  type="text"
-                  name="ticketId"
-                  value={ticket.ticketId}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </td>
-            </tr> */}
 
             {/* Site ID (Title) Row */}
             <tr>
               <td><label>Site ID</label></td>
+              <td>
+                <input
+                  type="text"
+                  name="ticketId"
+                  onChange={handleChange}
+                  className="form-input"
+                  value={ticket.ticketId}
+                />
+              </td>
+            </tr>
+
+            <tr>
+              <td><label>Title</label></td>
               <td>
                 <input
                   type="text"
@@ -150,6 +153,7 @@ function NewTicketForm({ onTicketCreated }) {
           </tbody>
         </table>
         <button type="submit" className="submit-btn">Submit</button>
+        
       </form>
     </div>
   );

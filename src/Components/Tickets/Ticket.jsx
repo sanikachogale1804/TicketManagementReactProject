@@ -54,7 +54,7 @@ function Ticket() {
                     const ticketId = ticket._links?.self?.href.split('/').pop();
                     return (
                       <tr key={ticketId}>
-                        <td>{ticketId}</td>
+                        <td>{ticket.ticketId}</td>
                         <td>{ticket.title}</td>
                         <td>{ticket.description}</td>
                         <td>{ticket.status}</td>
