@@ -106,20 +106,17 @@ export const getTeamMembers = async () => {
     return []; // Return an empty array in case of an error
   }
 };
-
+// Function to assign ticket to team member
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   try {
-    // Use the correct method (PUT instead of POST)
-    const ticketUrl = `http://localhost:8080/tickets/${ticketId}/assignedTo`;
-
-    const response = await axios.put(ticketUrl, {
-      assignedTo: teamMemberId, // Assign the ticket to the team member
+    // Ensure your backend is expecting this structure
+    const response = await axios.post(`${BASE_URL}/tickets/${ticketId}/assignTo`, {
+      assignedTo: { id: teamMemberId }, // Make sure this matches what your backend expects
     });
-
-    return response.data; // Return the updated ticket data
+    return response.data; // Assuming the backend returns the updated ticket
   } catch (error) {
     console.error("Error assigning ticket to team member:", error);
-    throw error; // Throw error for further handling in the AdminPanel component
+    throw error; // Rethrow error for handling in calling function
   }
 };
 
@@ -128,7 +125,7 @@ export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
 // Fetch assigned tickets for a user
 export const getAssignedTickets = async (userId) => {
   try {
-    const response = await axios.get(`/api/tickets/assigned/${userId}`);
+    const response = await axios.get(`/api/tickets/assignedTo/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching tickets:", error);

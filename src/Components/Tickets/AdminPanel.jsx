@@ -16,8 +16,10 @@ function AdminPanel() {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
-  const [selectedFilter, setSelectedFilter] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState(""); // Status filter
   const [searchQuery, setSearchQuery] = useState("");
+  const [ticketStatuses, setTicketStatuses] = useState({});
+  const [ticketComments, setTicketComments] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,19 +41,16 @@ function AdminPanel() {
     fetchData();
   }, []);
 
-  // Assign Ticket to Team Member
   const handleAssignTicket = async () => {
     if (!selectedTicketId || !selectedTeamMember) return;
+
     try {
-      // Call the API to assign the ticket
       const response = await assignTicketToTeamMember(selectedTicketId, selectedTeamMember);
 
-      // Check if the response is successful (based on your API response structure)
-      if (response.success) {
-        // Update the assigned ticket in the local state to reflect the changes in the UI
+      if (response && response.ticketId) {  // Assuming response contains the updated ticket
         setTickets((prevTickets) =>
           prevTickets.map((ticket) =>
-            ticket.ticket_id === selectedTicketId
+            ticket.ticketId === selectedTicketId
               ? { ...ticket, assignedTo: selectedTeamMember }
               : ticket
           )
@@ -69,10 +68,10 @@ function AdminPanel() {
 
   // Update Ticket Status
   const handleUpdateTicketStatus = async (ticketId) => {
-    if (!ticketId || !selectedStatus) return;
+    if (!ticketId || !ticketStatuses[ticketId]) return;
     try {
-      await updateTicketStatus(ticketId, selectedStatus);
-      alert(`Ticket status updated to ${selectedStatus}`);
+      await updateTicketStatus(ticketId, ticketStatuses[ticketId]);
+      alert(`Ticket status updated to ${ticketStatuses[ticketId]}`);
     } catch (error) {
       console.error("Error updating ticket status:", error);
     }
@@ -80,11 +79,11 @@ function AdminPanel() {
 
   // Add Comment to Ticket
   const handleAddComment = async (ticketId) => {
-    if (!ticketId || !newComment) return;
+    if (!ticketId || !ticketComments[ticketId]) return;
     try {
-      await addCommentToTicket(ticketId, newComment);
+      await addCommentToTicket(ticketId, ticketComments[ticketId]);
       alert("Comment added successfully");
-      setNewComment(""); // Clear comment input after adding
+      setTicketComments((prev) => ({ ...prev, [ticketId]: "" })); // Clear comment input
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -92,10 +91,8 @@ function AdminPanel() {
 
   // Filter tickets by status and search query
   const filteredTickets = tickets.filter((ticket) => {
-    // Filter by status
+    console.log("Selected filter:", selectedFilter); // Log the selected filter
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
-
-    // Filter by search query (case-insensitive)
     const matchesSearchQuery =
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -144,9 +141,9 @@ function AdminPanel() {
         <h3>Filter Tickets by Status</h3>
         <select onChange={(e) => setSelectedFilter(e.target.value)}>
           <option value="">All Tickets</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Closed">Closed</option>
+          <option value="OPEN">Open</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="CLOSED">Closed</option>
         </select>
       </div>
 
@@ -181,21 +178,23 @@ function AdminPanel() {
             </thead>
             <tbody>
               {filteredTickets.map((ticket) => (
-                <tr key={ticket.ticket_id}>
-                  <td>{ticket.ticket_Id}</td>
+                <tr key={ticket.id}>
+                  <td>{ticket.ticket_id}</td>
                   <td>{ticket.site_id || "N/A"}</td>
                   <td>{ticket.title}</td>
                   <td>{ticket.status}</td>
                   <td>{ticket.assignedTo || "Not Assigned"}</td>
                   <td>
                     <select
-                      onChange={(e) => setSelectedStatus(e.target.value)}
-                      value={selectedStatus}
+                      onChange={(e) =>
+                        setTicketStatuses((prev) => ({ ...prev, [ticket.ticket_id]: e.target.value }))
+                      }
+                      value={ticketStatuses[ticket.ticket_id] || ""}
                     >
                       <option value="">Select Status</option>
-                      <option value="Open">Open</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Closed">Closed</option>
+                      <option value="OPEN">Open</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="CLOSED">Closed</option>
                     </select>
                     <button onClick={() => handleUpdateTicketStatus(ticket.ticket_id)}>
                       Update Status
@@ -203,8 +202,10 @@ function AdminPanel() {
                   </td>
                   <td>
                     <textarea
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
+                      value={ticketComments[ticket.ticket_id] || ""}
+                      onChange={(e) =>
+                        setTicketComments((prev) => ({ ...prev, [ticket.ticket_id]: e.target.value }))
+                      }
                       placeholder="Add your comment here"
                     />
                     <button onClick={() => handleAddComment(ticket.ticket_id)}>
@@ -212,7 +213,7 @@ function AdminPanel() {
                     </button>
                   </td>
                   <td>
-                    {/* Any other actions (e.g., Assign) */}
+                    {/* Any other actions */}
                   </td>
                 </tr>
               ))}
