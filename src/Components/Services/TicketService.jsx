@@ -16,6 +16,7 @@ export const getTickets = async () => {
 };
 
 
+
 export const addTickets = (ticket) => {
   return fetch(API_LINK, {
     method: "POST",

@@ -9,6 +9,7 @@ import AdminPanel from './Components/Tickets/AdminPanel';
 import LoginPage from './Components/TeamMember/LoginPage';
 import DashboardPage from './Components/TeamMember/DashBoardPage';
 import { UserProvider, useUser } from './Components/Context/UserContext'; // Import UserProvider and useUser hook
+import RegisterPage from './Components/User/RegisterPage';
 
 // ProtectedRoute component to handle route protection based on user authentication
 const ProtectedRoute = ({ element }) => {
@@ -51,6 +52,10 @@ const routes = createBrowserRouter([
   {
     path: "/dashBoardPage",
     element: <ProtectedRoute element={<DashboardPage />} />
+  },
+  {
+    path:"/registerPage",
+    element:<RegisterPage/>
   }
 ]);
 

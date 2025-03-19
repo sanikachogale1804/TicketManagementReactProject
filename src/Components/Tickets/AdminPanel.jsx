@@ -18,6 +18,8 @@ function AdminPanel() {
   const [selectedFilter, setSelectedFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [ticketComments, setTicketComments] = useState({});
+  const [startDate, setStartDate] = useState(""); // Added start date state
+  const [endDate, setEndDate] = useState(""); // Added end date state
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +28,9 @@ function AdminPanel() {
         const ticketResponse = await getTickets();
         const fetchedTickets = ticketResponse._embedded?.tickets || [];
         const fetchedTeamMembers = await getTeamMembers();
+
+        // Log fetched tickets to check ticket_id
+        console.log(fetchedTickets); // For debugging, check if ticket_id exists
 
         setTickets(fetchedTickets);
         setTeamMembers(fetchedTeamMembers);
@@ -74,7 +79,7 @@ function AdminPanel() {
       setTickets((prevTickets) =>
         prevTickets.map((ticket) =>
           ticket.ticket_id === ticketId
-            ? { ...ticket, status: newStatus } 
+            ? { ...ticket, status: newStatus }
             : ticket
         )
       );
@@ -97,13 +102,19 @@ function AdminPanel() {
     }
   };
 
+  // Date range filtering logic added here
   const filteredTickets = tickets.filter((ticket) => {
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
       ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesStatus && matchesSearchQuery;
+    // Date range filter logic
+    const matchesDateRange =
+      (!startDate || new Date(ticket.createdAt) >= new Date(startDate)) &&
+      (!endDate || new Date(ticket.createdAt) <= new Date(endDate));
+
+    return matchesStatus && matchesSearchQuery && matchesDateRange;
   });
 
   if (loading) return <p>Loading...</p>;
@@ -153,6 +164,23 @@ function AdminPanel() {
         </select>
       </div>
 
+      {/* Date Range Filters */}
+      <div>
+        <h3>Filter by Date Range</h3>
+        <label>Start Date:</label>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+        <label>End Date:</label>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+      </div>
+
       {/* Search Box */}
       <div className="mb-3">
         <input
@@ -185,7 +213,7 @@ function AdminPanel() {
             <tbody>
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.ticket_id}>
-                  <td>{ticket.ticket_id}</td>
+                  <td>{ticket.ticket_id}</td> {/* Ensure this is properly rendered */}
                   <td>{ticket.site_id || "N/A"}</td>
                   <td>{ticket.title}</td>
                   <td>{ticket.status}</td>
