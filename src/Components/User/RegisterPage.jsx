@@ -1,6 +1,6 @@
 // RegisterPage.js
 import React, { useState } from 'react';
-import axios from 'axios';
+
 import { registerUser } from '../Services/UserService';
 
 const RegisterPage = () => {

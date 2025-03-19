@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const Api_link="http://localhost:8080/users"
 
 export const getUsers = () => {
@@ -28,27 +30,22 @@ export const getUsers = () => {
         throw error; // Return the error for further handling
       });
   };
+  const API_URL = 'http://localhost:8080';  // Update this to point to the backend server URL
 
-  export const loginUser = (user) => {
-    return fetch('http://localhost:8080/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(user),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Login failed');
+  export const loginUser = async (credentials) => {
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/login', 
+        credentials, 
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
-        return response.json();  // Assuming the response returns the JWT token
-      })
-      .then((data) => {
-        return data;  // Return the data (e.g., token or success message)
-      })
-      .catch((error) => {
-        console.error('Error logging in:', error);
-        throw error;  // Return the error for further handling
-      });
+      );
+      return response.data;  // Return the response data (JWT token)
+    } catch (error) {
+      console.error('Login failed:', error);
+      throw error;  // Throw the error to handle it in the LoginPage
+    }
   };
-  
