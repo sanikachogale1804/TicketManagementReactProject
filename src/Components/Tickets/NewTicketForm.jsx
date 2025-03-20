@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { addTickets } from '../Services/TicketService';
 import { getUsers } from '../Services/UserService';
 import '../CSS/NewTicketForm.css'; 
+import { addTicket } from '../Services/TicketService';
 
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
@@ -54,7 +54,7 @@ function NewTicketForm({ onTicketCreated }) {
 
     console.log("Ticket Title:", newTicket.title);
 
-    addTickets(newTicket)
+    addTicket(newTicket)
       .then((data) => {
         setTicket({ ticketId: '', title: '', description: '', status: 'OPEN', customerUserId: '' });
         if (onTicketCreated) onTicketCreated(data);

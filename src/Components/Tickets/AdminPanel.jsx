@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import {
-  getTickets,
   assignTicketToTeamMember,
   updateTicketStatus,
   getTeamMembers,
   addCommentToTicket,
+  getTickets,
 } from "../Services/TicketService";
 import '../CSS/AdminPanel.css';
 
@@ -26,10 +26,10 @@ function AdminPanel() {
       try {
         setLoading(true);
         const ticketResponse = await getTickets();
-        const fetchedTickets = ticketResponse._embedded?.tickets || [];
+        const fetchedTickets = ticketResponse._embedded?.tickets || [];  // Adjust based on actual API response structure
         const fetchedTeamMembers = await getTeamMembers();
 
-        // Log fetched tickets to check ticket_id
+        // Log fetched tickets to check if ticket_id exists
         console.log(fetchedTickets); // For debugging, check if ticket_id exists
 
         setTickets(fetchedTickets);
@@ -54,7 +54,7 @@ function AdminPanel() {
       if (response && response.ticketId) {
         setTickets((prevTickets) =>
           prevTickets.map((ticket) =>
-            ticket.ticketId === selectedTicketId
+            ticket.ticket_id === selectedTicketId // Ensure the ticket_id matches
               ? { ...ticket, assignedTo: selectedTeamMember }
               : ticket
           )
@@ -78,13 +78,13 @@ function AdminPanel() {
 
       setTickets((prevTickets) =>
         prevTickets.map((ticket) =>
-          ticket.ticket_id === ticketId
+          ticket.ticket_id === ticketId  // Ensure you use the correct field (ticket_id or ticketId)
             ? { ...ticket, status: newStatus }
             : ticket
         )
       );
 
-      alert(`Ticket status updated to ${newStatus}`);
+      // alert(Ticket status updated to ${newStatus});
     } catch (error) {
       console.error("Error updating ticket status:", error);
     }
@@ -261,4 +261,4 @@ function AdminPanel() {
   );
 }
 
-export default AdminPanel;
+export default AdminPanel;  

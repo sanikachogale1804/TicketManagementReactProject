@@ -1,5 +1,6 @@
 // RegisterPage.js
 import React, { useState } from 'react';
+import '../CSS/RegisterPage.css'
 
 import { registerUser } from '../Services/UserService';
 

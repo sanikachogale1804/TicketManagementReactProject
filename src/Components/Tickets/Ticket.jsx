@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import NewTicketForm from './NewTicketForm'; 
-import { getTickets } from '../Services/TicketService'; 
+
 import '../CSS/Ticket.css'
+import { getTickets } from '../Services/TicketService';
 
 function Ticket() {
   const [tickets, setTickets] = useState([]); 
