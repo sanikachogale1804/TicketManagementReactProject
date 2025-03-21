@@ -1,11 +1,8 @@
 import axios from 'axios';
 
 // Base URL for your backend API
-// const BASE_URL = "http://localhost:8080"; // Adjust as needed
-const API_URL = 'http://localhost:8080'; // Correct backend URL
-const getToken = () => {
-  return localStorage.getItem('token'); // Assuming the token is stored as 'token'
-};
+const BASE_URL = "http://localhost:8080"; // Adjust as needed
+const API_LINK = "http://localhost:8080/tickets";
 
 // Get JWT token from localStorage
 const getAuthToken = () => {
@@ -14,7 +11,7 @@ const getAuthToken = () => {
 
 // Axios instance with JWT token in headers
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${getAuthToken()}`, // Add token to request headers
@@ -37,46 +34,25 @@ axiosInstance.interceptors.response.use(
 
 // API Calls
 
+// Service function to fetch tickets
 
+ export const getTickets=()=>{
+   return fetch(API_LINK).
+   then((data)=>data.json())
+   .then(data=>data)
+ }
 
-export const getTickets = async () => {
+// Add a new Ticket
+export const addTicket = async (ticket) => {
   try {
-    const response = await axios.get(`${API_URL}/tickets`);
-    return response.data;
+    const response = await axiosInstance.post("/tickets", ticket);
+    return response.data; // Return the added ticket
   } catch (error) {
-    console.error('Error fetching tickets:', error);
+    console.error("Error adding ticket:", error);
     throw error;
   }
 };
 
-
-
-// Function to add ticket
-export const addTicket  = async (ticketData) => {
-  try {
-    const token = getToken(); // Token retrieve kar rahe ho
-    console.log("Token retrieved:", token); // Token console mein check karo
-
-    if (!token) {
-      alert('No token found! Please log in.');
-      return;
-    }
-
-    const response = await axios.post(`${API_URL}/tickets`, ticketData, {
-      headers: {
-        'Authorization': `Bearer ${token}`, // Token ko Authorization header mein bhej rahe ho
-        'Content-Type': 'application/json',
-      },
-    });
-
-    console.log('Ticket added successfully:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error adding ticket:', error);
-    alert("Failed to add ticket. Please check the console for more details.");
-    throw error;
-  }
-};
 // Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {

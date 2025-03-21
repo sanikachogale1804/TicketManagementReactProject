@@ -49,3 +49,27 @@ export const getUsers = () => {
       throw error;  // Throw the error to handle it in the LoginPage
     }
   };
+
+ // Get current user details (role and id)
+export const getCurrentUser = async () => {
+  try {
+    const token = localStorage.getItem('authToken'); // Assuming you're storing the token in localStorage
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await axios.get(`${API_URL}/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Send the token in the header for authentication
+      },
+    });
+
+    return response.data; // Returns the user data, like { id: 1, role: 'CUSTOMER' }
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    throw error; // Propagate the error
+  }
+};
+
+
+  

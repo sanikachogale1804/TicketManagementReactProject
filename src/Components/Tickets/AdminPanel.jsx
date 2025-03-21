@@ -26,25 +26,21 @@ function AdminPanel() {
       try {
         setLoading(true);
         const ticketResponse = await getTickets();
-        const fetchedTickets = ticketResponse._embedded?.tickets || [];  // Adjust based on actual API response structure
+        console.log("Fetched Tickets:", ticketResponse);  // Log response to check the structure
+        const fetchedTickets = ticketResponse._embedded?.tickets || [];  // Adjust if needed
         const fetchedTeamMembers = await getTeamMembers();
-
-        // Log fetched tickets to check if ticket_id exists
-        console.log(fetchedTickets); // For debugging, check if ticket_id exists
-
+  
         setTickets(fetchedTickets);
         setTeamMembers(fetchedTeamMembers);
-
         setLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
-
   const handleAssignTicket = async () => {
     if (!selectedTicketId || !selectedTeamMember) return;
 

@@ -5,12 +5,10 @@ import TicketStatus from './Components/User/TicketStatus';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Ticket from './Components/Tickets/Ticket';
 import NewTicketForm from './Components/Tickets/NewTicketForm';
-
-
 import RegisterPage from './Components/User/RegisterPage';
 import AdminPanel from './Components/Tickets/AdminPanel';
 import LoginPage from './Components/User/LoginPage';
-
+import CustomerTickets from './Components/Tickets/CustomerTickets';
 
 
 // Define routes
@@ -40,12 +38,16 @@ const routes = createBrowserRouter([
     element: <RegisterPage />
   },
   {
-    path:"adminPanel/",
+    path:"/adminPanel",
     element:<AdminPanel/>
   },
   {
-    path:"loginPage",
+    path:"/loginPage",
     element:<LoginPage/>
+  },
+  {
+    path:"/customerTickets",
+    element:<CustomerTickets/>
   }
 ]);
 
