@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import '../CSS/LoginPage.css'; // Import the CSS file correctly
-import { loginUser } from '../Services/UserService';
+import { loginUser } from '../Services/UserService'; // Assuming loginUser is an API call
 
 const LoginPage = () => {
   const [userName, setUserName] = useState('');
@@ -9,8 +9,17 @@ const LoginPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); // New state for success message
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
+  const [logoutMessage, setLogoutMessage] = useState(''); // State to handle logout message
 
   const navigate = useNavigate(); // Replace useHistory with useNavigate
+
+  useEffect(() => {
+    // Check if token exists in localStorage to track user login status
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true); // User is logged in
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,10 +30,12 @@ const LoginPage = () => {
     };
 
     try {
+      // Assuming loginUser is a service method that makes the API call
       const token = await loginUser(credentials);
+
       console.log('JWT Token:', token);
       // Save token and redirect user if needed
-      localStorage.setItem('token', token);  // Optionally store token in localStorage
+      localStorage.setItem('token', token); // Optionally store token in localStorage
 
       // Set success message on successful login
       setSuccessMessage('Successfully logged in!');
@@ -37,7 +48,7 @@ const LoginPage = () => {
     } catch (error) {
       setErrorMessage('Login failed! Please try again.');
       console.error('Login failed:', error);
-      setSuccessMessage('');  // Clear success message if login fails
+      setSuccessMessage(''); // Clear success message if login fails
     }
   };
 
@@ -46,8 +57,14 @@ const LoginPage = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false); // Set login state to false
 
-    // Redirect to login page using navigate
-    navigate('/login'); // Navigate to the login page
+    // Set logout message
+    setLogoutMessage('You have been logged out successfully!');
+
+    // Optionally reset the form or other state
+    setUserName('');
+    setUserPassword('');
+    setErrorMessage('');
+    setSuccessMessage('');
   };
 
   return (
@@ -85,6 +102,9 @@ const LoginPage = () => {
           <button onClick={handleLogout}>Logout</button> {/* Logout button */}
         </>
       )}
+
+      {/* Display logout message when the user logs out */}
+      {logoutMessage && <p className="success-message">{logoutMessage}</p>}
     </div>
   );
 };

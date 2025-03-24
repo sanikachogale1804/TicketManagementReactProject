@@ -1,81 +1,54 @@
-/* Scoped styles for the LoginPage */
+/* LoginPage.css */
+
 .login-container {
-    width: 100%;
-    max-width: 400px;
-    margin: 50px auto;
+    width: 300px;
+    margin: auto;
     padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
     background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.login-container h2 {
+  }
+  
+  h2 {
     text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    color: #333;
-}
-
-.login-container form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.login-container div {
-    display: flex;
-    flex-direction: column;
-}
-
-.login-container label {
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.login-container input {
+  }
+  
+  form div {
+    margin-bottom: 15px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+  }
+  
+  button {
+    width: 100%;
     padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    outline: none;
-}
-
-.login-container input:focus {
-    border-color: #007BFF;
-}
-
-.login-container button {
-    padding: 12px;
-    background-color: #007BFF;
+    background-color: #4CAF50;
     color: white;
-    font-size: 1rem;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.login-container button:hover {
-    background-color: #0056b3;
-}
-
-.login-container p {
-    text-align: center;
-    font-weight: bold;
-    color: #333;
-}
-
-.login-container .error-message {
-    text-align: center;
-    font-weight: bold;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .error-message {
     color: red;
-}
-
-/* Add the success message styling */
-.success-message {
-    text-align: center;
-    font-weight: bold;
-    color: green; /* Success color */
-    margin-top: 10px;
-}
+    font-size: 14px;
+  }
+  
+  .success-message {
+    color: green;
+    font-size: 14px;
+  }
+  
+  .success-message {
+    color: green;
+    font-size: 14px;
+  }
+  
