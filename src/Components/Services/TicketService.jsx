@@ -35,12 +35,18 @@ axiosInstance.interceptors.response.use(
 // API Calls
 
 // Service function to fetch tickets
+export const getTickets = () => {
+  return axios
+    .get('http://localhost:8080/tickets?page=0&size=20')
+    .then((response) => {
+      console.log('Response:', response);
+      return response.data; // Process the data
+    })
+    .catch((error) => {
+      console.error('Error:', error); // Log any error
+    });
+};
 
- export const getTickets=()=>{
-   return fetch(API_LINK).
-   then((data)=>data.json())
-   .then(data=>data)
- }
 
 // Add a new Ticket
 export const addTicket = async (ticket) => {
@@ -52,7 +58,6 @@ export const addTicket = async (ticket) => {
     throw error;
   }
 };
-
 // Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {
@@ -122,8 +127,3 @@ export const updateTicketStatus = async (ticketId, status) => {
   }
 };
 
-// Logout function (optional, if you have a logout button)
-export const logout = () => {
-  localStorage.removeItem('token'); // Remove token from localStorage
-  window.location.href = "/login"; // Redirect to login page
-};

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getUsers } from '../Services/UserService';
-import '../CSS/NewTicketForm.css'; 
+import '../CSS/NewTicketForm.css';
 import { addTicket } from '../Services/TicketService';
 
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
-    ticketId: '',
     title: '',
     description: '',
     status: 'OPEN',
@@ -42,7 +41,7 @@ function NewTicketForm({ onTicketCreated }) {
     e.preventDefault();
 
     const newTicket = {
-      ticketId: ticket.ticketId,
+      id: ticket.ticketId,
       title: ticket.title,
       description: ticket.description,
       status: ticket.status,
@@ -51,8 +50,7 @@ function NewTicketForm({ onTicketCreated }) {
       updatedAt: new Date().toISOString(),
     };
 
-
-    console.log("Ticket Title:", newTicket.title);
+    console.log("Submitting new ticket:", newTicket);
 
     addTicket(newTicket)
       .then((data) => {
@@ -61,7 +59,6 @@ function NewTicketForm({ onTicketCreated }) {
       })
       .catch((error) => console.error('Failed to add ticket:', error));
   };
-
   return (
     <div>
       <h2>Create New Ticket</h2>
@@ -78,7 +75,7 @@ function NewTicketForm({ onTicketCreated }) {
                   name="ticketId"
                   onChange={handleChange}
                   className="form-input"
-             
+
                 />
               </td>
             </tr>
@@ -153,7 +150,7 @@ function NewTicketForm({ onTicketCreated }) {
           </tbody>
         </table>
         <button type="submit" className="submit-btn">Submit</button>
-        
+
       </form>
     </div>
   );

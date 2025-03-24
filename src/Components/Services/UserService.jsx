@@ -72,4 +72,12 @@ export const getCurrentUser = async () => {
 };
 
 
-  
+export const logout = () => {
+  localStorage.removeItem('token'); // Clear the token
+  window.location.href = "/login"; // Redirect to the login page
+};
+
+// Check if user is authenticated by looking for the token
+export const isAuthenticated = () => {
+  return localStorage.getItem('token') !== null;
+};

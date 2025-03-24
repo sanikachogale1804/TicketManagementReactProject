@@ -9,6 +9,7 @@ import RegisterPage from './Components/User/RegisterPage';
 import AdminPanel from './Components/Tickets/AdminPanel';
 import LoginPage from './Components/User/LoginPage';
 import CustomerTickets from './Components/Tickets/CustomerTickets';
+import TicketSearch from './Components/Tickets/TicketSerach';
 
 
 // Define routes
@@ -48,6 +49,10 @@ const routes = createBrowserRouter([
   {
     path:"/customerTickets",
     element:<CustomerTickets/>
+  },
+  {
+    path:"/ticketSearch",
+    element:<TicketSearch/>
   }
 ]);
 
