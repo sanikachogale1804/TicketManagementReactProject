@@ -12,7 +12,10 @@ function NewTicketForm({ onTicketCreated }) {
   });
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(''); // Error state for form validation
+  const [isSubmitting, setIsSubmitting] = useState(false); // To handle submitting state
 
+  // Fetch customers
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
@@ -37,11 +40,23 @@ function NewTicketForm({ onTicketCreated }) {
     setTicket({ ...ticket, [name]: value });
   };
 
+  const validateForm = () => {
+    // Validate required fields
+    if (!ticket.title || !ticket.description || !ticket.customerUserId) {
+      setError('Please fill out all fields.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
+    if (!validateForm()) return; // Stop submission if form is not valid
+
+    setIsSubmitting(true);
 
     const newTicket = {
-      id: ticket.ticketId,
       title: ticket.title,
       description: ticket.description,
       status: ticket.status,
@@ -54,19 +69,23 @@ function NewTicketForm({ onTicketCreated }) {
 
     addTicket(newTicket)
       .then((data) => {
-        setTicket({ ticketId: '', title: '', description: '', status: 'OPEN', customerUserId: '' });
+        setTicket({ title: '', description: '', status: 'OPEN', customerUserId: '' });
         if (onTicketCreated) onTicketCreated(data);
+        setIsSubmitting(false); // Reset submitting state
       })
-      .catch((error) => console.error('Failed to add ticket:', error));
+      .catch((error) => {
+        console.error('Failed to add ticket:', error);
+        setIsSubmitting(false); // Reset submitting state
+      });
   };
+
   return (
     <div>
       <h2>Create New Ticket</h2>
       <form onSubmit={submitHandler} className="ticket-form">
         <table className="ticket-table">
           <tbody>
-
-            {/* Site ID (Title) Row */}
+            {/* Site ID (Ticket ID) Row */}
             <tr>
               <td><label>Site ID</label></td>
               <td>
@@ -75,13 +94,14 @@ function NewTicketForm({ onTicketCreated }) {
                   name="ticketId"
                   onChange={handleChange}
                   className="form-input"
-
+                  value={ticket.ticketId}
                 />
               </td>
             </tr>
 
+            {/* Title Row */}
             <tr>
-              <td><label>Reason For footage Request</label></td>
+              <td><label>Reason for Footage Request</label></td>
               <td>
                 <input
                   type="text"
@@ -97,8 +117,7 @@ function NewTicketForm({ onTicketCreated }) {
             <tr>
               <td><label>Description</label></td>
               <td>
-                <input
-                  type="text"
+                <textarea
                   name="description"
                   value={ticket.description}
                   onChange={handleChange}
@@ -149,8 +168,14 @@ function NewTicketForm({ onTicketCreated }) {
             </tr>
           </tbody>
         </table>
-        <button type="submit" className="submit-btn">Submit</button>
 
+        {/* Display Error Message */}
+        {error && <p className="error">{error}</p>}
+
+        {/* Submit Button */}
+        <button type="submit" className="submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Submit'}
+        </button>
       </form>
     </div>
   );

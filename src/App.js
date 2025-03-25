@@ -10,6 +10,8 @@ import AdminPanel from './Components/Tickets/AdminPanel';
 import LoginPage from './Components/User/LoginPage';
 import CustomerTickets from './Components/Tickets/CustomerTickets';
 import TicketSearch from './Components/Tickets/TicketSerach';
+import CustomerInterface from './Components/User/CustomerInterface';
+
 
 
 // Define routes
@@ -53,6 +55,10 @@ const routes = createBrowserRouter([
   {
     path:"/ticketSearch",
     element:<TicketSearch/>
+  },
+  {
+    path:"/customerInterface",
+    element:<CustomerInterface/>
   }
 ]);
 
