@@ -11,6 +11,7 @@ import LoginPage from './Components/User/LoginPage';
 import CustomerTickets from './Components/Tickets/CustomerTickets';
 import TicketSearch from './Components/Tickets/TicketSerach';
 import CustomerInterface from './Components/User/CustomerInterface';
+import HomePage from './Components/HomePage/HomePage';
 
 
 
@@ -59,6 +60,10 @@ const routes = createBrowserRouter([
   {
     path:"/customerInterface",
     element:<CustomerInterface/>
+  },
+  {
+    path:"/homePage",
+    element:<HomePage/>
   }
 ]);
 
