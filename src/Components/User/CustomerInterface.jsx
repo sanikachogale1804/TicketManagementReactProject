@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getTicketsByUser, updateTicketStatus } from '../Services/TicketService'; // Import your API methods
 import { Link } from 'react-router-dom';  // For navigation to ticket details page
-
 import '../CSS/CustomerInterface.css';
 import NewTicketForm from '../Tickets/NewTicketForm';
 
