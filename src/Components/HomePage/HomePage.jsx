@@ -1,20 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../CSS/HomePage.css';
+import logo from '../Image/cogent logo.jpg'
 
 function HomePage() {
   return (
     <div className="home-page">
       {/* Navbar */}
       <nav className="navbar">
-        <div className="navbar-logo">
-          <h2>TicketMS</h2>
+      <div className="navbar-logo">
+          <img src={logo} alt="TicketMS Logo" className="logo" /> 
         </div>
         <ul className="navbar-links">
           <li><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
           <li><Link to="/tickets" className="nav-link">Tickets</Link></li>
-          <li><Link to="/customer" className="nav-link">Customer Interface</Link></li>
-          <li><Link to="/admin" className="nav-link">Admin Interface</Link></li>
+          <li><Link to="/customerInterface" className="nav-link">Customer Interface</Link></li>
+          <li><Link to="/adminPanel" className="nav-link">Admin Interface</Link></li>
         </ul>
       </nav>
 
@@ -48,7 +49,7 @@ function HomePage() {
             <h2>Create a New Ticket</h2>
             <p>Submit a new support request</p>
             <button className="button">
-              <Link to="/create-ticket" className="nav-link">Create Ticket</Link>
+              <Link to="/newticketForm" className="nav-link">Create Ticket</Link>
             </button>
           </div>
 

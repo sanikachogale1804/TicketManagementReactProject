@@ -43,7 +43,7 @@ body {
   }
   
   .nav-link:hover {
-    color: #00aaff;
+    color: #1768B9;
   }
   
   /* Header Section */
@@ -205,5 +205,11 @@ body {
       width: 100%;
       margin-top: 20px;
     }
+  }
+  
+  .navbar-logo .logo {
+    width: 50px; /* Adjust this based on the size you want */
+    height: auto;
+    margin-left: 10px; /* Optional margin */
   }
   
