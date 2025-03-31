@@ -1,12 +1,12 @@
 import axios from "axios";
 
 const Api_link="http://localhost:8080/users"
-
-export const getUsers = () => {
-    return fetch(Api_link)
-      .then((response) => response.json())
-      .then(data=>data);
-  };
+ 
+ export const getUsers = () => {
+     return fetch(Api_link)
+       .then((response) => response.json())
+       .then(data=>data);
+   };
  
   export const registerUser = (user) => {
     return fetch('http://localhost:8080/register', {
@@ -50,8 +50,9 @@ export const getUsers = () => {
     }
   };
 
+
  // Get current user details (role and id)
-export const getCurrentUser = async () => {
+ export const getCurrentUser = async () => {
   try {
     const token = localStorage.getItem('authToken'); // Assuming you're storing the token in localStorage
     if (!token) {

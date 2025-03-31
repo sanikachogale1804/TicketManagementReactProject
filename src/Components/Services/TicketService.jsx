@@ -34,29 +34,40 @@ axiosInstance.interceptors.response.use(
 
 // API Calls
 
-// Service function to fetch tickets
-export const getTickets = () => {
-  return axios
-    .get('http://localhost:8080/tickets?page=0&size=20')
-    .then((response) => {
-      console.log('Response:', response);
-      return response.data; // Process the data
-    })
-    .catch((error) => {
-      console.error('Error:', error); // Log any error
+export const getTickets = async () => {
+  try {
+    const response = await fetch("http://localhost:8080/tickets", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      mode: "cors"
     });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    return []; // Return an empty array on failure
+  }
 };
 
-
 // Add a new Ticket
-export const addTicket = async (ticket) => {
-  try {
-    const response = await axiosInstance.post("/tickets", ticket);
-    return response.data; // Return the added ticket
-  } catch (error) {
-    console.error("Error adding ticket:", error);
-    throw error;
-  }
+export const addTicket   = (ticket) => {
+  return fetch(API_LINK, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(ticket),
+  })
+    .then((data) => data.json())
+    .then((data) => data);
 };
 // Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
