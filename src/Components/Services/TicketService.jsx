@@ -106,32 +106,23 @@ export const getTeamMembers = async () => {
 };
 
 // Assign Ticket to a Team Member
-export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
-  console.log("🔍 API Request Ticket ID:", ticketId);
-  console.log("🔍 API Request Team Member ID:", teamMemberId);
-
-  if (!ticketId || isNaN(ticketId)) {
-    console.error("❌ Invalid Ticket ID:", ticketId);
-    return;
-  }
-
-  if (!teamMemberId) {
-    console.error("❌ Invalid Team Member ID:", teamMemberId);
-    return;
-  }
+export const assignTicketToTeamMember = async (ticketId, teamMemberUrl) => {
+  console.log("📌 API Request Ticket ID:", ticketId);
+  console.log("📌 API Request Team Member URL:", teamMemberUrl);
 
   try {
-    const response = await axiosInstance.put(`/tickets/${ticketId}/assignedTo`, {
-      assignedTo: `/users/${teamMemberId}`, // ✅ Ensure correct format
+    const response = await axiosInstance.put(`/tickets/${ticketId}/assignedTo`, teamMemberUrl, {
+      headers: { "Content-Type": "text/uri-list" }, // API needs URI format
     });
 
     console.log("✅ API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ API Error:", error.response?.data || error.message);
+    console.error("❌ API Error:", error);
     throw error;
   }
 };
+
 
 // Get Tickets assigned to a specific user
 export const getTicketsByUser = async (userId) => {

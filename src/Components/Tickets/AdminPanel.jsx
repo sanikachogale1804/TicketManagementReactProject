@@ -4,7 +4,6 @@ import {
   updateTicketStatus,
   getTeamMembers,
   addCommentToTicket,
-  getTickets,
   getTicketsWithId,
 } from "../Services/TicketService";
 import '../CSS/AdminPanel.css';
@@ -13,7 +12,7 @@ function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [selectedTeamMember, setSelectedTeamMember] = useState("");
+  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState(null);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState("");
@@ -26,17 +25,19 @@ function AdminPanel() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const fetchedTickets = await getTicketsWithId(); // ✅ Updated function
+
+        const fetchedTickets = await getTicketsWithId();
         const fetchedTeamMembers = await getTeamMembers();
 
-        console.log("Fetched Tickets:", fetchedTickets);
+        console.log("✅ Fetched Tickets:", fetchedTickets);
+        console.log("✅ Fetched Team Members (RAW):", fetchedTeamMembers);
 
         setTickets(fetchedTickets);
         setTeamMembers(fetchedTeamMembers);
 
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("❌ Error fetching data:", error);
         setLoading(false);
       }
     };
@@ -45,29 +46,53 @@ function AdminPanel() {
   }, []);
 
   const handleAssignTicket = async () => {
-    console.log("🔍 Selected Ticket ID:", selectedTicketId);
-    console.log("🔍 Selected Team Member:", selectedTeamMember);
+    console.log("📌 Selected Team Member ID:", selectedTeamMemberId);
+    console.log("📌 Selected Ticket ID:", selectedTicketId);
 
-    if (!selectedTicketId || !selectedTeamMember) {
-      alert("Please select both Ticket and Team Member.");
+    if (!selectedTicketId || !selectedTeamMemberId) {
+      alert("Please select a ticket and a team member.");
       return;
     }
 
-    // ✅ Ensure we get the correct team member ID
-    const teamMember = teamMembers.find(member => member.user_id === selectedTeamMember);
+    console.log("✅ Checking Team Members:", teamMembers); // Print all team members
+
+    // 🔍 Try to find the team member object by user_id
+    const teamMember = teamMembers.find(member => String(member.user_id) === String(selectedTeamMemberId));
+
     if (!teamMember) {
-      alert("❌ Team Member not found.");
+      console.error("❌ Team Member Not Found! Selected ID:", selectedTeamMemberId);
+      alert("Invalid team member selected. Please try again.");
       return;
     }
 
-    console.log("🔍 Assigning to Team Member ID:", teamMember.user_id);
+    // ✅ Get correct team member URL
+    const teamMemberUrl = teamMember._links?.self?.href;
+    console.log("🔗 Assigning Ticket to:", teamMemberUrl);
+
+    if (!teamMemberUrl) {
+      console.error("❌ Team Member URL Not Found!");
+      alert("Team member URL is missing.");
+      return;
+    }
 
     try {
-      await assignTicketToTeamMember(selectedTicketId, teamMember.user_id);
-      alert("✅ Ticket assigned successfully.");
+      await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
+      alert("🎉 Ticket assigned successfully!");
+
+      // ✅ Update UI instantly
+      setTickets(prev =>
+        prev.map(ticket =>
+          ticket.ticket_id === selectedTicketId ? { ...ticket, assignedTo: teamMember.userName } : ticket
+        )
+      );
     } catch (error) {
-      console.error("❌ Error assigning ticket:", error);
+      console.error("❌ API Error:", error);
+      alert("Failed to assign ticket. Check console for details.");
     }
+    console.log("📌 Selected Team Member ID:", selectedTeamMemberId);
+console.log("📌 Selected Ticket ID:", selectedTicketId);
+console.log("✅ Checking Team Members:", teamMembers);
+
   };
 
 
@@ -136,18 +161,15 @@ function AdminPanel() {
           ))}
         </select>
 
-        <select onChange={(e) => setSelectedTeamMember(e.target.value)}>
-          <option value="">Select Team Member</option>
-          {teamMembers.length > 0 ? (
-            teamMembers.map((member) => (
-              <option key={member.user_id} value={member.user_id}>  {/* ✅ Use user_id instead of userName */}
-                {member.userName}
-              </option>
-            ))
-          ) : (
-            <option value="">No Team Members Available</option>
-          )}
-        </select>
+        <select onChange={(e) => setSelectedTeamMemberId(e.target.value)}>
+  <option value="">Select Team Member</option>
+  {teamMembers.map((member) => (
+    <option key={member.userEmail} value={member.userEmail}>
+      {member.userName}
+    </option>
+  ))}
+</select>
+
 
 
         <button onClick={handleAssignTicket}>Assign Ticket</button>
@@ -175,11 +197,9 @@ function AdminPanel() {
         <input
           type="text"
           className="form-control"
-          id="searchQuery"
           placeholder="Search here"
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <div id="searchHelp" className="form-text">Search here.</div>
       </div>
 
       <div>

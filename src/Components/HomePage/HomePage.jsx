@@ -57,7 +57,7 @@ function HomePage() {
             <h2>View Your Tickets</h2>
             <p>Check the status of your tickets</p>
             <button className="button">
-              <Link to="/view-tickets" className="nav-link">View Tickets</Link>
+              <Link to="/tickets" className="nav-link">View Tickets</Link>
             </button>
           </div>
 
