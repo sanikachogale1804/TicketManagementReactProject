@@ -58,7 +58,7 @@ export const getTickets = async () => {
 };
 
 // Add a new Ticket
-export const addTicket   = (ticket) => {
+export const addTicket = (ticket) => {
   return fetch(API_LINK, {
     method: "POST",
     headers: {
@@ -111,7 +111,7 @@ export const assignTicketToTeamMember = async (ticketId, teamMemberUrl) => {
 
   try {
     const response = await axiosInstance.put(
-      `/tickets/${ticketId}/assignedTo`, 
+      `/tickets/${ticketId}/assignedTo`,
       teamMemberUrl, // Sending raw URI
       {
         headers: {
@@ -139,15 +139,39 @@ export const getTicketsByUser = async (userId) => {
   }
 };
 
+const API_URL = "http://localhost:8080/tickets";
 
-// Update the status of a ticket
-export const updateTicketStatus = async (ticketId, status) => {
+export const updateTicketStatus  = async (ticketId, newStatus) => {
   try {
-    const response = await axiosInstance.put(`/tickets/${ticketId}`, { status });
-    return response.data;
+      if (!ticketId) {
+          throw new Error("Ticket ID is missing!");
+      }
+
+      // ✅ Step 1: Pehle ticket ki current details fetch karo
+      const ticketResponse = await axios.get(`http://localhost:8080/tickets/${ticketId}`);
+      const existingTicket = ticketResponse.data;
+
+      if (!existingTicket.createdAt) {
+          throw new Error("Missing createdAt field in existing ticket data!");
+      }
+
+      // ✅ Step 2: Update ke liye required fields send karo
+      const updatedAt = new Date().toISOString(); // 🕒 Current timestamp
+
+      const response = await axios.put(`http://localhost:8080/tickets/${ticketId}`, {
+          ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
+          title: existingTicket.title, // 📝 Title pass karo
+          description: existingTicket.description, // 📝 Description bhi bhejo
+          status: newStatus, // ✅ Naya status
+          createdAt: existingTicket.createdAt, // 🕒 Pehla createdAt send karo
+          updatedAt: updatedAt, // 🕒 Naya updatedAt send karo
+          assignedTo: existingTicket.assignedTo // 🎯 AssignedTo bhi preserve karo
+      });
+
+      return response.data;
   } catch (error) {
-    console.error("Error updating ticket status:", error);
-    throw error;
+      console.error("❌ API Error:", error.response?.data || error.message);
+      throw error;
   }
 };
 
@@ -162,4 +186,3 @@ export const getTicketsWithId = async () => {
   console.log("✅ Tickets with extracted IDs:", formattedTickets);
   return formattedTickets;
 };
-

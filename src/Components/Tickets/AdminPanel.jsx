@@ -21,6 +21,7 @@ function AdminPanel() {
   const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -72,26 +73,34 @@ function AdminPanel() {
   };
 
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
-    if (!ticketId || !newStatus) return;
+    console.log("🔍 Debug: Ticket ID ->", ticketId);
+    console.log("🔍 Debug: New Status ->", newStatus);
+
+    if (!ticketId) {
+        alert("❌ Error: Ticket ID is undefined!");
+        return;
+    }
 
     try {
-      console.log(`Updating Ticket ${ticketId} to Status: ${newStatus}`);
-      const updatedTicket = await updateTicketStatus(ticketId, newStatus);
+        console.log(`📢 Updating Ticket ${ticketId} to ${newStatus}`);
 
-      setTickets((prevTickets) =>
-        prevTickets.map((ticket) =>
-          ticket.ticket_id === ticketId
-            ? { ...ticket, status: updatedTicket.status }
-            : ticket
-        )
-      );
+        const updatedTicket = await updateTicketStatus(ticketId, newStatus);
 
-      alert(`Ticket status updated to ${newStatus}`);
+        console.log("✅ API Response:", updatedTicket); // Debugging ke liye response check karo
+
+        setTickets(prevTickets =>
+            prevTickets.map(ticket =>
+                ticket.ticket_id === ticketId ? { ...ticket, status: newStatus } : ticket
+            )
+        );
+
+        alert(`✅ Ticket ${ticketId} status updated to ${newStatus}`);
     } catch (error) {
-      console.error("❌ Error updating ticket status:", error);
-      alert("Failed to update ticket status.");
+        console.error("❌ API Error:", error.response?.data || error.message);
+        alert(`❌ Failed to update ticket status: ${error.message}`);
     }
-  };
+};
+
 
   const handleAddComment = async (ticketId) => {
     if (!ticketId || !ticketComments[ticketId]) return;
@@ -201,15 +210,14 @@ function AdminPanel() {
                   <td>{ticket.status}</td>
                   <td>{ticket.assignedTo || "Not Assigned"}</td>
                   <td>
-                    <select
-                      onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}
-                      value={ticket.status}
-                    >
-                      <option value="OPEN">Open</option>
-                      <option value="IN_PROGRESS">In Progress</option>
-                      <option value="CLOSED">Closed</option>
+                    <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}>
+                      <option value="OPEN">OPEN</option>
+                      <option value="IN_PROGRESS">IN_PROGRESS</option>
+                      <option value="CLOSED">CLOSED</option>
                     </select>
                   </td>
+
+
                   <td>
                     <textarea
                       value={ticketComments[ticket.ticket_id] || ""}
