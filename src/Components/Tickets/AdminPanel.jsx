@@ -12,12 +12,11 @@ function AdminPanel() {
   const [tickets, setTickets] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
-  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState(null);
-  const [newComment, setNewComment] = useState("");
+  const [selectedTeamMember, setSelectedTeamMember] = useState(null);
+  const [ticketComments, setTicketComments] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [ticketComments, setTicketComments] = useState({});
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -35,9 +34,9 @@ function AdminPanel() {
         setTickets(fetchedTickets);
         setTeamMembers(fetchedTeamMembers);
 
-        setLoading(false);
       } catch (error) {
         console.error("❌ Error fetching data:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -45,63 +44,38 @@ function AdminPanel() {
     fetchData();
   }, []);
 
+  // ✅ FIXED: Assign ticket only if all required values are set
   const handleAssignTicket = async () => {
-    console.log("📌 Selected Team Member ID:", selectedTeamMemberId);
-    console.log("📌 Selected Ticket ID:", selectedTicketId);
-
-    if (!selectedTicketId || !selectedTeamMemberId) {
+    if (!selectedTicketId || !selectedTeamMember) {
+      console.error("❌ Ticket ID or Team Member not selected.");
       alert("Please select a ticket and a team member.");
       return;
     }
 
-    console.log("✅ Checking Team Members:", teamMembers); // Print all team members
-
-    // 🔍 Try to find the team member object by user_id
-    const teamMember = teamMembers.find(member => String(member.user_id) === String(selectedTeamMemberId));
-
-    if (!teamMember) {
-      console.error("❌ Team Member Not Found! Selected ID:", selectedTeamMemberId);
-      alert("Invalid team member selected. Please try again.");
-      return;
-    }
-
-    // ✅ Get correct team member URL
-    const teamMemberUrl = teamMember._links?.self?.href;
-    console.log("🔗 Assigning Ticket to:", teamMemberUrl);
-
-    if (!teamMemberUrl) {
-      console.error("❌ Team Member URL Not Found!");
-      alert("Team member URL is missing.");
+    if (!selectedTeamMember._links || !selectedTeamMember._links.self) {
+      console.error("❌ Invalid team member object:", selectedTeamMember);
+      alert("Invalid team member selected.");
       return;
     }
 
     try {
+      const teamMemberUrl = selectedTeamMember._links.self.href; // Correct URL extraction
+      console.log(`📌 Assigning Ticket ${selectedTicketId} to ${teamMemberUrl}`);
+
       await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
-      alert("🎉 Ticket assigned successfully!");
 
-      // ✅ Update UI instantly
-      setTickets(prev =>
-        prev.map(ticket =>
-          ticket.ticket_id === selectedTicketId ? { ...ticket, assignedTo: teamMember.userName } : ticket
-        )
-      );
+      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName}`);
     } catch (error) {
-      console.error("❌ API Error:", error);
-      alert("Failed to assign ticket. Check console for details.");
+      console.error("❌ Failed to assign ticket:", error);
+      alert("Error assigning ticket.");
     }
-    console.log("📌 Selected Team Member ID:", selectedTeamMemberId);
-console.log("📌 Selected Ticket ID:", selectedTicketId);
-console.log("✅ Checking Team Members:", teamMembers);
-
   };
-
 
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
     if (!ticketId || !newStatus) return;
 
     try {
       console.log(`Updating Ticket ${ticketId} to Status: ${newStatus}`);
-
       const updatedTicket = await updateTicketStatus(ticketId, newStatus);
 
       setTickets((prevTickets) =>
@@ -114,7 +88,7 @@ console.log("✅ Checking Team Members:", teamMembers);
 
       alert(`Ticket status updated to ${newStatus}`);
     } catch (error) {
-      console.error("Error updating ticket status:", error);
+      console.error("❌ Error updating ticket status:", error);
       alert("Failed to update ticket status.");
     }
   };
@@ -127,7 +101,7 @@ console.log("✅ Checking Team Members:", teamMembers);
       alert("Comment added successfully");
       setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
     } catch (error) {
-      console.error("Error adding comment:", error);
+      console.error("❌ Error adding comment:", error);
     }
   };
 
@@ -152,6 +126,7 @@ console.log("✅ Checking Team Members:", teamMembers);
 
       <div>
         <h3>Assign Ticket</h3>
+        {/* ✅ FIXED: Correctly set selected ticket ID */}
         <select onChange={(e) => setSelectedTicketId(Number(e.target.value))}>
           <option value="">Select Ticket</option>
           {tickets.map((ticket) => (
@@ -161,16 +136,18 @@ console.log("✅ Checking Team Members:", teamMembers);
           ))}
         </select>
 
-        <select onChange={(e) => setSelectedTeamMemberId(e.target.value)}>
-  <option value="">Select Team Member</option>
-  {teamMembers.map((member) => (
-    <option key={member.userEmail} value={member.userEmail}>
-      {member.userName}
-    </option>
-  ))}
-</select>
-
-
+        {/* ✅ FIXED: Select full team member object, not just email */}
+        <select onChange={(e) => {
+          const selectedMember = teamMembers.find(member => member.userEmail === e.target.value);
+          setSelectedTeamMember(selectedMember);
+        }}>
+          <option value="">Select Team Member</option>
+          {teamMembers.map((member) => (
+            <option key={member.userEmail} value={member.userEmail}>
+              {member.userName}
+            </option>
+          ))}
+        </select>
 
         <button onClick={handleAssignTicket}>Assign Ticket</button>
       </div>
