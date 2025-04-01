@@ -81,10 +81,12 @@ export const updateTicket = async (ticketId, updatedTicket) => {
 };
 
 // Add a comment to a ticket
-export const addCommentToTicket = async (ticketId, commentData) => {
+export const addCommentToTicket = async (ticketId, commentText) => {
   try {
-    const response = await axiosInstance.post(`/tickets/${ticketId}/comments`, commentData);
-    return response.data; // Return the added comment
+    const response = await axiosInstance.post(`/tickets/${ticketId}/comments`, {
+      comment: commentText
+    });
+    return response.data;
   } catch (error) {
     console.error("Error adding comment:", error);
     throw error;
@@ -105,13 +107,28 @@ export const getTeamMembers = async () => {
 
 // Assign Ticket to a Team Member
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
+  console.log("🔍 API Request Ticket ID:", ticketId);
+  console.log("🔍 API Request Team Member ID:", teamMemberId);
+
+  if (!ticketId || isNaN(ticketId)) {
+    console.error("❌ Invalid Ticket ID:", ticketId);
+    return;
+  }
+
+  if (!teamMemberId) {
+    console.error("❌ Invalid Team Member ID:", teamMemberId);
+    return;
+  }
+
   try {
-    const response = await axiosInstance.post(`/tickets/${ticketId}/assignTo`, {
-      assignedTo: teamMemberId, // ✅ Ensure backend supports this format
+    const response = await axiosInstance.put(`/tickets/${ticketId}/assignedTo`, {
+      assignedTo: `/users/${teamMemberId}`, // ✅ Ensure correct format
     });
-    return response.data; // Return the updated ticket
+
+    console.log("✅ API Response:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Error assigning ticket:", error);
+    console.error("❌ API Error:", error.response?.data || error.message);
     throw error;
   }
 };
@@ -120,7 +137,7 @@ export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
 export const getTicketsByUser = async (userId) => {
   try {
     const response = await axiosInstance.get(`/tickets?assignedTo=${userId}`);
-    return response.data; // Return the tickets for the specific user
+    return response.data;
   } catch (error) {
     console.error("Error fetching tickets by user:", error);
     throw error;
@@ -131,10 +148,21 @@ export const getTicketsByUser = async (userId) => {
 export const updateTicketStatus = async (ticketId, status) => {
   try {
     const response = await axiosInstance.put(`/tickets/${ticketId}`, { status });
-    return response.data; // Return the updated ticket status
+    return response.data;
   } catch (error) {
     console.error("Error updating ticket status:", error);
     throw error;
   }
 };
 
+export const getTicketsWithId = async () => {
+  const data = await getTickets(); // Call existing function
+
+  const formattedTickets = data._embedded?.tickets.map(ticket => ({
+    ...ticket,
+    ticket_id: ticket._links?.self?.href.split("/").pop() // Extract last part (ID)
+  })) || [];
+
+  console.log("✅ Tickets with extracted IDs:", formattedTickets);
+  return formattedTickets;
+};
