@@ -60,12 +60,21 @@ function AdminPanel() {
     }
 
     try {
-      const teamMemberUrl = selectedTeamMember._links.self.href; // Correct URL extraction
+      const teamMemberUrl = selectedTeamMember._links.self.href;
       console.log(`📌 Assigning Ticket ${selectedTicketId} to ${teamMemberUrl}`);
 
       await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
 
       alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName}`);
+      
+      // ✅ 🟢 **CHANGE #1: Assign Ticket ke baad UI update ho**
+      setTickets(prevTickets =>
+        prevTickets.map(ticket =>
+          ticket.ticket_id === selectedTicketId
+            ? { ...ticket, assignedTo: teamMemberUrl } // 🟢 Assigning URL
+            : ticket
+        )
+      );
     } catch (error) {
       console.error("❌ Failed to assign ticket:", error);
       alert("Error assigning ticket.");

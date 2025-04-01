@@ -139,7 +139,7 @@ export const getTicketsByUser = async (userId) => {
   }
 };
 
-const API_URL = "http://localhost:8080/tickets";
+// const API_URL = "http://localhost:8080/tickets";
 
 export const updateTicketStatus  = async (ticketId, newStatus) => {
   try {
