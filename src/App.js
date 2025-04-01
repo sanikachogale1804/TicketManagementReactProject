@@ -12,6 +12,7 @@ import CustomerTickets from './Components/Tickets/CustomerTickets';
 import TicketSearch from './Components/Tickets/TicketSerach';
 import CustomerInterface from './Components/User/CustomerInterface';
 import HomePage from './Components/HomePage/HomePage';
+import TeamMemberDashboard from './Components/User/TeamMemberDashboard';
 
 
 
@@ -64,6 +65,10 @@ const routes = createBrowserRouter([
   {
     path:"/homePage",
     element:<HomePage/>
+  },
+  {
+    path:"/teamMemberDashboard",
+    element:<TeamMemberDashboard/>
   }
 ]);
 

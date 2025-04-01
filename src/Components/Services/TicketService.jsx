@@ -107,7 +107,7 @@ export const getTeamMembers = async () => {
 export const assignTicketToTeamMember = async (ticketId, teamMemberId) => {
   try {
     const response = await axiosInstance.post(`/tickets/${ticketId}/assignTo`, {
-      assignedTo: { id: teamMemberId },
+      assignedTo: teamMemberId, // ✅ Ensure backend supports this format
     });
     return response.data; // Return the updated ticket
   } catch (error) {
