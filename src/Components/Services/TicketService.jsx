@@ -134,10 +134,11 @@ export const getTicketsByUser = async (userId) => {
     const response = await axiosInstance.get(`/tickets?assignedTo=${userId}`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching tickets by user:", error);
-    throw error;
+    console.error("❌ Error fetching tickets by user:", error);
+    return [];
   }
 };
+
 
 // Update the status of a ticket
 export const updateTicketStatus = async (ticketId, status) => {
@@ -161,3 +162,4 @@ export const getTicketsWithId = async () => {
   console.log("✅ Tickets with extracted IDs:", formattedTickets);
   return formattedTickets;
 };
+
