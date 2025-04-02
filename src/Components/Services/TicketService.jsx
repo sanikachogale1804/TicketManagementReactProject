@@ -187,3 +187,14 @@ export const getTicketsWithId = async () => {
   console.log("✅ Tickets with extracted IDs:", formattedTickets);
   return formattedTickets;
 };
+
+
+export const getAssignedTickets = async (userId) => {
+  try {
+    const response = await axiosInstance.get(`/tickets/assignedTo/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error fetching assigned tickets:", error);
+    return [];
+  }
+};
