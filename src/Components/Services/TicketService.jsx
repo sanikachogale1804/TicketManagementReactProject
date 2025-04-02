@@ -69,6 +69,7 @@ export const addTicket = (ticket) => {
     .then((data) => data.json())
     .then((data) => data);
 };
+
 // Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {
