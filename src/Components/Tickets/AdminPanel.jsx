@@ -21,20 +21,33 @@ function AdminPanel() {
   const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
-
     const fetchData = async () => {
       try {
         setLoading(true);
-
         const fetchedTickets = await getTicketsWithId();
         const fetchedTeamMembers = await getTeamMembers();
 
         console.log("✅ Fetched Tickets:", fetchedTickets);
-        console.log("✅ Fetched Team Members (RAW):", fetchedTeamMembers);
 
-        setTickets(fetchedTickets);
+        // 🟢 **Fetch assigned users**
+        const updatedTickets = await Promise.all(
+          fetchedTickets.map(async (ticket) => {
+            if (ticket._links.assignedTo) {
+              try {
+                const assignedUserResponse = await fetch(ticket._links.assignedTo.href);
+                const assignedUser = await assignedUserResponse.json();
+                return { ...ticket, assignedTo: assignedUser }; // ✅ Assigned user add karo
+              } catch (error) {
+                console.error("❌ Error fetching assigned user:", error);
+                return { ...ticket, assignedTo: null };
+              }
+            }
+            return { ...ticket, assignedTo: null };
+          })
+        );
+
+        setTickets(updatedTickets);
         setTeamMembers(fetchedTeamMembers);
-
       } catch (error) {
         console.error("❌ Error fetching data:", error);
       } finally {
@@ -48,14 +61,7 @@ function AdminPanel() {
   // ✅ FIXED: Assign ticket only if all required values are set
   const handleAssignTicket = async () => {
     if (!selectedTicketId || !selectedTeamMember) {
-      console.error("❌ Ticket ID or Team Member not selected.");
       alert("Please select a ticket and a team member.");
-      return;
-    }
-
-    if (!selectedTeamMember._links || !selectedTeamMember._links.self) {
-      console.error("❌ Invalid team member object:", selectedTeamMember);
-      alert("Invalid team member selected.");
       return;
     }
 
@@ -66,15 +72,10 @@ function AdminPanel() {
       await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
 
       alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName}`);
-      
-      // ✅ 🟢 **CHANGE #1: Assign Ticket ke baad UI update ho**
-      setTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket.ticket_id === selectedTicketId
-            ? { ...ticket, assignedTo: teamMemberUrl } // 🟢 Assigning URL
-            : ticket
-        )
-      );
+
+      // ✅ Assign hone ke baad fresh data leke ao
+      const updatedTickets = await getTicketsWithId();
+      setTickets(updatedTickets);
     } catch (error) {
       console.error("❌ Failed to assign ticket:", error);
       alert("Error assigning ticket.");
@@ -86,29 +87,29 @@ function AdminPanel() {
     console.log("🔍 Debug: New Status ->", newStatus);
 
     if (!ticketId) {
-        alert("❌ Error: Ticket ID is undefined!");
-        return;
+      alert("❌ Error: Ticket ID is undefined!");
+      return;
     }
 
     try {
-        console.log(`📢 Updating Ticket ${ticketId} to ${newStatus}`);
+      console.log(`📢 Updating Ticket ${ticketId} to ${newStatus}`);
 
-        const updatedTicket = await updateTicketStatus(ticketId, newStatus);
+      const updatedTicket = await updateTicketStatus(ticketId, newStatus);
 
-        console.log("✅ API Response:", updatedTicket); // Debugging ke liye response check karo
+      console.log("✅ API Response:", updatedTicket); // Debugging ke liye response check karo
 
-        setTickets(prevTickets =>
-            prevTickets.map(ticket =>
-                ticket.ticket_id === ticketId ? { ...ticket, status: newStatus } : ticket
-            )
-        );
+      setTickets(prevTickets =>
+        prevTickets.map(ticket =>
+          ticket.ticket_id === ticketId ? { ...ticket, status: newStatus } : ticket
+        )
+      );
 
-        alert(`✅ Ticket ${ticketId} status updated to ${newStatus}`);
+      alert(`✅ Ticket ${ticketId} status updated to ${newStatus}`);
     } catch (error) {
-        console.error("❌ API Error:", error.response?.data || error.message);
-        alert(`❌ Failed to update ticket status: ${error.message}`);
+      console.error("❌ API Error:", error.response?.data || error.message);
+      alert(`❌ Failed to update ticket status: ${error.message}`);
     }
-};
+  };
 
 
   const handleAddComment = async (ticketId) => {
@@ -217,7 +218,9 @@ function AdminPanel() {
                   <td>{ticket.ticket_id}</td>
                   <td>{ticket.title}</td>
                   <td>{ticket.status}</td>
-                  <td>{ticket.assignedTo || "Not Assigned"}</td>
+                  <td>
+                  {ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}
+                </td>
                   <td>
                     <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}>
                       <option value="OPEN">OPEN</option>
