@@ -60,9 +60,19 @@ const LoginPage = () => {
       // ✅ Store User Info
       localStorage.setItem("userName", decodedToken.sub);
   
+      // ✅ Extract & Store User ID
+      if (decodedToken.id) {
+        localStorage.setItem("userId", decodedToken.id);  // ✅ FIXED: Store `userId`
+      } else {
+        console.warn("⚠️ User ID not found in JWT Token!");
+      }
+
       // ✅ Extract & Store Roles
-      const userRole = decodedToken.roles || "UNKNOWN";  // Agar `roles` field nahi mili to "UNKNOWN" set karo
-      localStorage.setItem("userRole", userRole);
+      let userRole = decodedToken.roles;
+      if (typeof userRole === "string") {
+        userRole = userRole.split(","); // ✅ Ensure roles are in array format
+      }
+      localStorage.setItem("userRole", userRole[0]); // ✅ Store first role (if multiple)
   
       // ✅ Navigate Based on Role
       if (userRole.includes("ADMIN")) {
@@ -73,13 +83,14 @@ const LoginPage = () => {
   
     } catch (error) {
       console.error("❌ Login Error:", error);
+      setErrorMessage("Invalid credentials. Please try again.");
     }
   };
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
+    localStorage.removeItem("userId"); // ✅ Remove userId on logout
     localStorage.removeItem("userRole");
     setIsLoggedIn(false);
     setLogoutMessage("You have been logged out successfully!");
