@@ -81,18 +81,33 @@ export const updateTicket = async (ticketId, updatedTicket) => {
   }
 };
 
-// Add a comment to a ticket
-export const addCommentToTicket = async (ticketId, commentText) => {
+export const addCommentToTicket = async (ticketId, commentData) => {
+  const token = localStorage.getItem("token"); // Token ko localStorage se uthao
+
+  if (!token) {
+    throw new Error("❌ No token found! User might not be logged in.");
+  }
+
   try {
-    const response = await axiosInstance.post(`/tickets/${ticketId}/comments`, {
-      comment: commentText
-    });
+    const response = await axios.post(
+      `http://localhost:8080/tickets/${ticketId}/comments`,
+      commentData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ Token ko Authorization header me send karo
+        },
+      }
+    );
+
+    console.log("✅ Comment Added Successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error adding comment:", error);
+    console.error("❌ API Error while adding comment:", error.response?.data || error.message);
     throw error;
   }
 };
+
 
 // Get Team Members
 export const getTeamMembers = async () => {
@@ -198,3 +213,5 @@ export const getAssignedTickets = async (userId) => {
     return [];
   }
 };
+
+

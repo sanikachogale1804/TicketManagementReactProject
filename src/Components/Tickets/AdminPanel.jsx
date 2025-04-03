@@ -113,7 +113,7 @@ function AdminPanel() {
 
   const handleAddComment = async (ticketId) => {
     const adminUserId = localStorage.getItem("adminUserId");
-    const token = localStorage.getItem("token"); // ✅ Retrieve token for debugging
+    const token = localStorage.getItem("token");
   
     console.log("🟢 Debug: adminUserId ->", adminUserId);
     console.log("🟢 Debug: Token ->", token);
@@ -138,9 +138,10 @@ function AdminPanel() {
   
       console.log("📌 Sending Comment Data:", newComment);
   
-      await addCommentToTicket(ticketId, newComment);
-      alert("✅ Comment added successfully!");
+      // Ensure token is sent in headers here
+      await addCommentToTicket(ticketId, newComment, token);
   
+      alert("✅ Comment added successfully!");
       setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
     } catch (error) {
       console.error("❌ Error adding comment:", error);

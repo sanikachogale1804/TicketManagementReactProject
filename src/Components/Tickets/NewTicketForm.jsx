@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { getUsers } from '../Services/UserService';
+import React, { useState } from 'react';
 import '../CSS/NewTicketForm.css';
 import { addTicket } from '../Services/TicketService';
 
@@ -9,31 +8,12 @@ function NewTicketForm({ onTicketCreated }) {
     description: '',
     status: 'OPEN',
     customerUserId: '',
+    startDate: '',
+    endDate: '',
   });
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(''); // Error state for form validation
-  const [isSubmitting, setIsSubmitting] = useState(false); // To handle submitting state
 
-  // Fetch customers
-  useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const userData = await getUsers();
-        const users = userData._embedded?.users;
-        const customerList = users.map(user => ({
-          id: user._links?.self?.href.split('/').pop(),
-          name: user.userName,
-        }));
-        setCustomers(customerList);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching customers:', error);
-        setLoading(false);
-      }
-    };
-    fetchCustomers();
-  }, []);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,18 +21,28 @@ function NewTicketForm({ onTicketCreated }) {
   };
 
   const validateForm = () => {
-    // Validate required fields
-    if (!ticket.title || !ticket.description || !ticket.customerUserId) {
-      setError('Please fill out all fields.');
+    if (!ticket.title || !ticket.description  || !ticket.startDate || !ticket.endDate) {
+      setError('❌ Please fill out all fields.');
       return false;
     }
+
+    // 🕒 Check if time difference is more than 30 minutes
+    const start = new Date(ticket.startDate);
+    const end = new Date(ticket.endDate);
+    const differenceInMinutes = (end - start) / (1000 * 60);
+
+    if (differenceInMinutes > 30) {
+      setError('⚠️ Error: Duration cannot exceed 30 minutes.');
+      return false;
+    }
+
     setError('');
     return true;
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    if (!validateForm()) return; // Stop submission if form is not valid
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
@@ -61,21 +51,30 @@ function NewTicketForm({ onTicketCreated }) {
       description: ticket.description,
       status: ticket.status,
       customerUserId: ticket.customerUserId,
+      startDate: ticket.startDate,
+      endDate: ticket.endDate,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    console.log("Submitting new ticket:", newTicket);
+    console.log("🟢 Submitting new ticket:", newTicket);
 
     addTicket(newTicket)
       .then((data) => {
-        setTicket({ title: '', description: '', status: 'OPEN', customerUserId: '' });
+        setTicket({
+          title: '',
+          description: '',
+          status: 'OPEN',
+          customerUserId: '',
+          startDate: '',
+          endDate: '',
+        });
         if (onTicketCreated) onTicketCreated(data);
-        setIsSubmitting(false); // Reset submitting state
+        setIsSubmitting(false);
       })
       .catch((error) => {
-        console.error('Failed to add ticket:', error);
-        setIsSubmitting(false); // Reset submitting state
+        console.error('❌ Failed to add ticket:', error);
+        setIsSubmitting(false);
       });
   };
 
@@ -85,81 +84,38 @@ function NewTicketForm({ onTicketCreated }) {
       <form onSubmit={submitHandler} className="ticket-form">
         <table className="ticket-table">
           <tbody>
-            {/* Site ID (Ticket ID) Row */}
-            <tr>
-              <td><label>Site ID</label></td>
-              <td>
-                <input
-                  type="text"
-                  name="ticketId"
-                  onChange={handleChange}
-                  className="form-input"
-                  value={ticket.ticketId}
-                />
-              </td>
-            </tr>
-
-            {/* Title Row */}
             <tr>
               <td><label>Reason for Footage Request</label></td>
               <td>
-                <input
-                  type="text"
-                  name="title"
-                  value={ticket.title}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <input type="text" name="title" value={ticket.title} onChange={handleChange} className="form-input" />
               </td>
             </tr>
 
-            {/* Description Row */}
             <tr>
               <td><label>Description</label></td>
               <td>
-                <textarea
-                  name="description"
-                  value={ticket.description}
-                  onChange={handleChange}
-                  className="form-input"
-                />
+                <textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" />
               </td>
             </tr>
 
-            {/* Customer Name Row */}
             <tr>
-              <td><label>Customer Name</label></td>
+              <td><label>Start Date & Time</label></td>
               <td>
-                {loading ? (
-                  <p>Loading...</p>
-                ) : (
-                  <select
-                    name="customerUserId"
-                    value={ticket.customerUserId}
-                    onChange={handleChange}
-                    className="form-select"
-                  >
-                    <option value="">Select Customer</option>
-                    {customers.map((customer) => (
-                      <option key={customer.id} value={customer.id}>
-                        {customer.name}
-                      </option>
-                    ))}
-                  </select>
-                )}
+                <input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" />
               </td>
             </tr>
 
-            {/* Status Row */}
+            <tr>
+              <td><label>End Date & Time</label></td>
+              <td>
+                <input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" />
+              </td>
+            </tr>
+
             <tr>
               <td><label>Status</label></td>
               <td>
-                <select
-                  name="status"
-                  value={ticket.status}
-                  onChange={handleChange}
-                  className="form-select"
-                >
+                <select name="status" value={ticket.status} onChange={handleChange} className="form-select">
                   <option value="OPEN">Open</option>
                   <option value="IN_PROGRESS">In Progress</option>
                   <option value="CLOSED">Closed</option>
@@ -169,10 +125,8 @@ function NewTicketForm({ onTicketCreated }) {
           </tbody>
         </table>
 
-        {/* Display Error Message */}
         {error && <p className="error">{error}</p>}
 
-        {/* Submit Button */}
         <button type="submit" className="submit-btn" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
