@@ -60,14 +60,15 @@ const LoginPage = () => {
       // ✅ Store User Info
       localStorage.setItem("userName", decodedToken.sub);
   
-      // ✅ Extract & Store User ID
+      // ✅ Extract & Store Roles
+      // const userRole = decodedToken.roles || "UNKNOWN";  // Agar `roles` field nahi mili to "UNKNOWN" set karo
+      // localStorage.setItem("userRole", userRole);
       if (decodedToken.id) {
         localStorage.setItem("userId", decodedToken.id);  // ✅ FIXED: Store `userId`
       } else {
         console.warn("⚠️ User ID not found in JWT Token!");
       }
 
-      // ✅ Extract & Store Roles
       let userRole = decodedToken.roles;
       if (typeof userRole === "string") {
         userRole = userRole.split(","); // ✅ Ensure roles are in array format
@@ -86,6 +87,7 @@ const LoginPage = () => {
       setErrorMessage("Invalid credentials. Please try again.");
     }
   };
+  
 
   const handleLogout = () => {
     localStorage.removeItem("token");

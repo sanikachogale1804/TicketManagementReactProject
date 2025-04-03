@@ -111,42 +111,44 @@ function AdminPanel() {
     }
   };
 
-
- const handleAddComment = async (ticketId) => {
-  if (!ticketId || !ticketComments[ticketId]) {
-    alert("❌ Please enter a comment before submitting.");
-    return;
-  }
-
-  try {
-    const adminUserId = localStorage.getItem("adminUserId"); // Assuming admin ID is stored
-
+  const handleAddComment = async (ticketId) => {
+    const adminUserId = localStorage.getItem("adminUserId");
+    const token = localStorage.getItem("token"); // ✅ Retrieve token for debugging
+  
+    console.log("🟢 Debug: adminUserId ->", adminUserId);
+    console.log("🟢 Debug: Token ->", token);
+  
     if (!adminUserId) {
-      alert("❌ Admin user ID not found!");
+      alert("❌ Error: Admin user ID not found! Please log in again.");
       return;
     }
-
-    const newComment = {
-      ticket: { ticketId: ticketId },
-      user: { userId: Number(adminUserId) }, // Admin's user ID
-      comment: ticketComments[ticketId],
-      createdAt: new Date().toISOString(), // Current timestamp
-    };
-
-    console.log("📌 Sending Comment Data:", newComment);
-
-    await addCommentToTicket(ticketId, newComment);
-
-    alert("✅ Comment added successfully!");
-
-    // ✅ Clear comment input after adding
-    setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
-  } catch (error) {
-    console.error("❌ Error adding comment:", error);
-    alert("❌ Failed to add comment.");
-  }
-};
-
+  
+    if (!ticketId || !ticketComments[ticketId]) {
+      alert("❌ Please enter a comment before submitting.");
+      return;
+    }
+  
+    try {
+      const newComment = {
+        ticket: { ticketId: ticketId },
+        user: { userId: Number(adminUserId) },
+        comment: ticketComments[ticketId],
+        createdAt: new Date().toISOString(),
+      };
+  
+      console.log("📌 Sending Comment Data:", newComment);
+  
+      await addCommentToTicket(ticketId, newComment);
+      alert("✅ Comment added successfully!");
+  
+      setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
+    } catch (error) {
+      console.error("❌ Error adding comment:", error);
+      alert("❌ Failed to add comment.");
+    }
+  };
+  
+  
   const filteredTickets = tickets.filter((ticket) => {
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
@@ -241,9 +243,9 @@ function AdminPanel() {
                   <td>{ticket.ticket_id}</td>
                   <td>{ticket.title}</td>
                   <td>{ticket.status}</td>
-                   <td>
-                  {ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}
-                </td>
+                  <td>
+                    {ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}
+                  </td>
                   <td>
                     <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}>
                       <option value="OPEN">OPEN</option>
