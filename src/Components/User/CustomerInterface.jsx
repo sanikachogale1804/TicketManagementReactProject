@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getTicketsByUser, updateTicketStatus } from '../Services/TicketService'; // Import your API methods
-import { Link } from 'react-router-dom';  // For navigation to ticket details page
+import { getTicketsByUser} from '../Services/TicketService'; // Import your API methods
+// import { Link } from 'react-router-dom';  // For navigation to ticket details page
 import '../CSS/CustomerInterface.css';
 import NewTicketForm from '../Tickets/NewTicketForm';
 
@@ -31,18 +31,18 @@ function CustomerInterface({ userId }) {
   };
 
   // Handle status update for a ticket
-  const handleStatusChange = async (ticketId, newStatus) => {
-    try {
-      await updateTicketStatus(ticketId, newStatus);
-      setTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket.ticketId === ticketId ? { ...ticket, status: newStatus } : ticket
-        )
-      );
-    } catch (error) {
-      console.error('Failed to update ticket status:', error);
-    }
-  };
+  // const handleStatusChange = async (ticketId, newStatus) => {
+  //   try {
+  //     await updateTicketStatus(ticketId, newStatus);
+  //     setTickets(prevTickets =>
+  //       prevTickets.map(ticket =>
+  //         ticket.ticketId === ticketId ? { ...ticket, status: newStatus } : ticket
+  //       )
+  //     );
+  //   } catch (error) {
+  //     console.error('Failed to update ticket status:', error);
+  //   }
+  // };
 
   // Handle new ticket creation
   const handleTicketCreated = (newTicket) => {
@@ -79,7 +79,7 @@ function CustomerInterface({ userId }) {
                   <th>Reason for Request</th>
                   <th>Status</th>
                   <th>Created At</th>
-                  <th>Actions</th>
+                  {/* <th>Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -91,7 +91,7 @@ function CustomerInterface({ userId }) {
                       <td>{ticket.title}</td>
                       <td>{ticket.status}</td>
                       <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
-                      <td>
+                      {/* <td>
                         <Link to={`/tickets/${ticket.ticketId}`}>View</Link> |
                         {ticket.status !== 'CLOSED' && (
                           <>
@@ -109,7 +109,7 @@ function CustomerInterface({ userId }) {
                             </button>
                           </>
                         )}
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
               </tbody>
