@@ -1,70 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import '../CSS/LoginPage.css'; // Import the CSS file correctly
-import { loginUser } from '../Services/UserService'; // Assuming loginUser is an API call
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import jwtDecode from "jwt-decode"; // ✅ JWT decode ke liye import
+import "../CSS/LoginPage.css";
+import { loginUser } from "../Services/UserService";
 
 const LoginPage = () => {
-  const [userName, setUserName] = useState('');
-  const [userPassword, setUserPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // New state for success message
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track login status
-  const [logoutMessage, setLogoutMessage] = useState(''); // State to handle logout message
+  const [userName, setUserName] = useState("");
+  const [userPassword, setUserPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [logoutMessage, setLogoutMessage] = useState("");
 
-  const navigate = useNavigate(); // Replace useHistory with useNavigate
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if token exists in localStorage to track user login status
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true); // User is logged in
+      try {
+        const decodedToken = jwtDecode(token);
+        console.log("🔹 JWT Token:", token);
+        console.log("🔍 Decoded Token:", decodedToken);
+
+        // ✅ Check if Token is expired
+        const currentTime = Date.now() / 1000; // Convert milliseconds to seconds
+        if (decodedToken.exp < currentTime) {
+          console.log("❌ Token Expired! Logging out...");
+          handleLogout();
+        } else {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("❌ Invalid Token!", error);
+        handleLogout();
+      }
     }
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const credentials = {
-      userName,
-      userPassword,
-    };
-
+  
+    const credentials = { userName, userPassword };
+  
     try {
-      // Assuming loginUser is a service method that makes the API call
       const token = await loginUser(credentials);
-
-      console.log('JWT Token:', token);
-      // Save token and redirect user if needed
-      localStorage.setItem('token', token); // Optionally store token in localStorage
-
-      // Set success message on successful login
-      setSuccessMessage('Successfully logged in!');
-      setIsLoggedIn(true); // Update login state
-
-      // Optionally reset the form
-      setUserName('');
-      setUserPassword('');
-      setErrorMessage('');
+      console.log("🔹 API Raw Response (Token Only):", token);
+  
+      if (!token) {
+        throw new Error("❌ No token received from server!");
+      }
+  
+      // ✅ Store JWT Token in Local Storage
+      localStorage.setItem("token", token);
+  
+      // ✅ Decode JWT Token
+      const decodedToken = jwtDecode(token);
+      console.log("🔍 Decoded Token:", decodedToken);
+  
+      // ✅ Store User Info
+      localStorage.setItem("userName", decodedToken.sub);
+  
+      // ✅ Extract & Store Roles
+      const userRole = decodedToken.roles || "UNKNOWN";  // Agar `roles` field nahi mili to "UNKNOWN" set karo
+      localStorage.setItem("userRole", userRole);
+  
+      // ✅ Navigate Based on Role
+      if (userRole.includes("ADMIN")) {
+        navigate("/adminPanel");
+      } else {
+        navigate("/LoginUserDashboard");
+      }
+  
     } catch (error) {
-      setErrorMessage('Login failed! Please try again.');
-      console.error('Login failed:', error);
-      setSuccessMessage(''); // Clear success message if login fails
+      console.error("❌ Login Error:", error);
     }
   };
+  
 
   const handleLogout = () => {
-    // Clear the token from localStorage
-    localStorage.removeItem('token');
-    setIsLoggedIn(false); // Set login state to false
-
-    // Set logout message
-    setLogoutMessage('You have been logged out successfully!');
-
-    // Optionally reset the form or other state
-    setUserName('');
-    setUserPassword('');
-    setErrorMessage('');
-    setSuccessMessage('');
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userRole");
+    setIsLoggedIn(false);
+    setLogoutMessage("You have been logged out successfully!");
+    setUserName("");
+    setUserPassword("");
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
   return (
@@ -75,18 +97,18 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit}>
             <div>
               <label>UserName:</label>
-              <input 
-                type="text" 
-                value={userName} 
-                onChange={(e) => setUserName(e.target.value)} 
+              <input
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
               />
             </div>
             <div>
               <label>Password:</label>
-              <input 
-                type="password" 
-                value={userPassword} 
-                onChange={(e) => setUserPassword(e.target.value)} 
+              <input
+                type="password"
+                value={userPassword}
+                onChange={(e) => setUserPassword(e.target.value)}
               />
             </div>
             <button type="submit">Login</button>
@@ -97,13 +119,12 @@ const LoginPage = () => {
         </>
       ) : (
         <>
-          <h2>Welcome!</h2>
-          <p>You are logged in.</p>
-          <button onClick={handleLogout}>Logout</button> {/* Logout button */}
+          <h2>Welcome, {localStorage.getItem("userName")}! 👋</h2>
+          <p>Your Role: <strong>{localStorage.getItem("userRole")}</strong></p>
+          <button onClick={handleLogout}>Logout</button>
         </>
       )}
 
-      {/* Display logout message when the user logs out */}
       {logoutMessage && <p className="success-message">{logoutMessage}</p>}
     </div>
   );

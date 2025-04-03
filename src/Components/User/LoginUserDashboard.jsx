@@ -1,82 +1,51 @@
 import React, { useEffect, useState } from "react";
 
 const LoginUserDashboard = () => {
-    const [user, setUser] = useState(null); // ✅ Logged-in user state
+    const [userName, setUserName] = useState("");
+    const [userRole, setUserRole] = useState("");
     const [assignedTickets, setAssignedTickets] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchLoggedInUser = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const loggedInUserEmail = localStorage.getItem("userEmail");
+        const storedUserName = localStorage.getItem("userName");
+        const storedUserRole = localStorage.getItem("userRole");
+        const userId = localStorage.getItem("userId");  // ✅ Ensure userId is stored
 
-                console.log("🔹 Token:", token);
-                console.log("🔹 User Email:", loggedInUserEmail);
-
-                if (!token || !loggedInUserEmail) {
-                    throw new Error("❌ No token or email found! Redirecting to login...");
-                }
-
-                // ✅ Fetch All Users
-                const response = await fetch("http://localhost:8080/users", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error("❌ Unauthorized! Redirecting to login...");
-                }
-
-                const data = await response.json();
-                console.log("✅ Users Data Fetched:", data);
-
-                const users = data._embedded?.users || [];
-                const loggedInUser = users.find(u => u.userEmail === loggedInUserEmail);
-
-                if (!loggedInUser) {
-                    throw new Error("❌ User not found in database!");
-                }
-
-                setUser(loggedInUser);
-            } catch (error) {
-                console.error("❌ Error fetching logged-in user:", error.message);
-                setError(error.message);
-            }
-        };
-
-        fetchLoggedInUser();
-    }, []);
-
-    useEffect(() => {
-        if (!user) return;
+        if (storedUserName) setUserName(storedUserName);
+        if (storedUserRole) setUserRole(storedUserRole);
 
         const fetchAssignedTickets = async () => {
-            setLoading(true);
+            if (!userId) {
+                setError("User ID not found in localStorage.");
+                setLoading(false);
+                return;
+            }
+
             try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(user._links.assignedTickets.href, {
+                const token = localStorage.getItem("token"); // ✅ Fetch token
+                if (!token) {
+                    setError("Authorization token missing.");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8080/users/${userId}/assignedTickets`, {
                     method: "GET",
                     headers: {
-                        "Authorization": `Bearer ${token}`,
+                        "Authorization": `Bearer ${token}`, // ✅ Send token in request
                         "Content-Type": "application/json"
                     }
                 });
 
                 if (!response.ok) {
-                    throw new Error("❌ Failed to fetch assigned tickets");
+                    throw new Error(`HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                console.log("✅ Tickets Fetched:", data);
-
-                setAssignedTickets(data._embedded?.tickets || []);
+                setAssignedTickets(data || []); // ✅ Store tickets
             } catch (error) {
-                console.error("❌ Error fetching assigned tickets:", error.message);
+                console.error("Error fetching assigned tickets:", error);
                 setError(error.message);
             } finally {
                 setLoading(false);
@@ -84,58 +53,32 @@ const LoginUserDashboard = () => {
         };
 
         fetchAssignedTickets();
-    }, [user]);
+    }, []);
 
     return (
         <div>
-            <h1>🚀 Welcome {user?.userName}'s Dashboard</h1>
+            <h1>🚀 Welcome, {userName}! 👋</h1>
+            <h3>Your Role: {userRole}</h3>
 
-            {error && <p style={{ color: "red" }}>⚠️ Error: {error}</p>}
-            {loading && <p>⏳ Loading tickets...</p>}
+            {loading && <p>Loading tickets...</p>}
+            {error && <p className="error">Error: {error}</p>}
 
-            {!loading && !error && (
-                <div>
-                    <h2>🎫 Your Assigned Tickets</h2>
-                    {assignedTickets.length === 0 ? (
-                        <p>No tickets assigned.</p>
-                    ) : (
-                        <table border="1">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Created At</th>
-                                    <th>Updated At</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {assignedTickets.map((ticket, index) => (
-                                    <tr key={index}>
-                                        <td>{ticket.title}</td>
-                                        <td>{ticket.description}</td>
-                                        <td style={{
-                                            color: ticket.status === "OPEN" ? "red" :
-                                                ticket.status === "IN_PROGRESS" ? "orange" : "green",
-                                            fontWeight: "bold"
-                                        }}>
-                                            {ticket.status}
-                                        </td>
-                                        <td>{new Date(ticket.createdAt).toLocaleString()}</td>
-                                        <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
-                                        <td>
-                                            <a href={ticket._links.self.href} target="_blank" rel="noopener noreferrer">
-                                                View Ticket
-                                            </a>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+            {!loading && !error && assignedTickets.length > 0 ? (
+                <ul>
+                    {assignedTickets.map((ticket, index) => (
+                        <li key={index}>{ticket.title} - {ticket.status}</li>
+                    ))}
+                </ul>
+            ) : (
+                <p>No tickets assigned to you.</p>
             )}
+
+            <button onClick={() => {
+                localStorage.clear();
+                window.location.href = "/login"; // ✅ Redirect to login page
+            }}>
+                Logout
+            </button>
         </div>
     );
 };
