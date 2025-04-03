@@ -215,3 +215,26 @@ export const getAssignedTickets = async (userId) => {
 };
 
 
+
+export const getCommentsForTicket = async (ticketId, token) => {
+  try {
+    const response = await fetch(`https://your-api.com/tickets/${ticketId}/comments`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`❌ API Error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log(`📌 Comments for Ticket ${ticketId}:`, data);  // ✅ Debugging ke liye
+    return data;
+  } catch (error) {
+    console.error("❌ Error fetching comments:", error);
+    return [];
+  }
+};

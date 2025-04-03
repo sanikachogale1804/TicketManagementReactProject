@@ -78,7 +78,11 @@ const LoginPage = () => {
       // ✅ Navigate Based on Role
       if (userRole.includes("ADMIN")) {
         navigate("/adminPanel");
-      } else {
+      } else if(userRole.includes("CUSTOMER"))
+      {
+        navigate("/customerInterface")
+      }
+      else {
         navigate("/LoginUserDashboard");
       }
   
