@@ -1,122 +1,136 @@
-/* Main Container */
-.adminContainer {
+.admin-container {
   padding: 20px;
-  background-color: #f4f4f4;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 1200px;
-  margin: 20px auto;
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: space-between; /* Horizontal Layout */
-  gap: 20px;
-  flex-wrap: wrap; /* Wrap sections if screen is smaller */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Title */
 h2 {
   text-align: center;
-  color: #333;
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  font-weight: 600;
+  font-size: 32px;
+  color: #0056b3;
 }
 
-/* Section Cards */
-.card {
+.controls-container {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
-  flex: 1 1 30%;
-  min-width: 300px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: space-between;
 }
 
-/* Assign Ticket Section */
-.card h3 {
-  color: #4CAF50;
-  font-size: 1.6em;
-  margin-bottom: 15px;
+.controls-container select,
+.controls-container input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-width: 180px;
 }
 
-/* Dropdowns and Inputs */
-select, input[type="date"], button {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  font-size: 1.1em;
-  border: 1px solid #ddd;
-}
-
-/* Button Styling */
-button {
-  background-color: #4CAF50;
+.controls-container button {
+  padding: 10px 20px;
+  background-color: #007bff;
   color: white;
   border: none;
+  border-radius: 5px;
   cursor: pointer;
-  transition: 0.3s;
 }
 
-button:hover {
-  background-color: #45a049;
+.controls-container button:hover {
+  background-color: #0056b3;
 }
 
-/* Filter Options */
-.filter-group {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
+.ticket-list-container {
+  margin-top: 20px;
 }
 
-/* Tickets Table */
-.ticketTable {
+.ticket-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
-.ticketTable th, .ticketTable td {
+.ticket-table th, .ticket-table td {
   padding: 12px;
+  text-align: left;
   border: 1px solid #ddd;
-  text-align: center;
 }
 
-.ticketTable th {
-  background-color: #4CAF50;
-  color: white;
+.ticket-table th {
+  background-color: #f1f1f1;
 }
 
-.ticketTable tr:hover {
+.ticket-table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.ticket-table tr:hover {
+  background-color: #f0f8ff;
+}
+
+.comments-container {
+  margin-top: 30px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.comments-container ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.comments-container li {
+  margin-bottom: 15px;
+  padding: 10px;
   background-color: #f9f9f9;
+  border-left: 4px solid #007bff;
+  border-radius: 5px;
 }
 
-/* Comments Section */
-.comments-section {
-  margin-top: 20px;
+/* AdminPanel.css */
+
+/* Container for the entire navbar, display it as flex */
+.navbar {
+  display: flex;
+  justify-content: flex-start; /* Align items from left to right */
+  gap: 20px; /* Adds space between each item */
+  flex-wrap: wrap; /* Allows items to wrap into new lines if there's not enough space */
+  margin-bottom: 20px;
 }
 
-.comments-section ul {
-  list-style-type: none;
-  padding: 0;
+/* Each block inside the navbar (such as the select box, buttons) */
+.navbar div {
+  display: flex;
+  align-items: center; /* Vertically center items */
+  gap: 10px; /* Space between each child element */
 }
 
-.comments-section li {
-  margin-bottom: 10px;
+/* Styling for the select and input elements */
+select, input, button {
+  padding: 5px 10px;
+  font-size: 14px;
+  margin: 5px 0;
 }
 
-/* Responsive */
+/* Optional: Add some space between input fields */
+input[type="date"] {
+  width: 120px;
+}
+
+/* Optional: Style the search bar */
+.search-bar input {
+  width: 200px;
+  padding: 5px;
+}
+
+/* Ensure proper alignment on smaller screens */
 @media (max-width: 768px) {
-  .adminContainer {
-    flex-direction: column; /* Stack sections vertically */
-  }
-
-  button {
-    padding: 14px;
-  }
-
-  .card {
-    flex: 1 1 100%; /* Full width when stacked */
+  .navbar {
+    flex-direction: column; /* Stack elements vertically on smaller screens */
+    align-items: flex-start; /* Align them to the left */
   }
 }

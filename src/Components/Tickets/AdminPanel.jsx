@@ -161,117 +161,103 @@ function AdminPanel() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h2>Admin Panel</h2>
+    <div className="admin-container">
+  <h2>Admin Panel</h2>
 
-      {/* Section for Assigning Tickets */}
-      <div>
-        <h3>Assign Ticket</h3>
-        {/* Dropdown to select ticket */}
-        <select onChange={(e) => setSelectedTicketId(Number(e.target.value))}>
-          <option value="">Select Ticket</option>
-          {tickets.map((ticket) => (
-            <option key={ticket.ticket_id} value={ticket.ticket_id}>
-              {ticket.title} (ID: {ticket.ticket_id})
-            </option>
-          ))}
-        </select>
+  {/* Navbar for Filters and Ticket Assignment */}
+  <div className="navbar">
+    {/* Assign Ticket */}
+    <div className="assign-ticket-container">
+      <h3>Assign Ticket</h3>
+      <select onChange={(e) => setSelectedTicketId(Number(e.target.value))}>
+        <option value="">Select Ticket</option>
+        {tickets.map((ticket) => (
+          <option key={ticket.ticket_id} value={ticket.ticket_id}>
+            {ticket.title} (ID: {ticket.ticket_id})
+          </option>
+        ))}
+      </select>
+      <select onChange={(e) => setSelectedTeamMember(teamMembers.find(member => member.userEmail === e.target.value))}>
+        <option value="">Select Team Member</option>
+        {teamMembers.map((member) => (
+          <option key={member.userEmail} value={member.userEmail}>
+            {member.userName}
+          </option>
+        ))}
+      </select>
+      <button onClick={handleAssignTicket}>Assign Ticket</button>
+    </div>
 
-        {/* Dropdown to select team member */}
-        <select onChange={(e) => {
-          const selectedMember = teamMembers.find(member => member.userEmail === e.target.value);
-          setSelectedTeamMember(selectedMember);
-        }}>
-          <option value="">Select Team Member</option>
-          {teamMembers.map((member) => (
-            <option key={member.userEmail} value={member.userEmail}>
-              {member.userName}
-            </option>
-          ))}
-        </select>
+    {/* Filter by Status */}
+    <div className="filters-container">
+      <h3>Filter Tickets by Status</h3>
+      <select onChange={(e) => setSelectedFilter(e.target.value)}>
+        <option value="">All Tickets</option>
+        <option value="OPEN">Open</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="CLOSED">Closed</option>
+      </select>
 
-        <button onClick={handleAssignTicket}>Assign Ticket</button>
-      </div>
+      {/* Filter by Date Range */}
+      <h3>Filter by Date Range</h3>
+      <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+      <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
 
-      {/* Section for Filtering Tickets by Status */}
-      <div>
-        <h3>Filter Tickets by Status</h3>
-        <select onChange={(e) => setSelectedFilter(e.target.value)}>
-          <option value="">All Tickets</option>
-          <option value="OPEN">Open</option>
-          <option value="IN_PROGRESS">In Progress</option>
-          <option value="CLOSED">Closed</option>
-        </select>
-      </div>
-
-      {/* Section for Filtering Tickets by Date Range */}
-      <div>
-        <h3>Filter by Date Range</h3>
-        <label>Start Date:</label>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-        <label>End Date:</label>
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-      </div>
-
-      {/* Search bar */}
-      <div className="mb-3">
+      {/* Search Bar */}
+      <div className="search-bar">
         <input
           type="text"
-          className="form-control"
-          placeholder="Search here"
+          placeholder="Search tickets..."
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
+    </div>
+  </div>
 
-      {/* Section to display filtered tickets */}
-      <div>
-        <h3>Tickets</h3>
-        {filteredTickets.length > 0 ? (
-          <table className="ticket-table">
-            <thead>
-              <tr>
-                <th>Ticket ID</th>
-                <th>Reason</th>
-                <th>Status</th>
-                <th>Assigned To</th>
-                <th>Update Status</th>
-                <th>Comments</th> {/* Button to view comments */}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTickets.map((ticket) => (
-                <tr key={ticket.ticket_id}>
-                  <td>{ticket.ticket_id}</td>
-                  <td>{ticket.title}</td>
-                  <td>{ticket.status}</td>
-                  <td>
-                    {ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}
-                  </td>
-                  <td>
-                    <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}>
-                      <option value="OPEN">OPEN</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
-                      <option value="CLOSED">CLOSED</option>
-                    </select>
-                  </td>
-                  <td>
-                    {/* Button to view comments for the ticket */}
-                    <button onClick={() => handleShowComments(ticket.ticket_id)}>
-                      View Comments
-                    </button>
+  {/* Tickets Table */}
+  <div className="ticket-list-container">
+    <h3>Tickets</h3>
+    {filteredTickets.length > 0 ? (
+      <table className="ticket-table">
+        <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th>Update Status</th>
+            <th>Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredTickets.map((ticket) => (
+            <tr key={ticket.ticket_id}>
+              <td>{ticket.ticket_id}</td>
+              <td>{ticket.title}</td>
+              <td>{ticket.status}</td>
+              <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>
+              <td>
+                <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)}>
+                  <option value="OPEN">OPEN</option>
+                  <option value="IN_PROGRESS">IN_PROGRESS</option>
+                  <option value="CLOSED">CLOSED</option>
+                </select>
+              </td>
+              <td>
+                <button onClick={() => handleShowComments(ticket.ticket_id)}>View Comments</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p>No tickets to display</p>
+    )}
+  </div>
 
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No tickets to display</p>
-        )}
-      </div>
-
-      {/* Section for displaying the comments of the selected ticket */}
-      {comments.length === 0 ? (
+  {/* Comments Section */}
+  {/* <div className="comments-container">
+    {comments.length === 0 ? (
       <p>No comments available for this ticket.</p>
     ) : (
       <ul>
@@ -283,8 +269,11 @@ function AdminPanel() {
         ))}
       </ul>
     )}
-    </div>
-  );
+  </div> */}
+</div>
+
+);
 }
+
 
 export default AdminPanel;
