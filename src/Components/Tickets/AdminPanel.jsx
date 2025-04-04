@@ -3,7 +3,6 @@ import {
   assignTicketToTeamMember,
   updateTicketStatus,
   getTeamMembers,
-  addCommentToTicket,
   getTicketsWithId,
 } from "../Services/TicketService";
 import '../CSS/AdminPanel.css';
@@ -13,12 +12,12 @@ function AdminPanel() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState(null);
-  const [ticketComments, setTicketComments] = useState({});
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,47 +110,6 @@ function AdminPanel() {
     }
   };
 
-  
-
-  const handleAddComment = async (ticketId) => {
-    const adminUserId = localStorage.getItem("adminUserId");
-    const token = localStorage.getItem("token");
-  
-    console.log("🟢 Debug: adminUserId ->", adminUserId);
-    console.log("🟢 Debug: Token ->", token);
-  
-    if (!adminUserId) {
-      alert("❌ Error: Admin user ID not found! Please log in again.");
-      return;
-    }
-  
-    if (!ticketId || !ticketComments[ticketId]) {
-      alert("❌ Please enter a comment before submitting.");
-      return;
-    }
-  
-    try {
-      const newComment = {
-        ticket: { ticketId: ticketId },
-        user: { userId: Number(adminUserId) },
-        comment: ticketComments[ticketId],
-        createdAt: new Date().toISOString(),
-      };
-  
-      console.log("📌 Sending Comment Data:", newComment);
-  
-      // Ensure token is sent in headers here
-      await addCommentToTicket(ticketId, newComment, token);
-  
-      alert("✅ Comment added successfully!");
-      setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
-    } catch (error) {
-      console.error("❌ Error adding comment:", error);
-      alert("❌ Failed to add comment.");
-    }
-  };
-  
-  
   const filteredTickets = tickets.filter((ticket) => {
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
@@ -165,15 +123,51 @@ function AdminPanel() {
     return matchesStatus && matchesSearchQuery && matchesDateRange;
   });
 
+  // Fetch comments for the selected ticket
+  const fetchComments = async (ticketId) => {
+    try {
+      // Call the API to fetch the comments of a specific ticket
+      const response = await fetch(`http://localhost:8080/tickets/${ticketId}/comments`);
+      
+      if (!response.ok) {
+        throw new Error("❌ Error fetching comments");
+      }
+      
+      const data = await response.json();
+  
+      // Log the response to inspect its structure
+      console.log("Fetched Comments Response:", data);
+  
+      // Ensure the response contains comments under '_embedded.comments'
+      if (data && data._embedded && Array.isArray(data._embedded.comments) && data._embedded.comments.length > 0) {
+        setComments(data._embedded.comments); // Set the comments state
+      } else {
+        console.log("No comments available or unexpected response format.");
+        setComments([]); // If no comments are available, set an empty array
+      }
+    } catch (error) {
+      console.error("❌ Error fetching comments:", error);
+      setComments([]); // Optionally, handle errors by setting an empty array
+    }
+  };
+  
+  // Function to handle viewing comments for a specific ticket
+  const handleShowComments = (ticketId) => {
+    setSelectedTicketId(ticketId);  // Set the selected ticket ID
+    fetchComments(ticketId);  // Fetch comments for the selected ticket
+  };
+  
+
   if (loading) return <p>Loading...</p>;
 
   return (
     <div>
       <h2>Admin Panel</h2>
 
+      {/* Section for Assigning Tickets */}
       <div>
         <h3>Assign Ticket</h3>
-        {/* ✅ FIXED: Correctly set selected ticket ID */}
+        {/* Dropdown to select ticket */}
         <select onChange={(e) => setSelectedTicketId(Number(e.target.value))}>
           <option value="">Select Ticket</option>
           {tickets.map((ticket) => (
@@ -183,7 +177,7 @@ function AdminPanel() {
           ))}
         </select>
 
-        {/* ✅ FIXED: Select full team member object, not just email */}
+        {/* Dropdown to select team member */}
         <select onChange={(e) => {
           const selectedMember = teamMembers.find(member => member.userEmail === e.target.value);
           setSelectedTeamMember(selectedMember);
@@ -199,6 +193,7 @@ function AdminPanel() {
         <button onClick={handleAssignTicket}>Assign Ticket</button>
       </div>
 
+      {/* Section for Filtering Tickets by Status */}
       <div>
         <h3>Filter Tickets by Status</h3>
         <select onChange={(e) => setSelectedFilter(e.target.value)}>
@@ -209,6 +204,7 @@ function AdminPanel() {
         </select>
       </div>
 
+      {/* Section for Filtering Tickets by Date Range */}
       <div>
         <h3>Filter by Date Range</h3>
         <label>Start Date:</label>
@@ -217,6 +213,7 @@ function AdminPanel() {
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
       </div>
 
+      {/* Search bar */}
       <div className="mb-3">
         <input
           type="text"
@@ -226,6 +223,7 @@ function AdminPanel() {
         />
       </div>
 
+      {/* Section to display filtered tickets */}
       <div>
         <h3>Tickets</h3>
         {filteredTickets.length > 0 ? (
@@ -237,7 +235,7 @@ function AdminPanel() {
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Update Status</th>
-                <th>Add Comment</th>
+                <th>Comments</th> {/* Button to view comments */}
               </tr>
             </thead>
             <tbody>
@@ -256,19 +254,12 @@ function AdminPanel() {
                       <option value="CLOSED">CLOSED</option>
                     </select>
                   </td>
-
-
                   <td>
-                    <textarea
-                      value={ticketComments[ticket.ticket_id] || ""}
-                      onChange={(e) =>
-                        setTicketComments((prev) => ({
-                          ...prev,
-                          [ticket.ticket_id]: e.target.value,
-                        }))
-                      }
-                    />
-                    <button onClick={() => handleAddComment(ticket.ticket_id)}>Add</button>
+                    {/* Button to view comments for the ticket */}
+                    <button onClick={() => handleShowComments(ticket.ticket_id)}>
+                      View Comments
+                    </button>
+
                   </td>
                 </tr>
               ))}
@@ -278,6 +269,20 @@ function AdminPanel() {
           <p>No tickets to display</p>
         )}
       </div>
+
+      {/* Section for displaying the comments of the selected ticket */}
+      {comments.length === 0 ? (
+      <p>No comments available for this ticket.</p>
+    ) : (
+      <ul>
+        {comments.map((comment, index) => (
+          <li key={index}>
+            <p>{comment.comment}</p>
+            <span>{new Date(comment.createdAt).toLocaleString()}</span>
+          </li>
+        ))}
+      </ul>
+    )}
     </div>
   );
 }
