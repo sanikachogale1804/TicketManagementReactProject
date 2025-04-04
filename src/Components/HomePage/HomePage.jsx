@@ -16,6 +16,7 @@ function HomePage() {
           <li><Link to="/tickets" className="nav-link">Tickets</Link></li>
           <li><Link to="/customerInterface" className="nav-link">Customer Interface</Link></li>
           <li><Link to="/adminPanel" className="nav-link">Admin Interface</Link></li>
+          <li><Link to="/loginPage" className="nav-link">Login</Link></li>
         </ul>
       </nav>
 

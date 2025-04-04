@@ -82,20 +82,19 @@ export const updateTicket = async (ticketId, updatedTicket) => {
 };
 
 export const addCommentToTicket = async (ticketId, commentData) => {
-  const token = localStorage.getItem("token"); // Token ko localStorage se uthao
-
-  if (!token) {
-    throw new Error("❌ No token found! User might not be logged in.");
-  }
-
   try {
-    const response = await axios.post(
-      `http://localhost:8080/tickets/${ticketId}/comments`,
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      throw new Error("Authorization token is missing.");
+    }
+
+    const response = await axiosInstance.post(
+      `/tickets/${ticketId}/comments`,
       commentData,
       {
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // ✅ Token ko Authorization header me send karo
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -103,7 +102,12 @@ export const addCommentToTicket = async (ticketId, commentData) => {
     console.log("✅ Comment Added Successfully:", response.data);
     return response.data;
   } catch (error) {
-    console.error("❌ API Error while adding comment:", error.response?.data || error.message);
+    console.error("❌ Error adding comment:", {
+      status: error.response?.status || "Unknown Status",
+      message: error.response?.data?.message || error.message,
+      details: error.response?.data || "No additional details",
+    });
+
     throw error;
   }
 };
