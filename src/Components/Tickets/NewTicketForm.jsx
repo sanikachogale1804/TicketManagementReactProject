@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import '../CSS/NewTicketForm.css';
 import { addTicket } from '../Services/TicketService';
+import '../CSS/NewTicketForm.css';
 
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
@@ -21,12 +21,11 @@ function NewTicketForm({ onTicketCreated }) {
   };
 
   const validateForm = () => {
-    if (!ticket.title || !ticket.description  || !ticket.startDate || !ticket.endDate) {
+    if (!ticket.title || !ticket.description || !ticket.startDate || !ticket.endDate) {
       setError('❌ Please fill out all fields.');
       return false;
     }
 
-    // 🕒 Check if time difference is more than 30 minutes
     const start = new Date(ticket.startDate);
     const end = new Date(ticket.endDate);
     const differenceInMinutes = (end - start) / (1000 * 60);
@@ -79,39 +78,27 @@ function NewTicketForm({ onTicketCreated }) {
   };
 
   return (
-    <div>
+    <div className="new-ticket-form">
       <h2>Create New Ticket</h2>
       <form onSubmit={submitHandler} className="ticket-form">
-        <table className="ticket-table">
+        <table className="ticket-form-table">
           <tbody>
             <tr>
               <td><label>Reason for Footage Request</label></td>
-              <td>
-                <input type="text" name="title" value={ticket.title} onChange={handleChange} className="form-input" />
-              </td>
+              <td><input type="text" name="title" value={ticket.title} onChange={handleChange} className="form-input" /></td>
             </tr>
-
             <tr>
               <td><label>Description</label></td>
-              <td>
-                <textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" />
-              </td>
+              <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" /></td>
             </tr>
-
             <tr>
               <td><label>Start Date & Time</label></td>
-              <td>
-                <input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" />
-              </td>
+              <td><input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" /></td>
             </tr>
-
             <tr>
               <td><label>End Date & Time</label></td>
-              <td>
-                <input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" />
-              </td>
+              <td><input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" /></td>
             </tr>
-
             <tr>
               <td><label>Status</label></td>
               <td>

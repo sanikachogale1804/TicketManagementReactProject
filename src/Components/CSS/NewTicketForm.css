@@ -1,10 +1,12 @@
-/* NewTicketForm.css */
+/* Style for the new ticket form container */
 .new-ticket-form {
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
   border-radius: 5px;
+  width: 90%; /* Increase the width of the form */
+  max-width: 900px; /* Set a maximum width to control the size */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .new-ticket-form h2 {
@@ -12,20 +14,40 @@
   text-align: center;
 }
 
-.ticket-table {
+/* Updated table styling */
+.ticket-form-table {
   width: 100%;
   margin-bottom: 20px;
   border-collapse: collapse;
+  background-color: #2c3e50 !important; /* Set background color for the entire table */
 }
 
-.ticket-table td {
+.ticket-form-table th,
+.ticket-form-table td {
+  font-size: 20px;
   padding: 10px;
+  color: white; /* Set text color to white or light color for better contrast */
+  border: 1px solid #ddd;
 }
 
+/* Optional: You can adjust row hover effect if needed */
+.ticket-form-table tr:nth-child(even) {
+  background-color: #2c3e50; /* Darker shade for even rows */
+}
+
+.ticket-form-table tr:nth-child(odd) {
+  background-color: #2c3e50; /* Maintain the same background color for odd rows */
+}
+
+.ticket-form-table tr:hover {
+  background-color: #2980b9; /* Lighter blue color on hover for better visibility */
+}
+
+/* Styling for form input fields */
 .form-input,
 .form-select,
 textarea {
-  width: 100%;
+  width: 80%; /* Adjust the width of input fields */
   padding: 8px;
   margin-top: 5px;
   margin-bottom: 10px;
@@ -33,6 +55,7 @@ textarea {
   border-radius: 4px;
 }
 
+/* Button styling */
 .submit-btn {
   padding: 10px 20px;
   background-color: #4CAF50;
@@ -40,14 +63,19 @@ textarea {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 100%;
+  width: 90px; /* Fixed width */
+  display: block; /* Makes the button a block-level element */
+  margin-left: auto; /* Centers the button horizontally */
+  margin-right: auto; /* Centers the button horizontally */
 }
+
 
 .submit-btn:disabled {
   background-color: #ddd;
   cursor: not-allowed;
 }
 
+/* Error message styling */
 .error {
   color: red;
   font-size: 14px;

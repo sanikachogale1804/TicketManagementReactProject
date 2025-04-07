@@ -1,44 +1,33 @@
+/* Table Styling */
+.ticket-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
 
+.ticket-table th, .ticket-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
 
-.ticket-list {
-    margin-top: 20px;
-    padding: 20px;
-  }
-  
-  .ticket-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .ticket-table th,
-  .ticket-table td {
-    padding: 10px;
-    text-align: left;
-    border: 1px solid #ddd;
-  }
-  
-  .ticket-table th {
-    background-color: #f4f4f4;
-  }
-  
-  .ticket-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .ticket-table tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .ticket-table td {
-    vertical-align: middle;
-  }
-  
-  .ticket-table th {
-    text-align: center;
-  }
-  
-  .ticket-table td {
-    text-align: center;
-  }
-  
+/* Table Header */
+.ticket-table th {
+  background-color: #1e2a38;
+  text-align: center;
+}
+
+/* Table Rows Styling */
+.ticket-table tr:nth-child(even) {
+  background-color: #f9f9f9; /* Light background for even rows */
+}
+
+.ticket-table tr:hover {
+  background-color: #f1f1f1; /* Light hover effect */
+}
+
+/* Aligning text to the center for both th and td */
+.ticket-table th, .ticket-table td {
+  text-align: center;
+  vertical-align: middle;
+}

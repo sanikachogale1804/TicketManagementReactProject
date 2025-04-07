@@ -243,6 +243,8 @@ function AdminPanel() {
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Update Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
                 <th>Comments</th>
               </tr>
             </thead>
@@ -260,9 +262,12 @@ function AdminPanel() {
                       <option value="CLOSED">CLOSED</option>
                     </select>
                   </td>
-                  <td>
-                    <button onClick={() => handleShowComments(ticket.ticket_id)} className="view-comments-btn">View Comments</button>
-                  </td>
+                  <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>
+                  <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>
+                  <div class="view-comments-btn-container">
+                    <button class="view-comments-btn">View Comments</button>
+                  </div>
+
                 </tr>
               ))}
             </tbody>

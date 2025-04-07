@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTickets } from '../Services/TicketService';
-
+import '../CSS/Ticket.css'
 
 function Ticket() {
   const [tickets, setTickets] = useState([]);
@@ -8,36 +8,43 @@ function Ticket() {
   const [filter, setFilter] = useState('ALL');
 
   useEffect(() => {
-
     const fetchTickets = async () => {
       try {
         const response = await getTickets();
-         setTickets(response._embedded?.tickets || []);
-         setLoading(false);
-       } catch (error) {
-         console.error('Error fetching tickets:', error);
-         setLoading(false);
-       }
-     };
- 
-     fetchTickets();
-   }, []);
+        const ticketsData = response._embedded?.tickets || [];
 
- 
-   const handleFilterChange = (e) => {
+        // Add ticketId extracted from href to each ticket object
+        const ticketsWithId = ticketsData.map((ticket) => {
+          const ticketId = ticket._links?.ticket?.href?.split("/").pop(); // Extract ticket ID from the URL
+          return { ...ticket, ticketId }; // Add the extracted ticket_id to each ticket object
+        });
+
+        setTickets(ticketsWithId);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchTickets();
+  }, []);
+
+  const handleFilterChange = (e) => {
     setFilter(e.target.value);
   };
+
   const filteredTickets = tickets.filter((ticket) => {
     if (filter === 'ALL') return true;
     return ticket.status === filter;
   });
 
   return (
-    <div>
+    <div className="ticket-dashboard-container">
       <h2>Ticket Dashboard</h2>
 
-      {/* Status Filter */}
-      <div>
+      {/* Filter Section */}
+      <div className="filter-section">
         <label>Filter by Status: </label>
         <select onChange={handleFilterChange}>
           <option value="ALL">All</option>
@@ -59,20 +66,20 @@ function Ticket() {
                 <th>Title</th>
                 <th>Description</th>
                 <th>Status</th>
-                <th>Start Date</th>  {/* ✅ Added Start Date Column */}
-                <th>End Date</th>    {/* ✅ Added End Date Column */}
+                <th>Start Date</th>
+                <th>End Date</th>
                 <th>Created At</th>
               </tr>
             </thead>
             <tbody>
               {filteredTickets.map((ticket) => (
-                <tr key={ticket.ticketId}>
-                  <td>{ticket.ticketId}</td>
+                <tr key={ticket.ticketId}> {/* Use ticketId here */}
+                  <td>{ticket.ticketId}</td> {/* Display ticketId */}
                   <td>{ticket.title}</td>
                   <td>{ticket.description}</td>
                   <td>{ticket.status}</td>
-                  <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>  {/* ✅ Show Start Date */}
-                  <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>      {/* ✅ Show End Date */}
+                  <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>
+                  <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>
                   <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                 </tr>
               ))}
@@ -83,6 +90,5 @@ function Ticket() {
     </div>
   );
 }
-
 
 export default Ticket;

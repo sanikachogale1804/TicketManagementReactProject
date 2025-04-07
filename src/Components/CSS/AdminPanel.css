@@ -325,8 +325,19 @@ body, .dashboard-container {
   border-color: #3498db;  /* Focus border color */
 }
 
+/* Styling the container of View Comments Button */
+.view-comments-btn-container {
+  display: flex;            /* Use flexbox for centering */
+  justify-content: center;  /* Center horizontally */
+  align-items: center;      /* Center vertically */
+  width: 100%;              /* Make sure the container takes up full width */
+  margin: 5px;                /* Remove any default margin */
+  height: 100%;             /* Ensure it takes full height of its parent */
+}
+
 /* View Comments Button Styling */
 .view-comments-btn {
+  width: 200px !important;  /* Keep the width fixed */
   background-color: #3498db;
   color: black;
   padding: 10px 16px;
@@ -335,6 +346,7 @@ body, .dashboard-container {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  display: inline-block;
 }
 
 .view-comments-btn:hover {
@@ -342,9 +354,9 @@ body, .dashboard-container {
 }
 
 .view-comments-btn:focus {
-  outline: none;  /* Remove default outline */
-  border: 2px solid #3498db;  /* Blue border on focus */
-  box-shadow: 0 0 5px rgba(52, 152, 219, 0.6); /* Optional glow effect */
+  outline: none;
+  border: 2px solid #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.6);
 }
 
 
@@ -367,7 +379,6 @@ body, .dashboard-container {
     font-size: 12px;
   }
 }
-
 
 /* Specific Styles for Date Range Inputs */
 .date-range-container {

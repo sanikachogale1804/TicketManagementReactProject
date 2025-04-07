@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getTicketsByUser} from '../Services/TicketService'; // Import your API methods
+import { getTicketsByUser } from '../Services/TicketService';  // Import your API methods
 // import { Link } from 'react-router-dom';  // For navigation to ticket details page
 import '../CSS/CustomerInterface.css';
 import NewTicketForm from '../Tickets/NewTicketForm';
@@ -14,7 +14,19 @@ function CustomerInterface({ userId }) {
     const fetchTickets = async () => {
       try {
         const response = await getTicketsByUser(userId);  // You can filter on backend as needed
-        setTickets(response._embedded?.tickets || []);
+        console.log("Fetched tickets:", response); // Log the response to confirm the structure
+        
+        // Extract tickets from response._embedded.tickets
+        const ticketsData = response._embedded?.tickets || [];
+        
+        // Map tickets and add ticket_id if not already present
+        const ticketsWithId = ticketsData.map((ticket) => {
+          // If ticketId is not present, extract it from the URL (if it's in a _links field)
+          const ticketId = ticket.ticketId || ticket._links?.ticket?.href?.split("/").pop(); // Extract ticket ID if not present
+          return { ...ticket, ticketId }; // Ensure ticketId is part of the ticket object
+        });
+
+        setTickets(ticketsWithId); // Set tickets with ID added
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tickets:', error);
@@ -30,31 +42,12 @@ function CustomerInterface({ userId }) {
     setFilter(e.target.value);
   };
 
-  // Handle status update for a ticket
-  // const handleStatusChange = async (ticketId, newStatus) => {
-  //   try {
-  //     await updateTicketStatus(ticketId, newStatus);
-  //     setTickets(prevTickets =>
-  //       prevTickets.map(ticket =>
-  //         ticket.ticketId === ticketId ? { ...ticket, status: newStatus } : ticket
-  //       )
-  //     );
-  //   } catch (error) {
-  //     console.error('Failed to update ticket status:', error);
-  //   }
-  // };
-
-  // Handle new ticket creation
-  const handleTicketCreated = (newTicket) => {
-    setTickets((prevTickets) => [...prevTickets, newTicket]);
-  };
-
   return (
     <div className="customer-interface">
       <h2>Your Tickets</h2>
 
       {/* New Ticket Form Component */}
-      <NewTicketForm onTicketCreated={handleTicketCreated} />
+      <NewTicketForm onTicketCreated={(newTicket) => setTickets((prevTickets) => [...prevTickets, newTicket])} />
 
       {/* Status filter */}
       <div className="ticket-filters">
@@ -87,7 +80,7 @@ function CustomerInterface({ userId }) {
                   .filter(ticket => filter === 'ALL' || ticket.status === filter)  // Apply the filter based on status
                   .map((ticket) => (
                     <tr key={ticket.ticketId}>
-                      <td>{ticket.ticketId}</td>
+                      <td>{ticket.ticketId}</td>  {/* Display ticketId */}
                       <td>{ticket.title}</td>
                       <td>{ticket.status}</td>
                       <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
