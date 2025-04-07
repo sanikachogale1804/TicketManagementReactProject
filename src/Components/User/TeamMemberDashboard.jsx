@@ -1,48 +1,57 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { addCommentToTicket } from "../Services/TicketService";
+import '../CSS/TeamMemberDashboard.css'
 
 const TeamMemberDashboard = () => {
-    const [teamMembers, setTeamMembers] = useState([]);
-    const [selectedTeamMember, setSelectedTeamMember] = useState(null);
+    const [userName, setUserName] = useState("");
+    const [userRole, setUserRole] = useState("");
     const [assignedTickets, setAssignedTickets] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [ticketComments, setTicketComments] = useState({});
+
+    const navigate = useNavigate();
+    const userId = localStorage.getItem("userId");
 
     useEffect(() => {
-        const fetchTeamMembers = async () => {
-            try {
-                const response = await fetch("http://localhost:8080/users");
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
+        const storedUserName = localStorage.getItem("userName");
+        const storedUserRole = localStorage.getItem("userRole");
 
-                const data = await response.json();
-                const teamMembersData = data._embedded.users.filter(user => user.role === "TEAMMEMBER");
+        if (storedUserName) setUserName(storedUserName);
+        if (storedUserRole) setUserRole(storedUserRole);
 
-                setTeamMembers(teamMembersData);
-            } catch (error) {
-                console.error("Error fetching team members:", error);
-                setError(error.message);
-            }
-        };
-
-        fetchTeamMembers();
-    }, []);
-
-    useEffect(() => {
-        if (!selectedTeamMember) return;
+        if (!userId) {
+            setError("❌ User ID not found in localStorage.");
+            setLoading(false);
+            return;
+        }
 
         const fetchAssignedTickets = async () => {
-            setLoading(true);
             try {
-                const response = await fetch(`http://localhost:8080/users/${selectedTeamMember}/assignedTickets`);
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("❌ Authorization token missing.");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8080/users/${userId}/assignedTickets`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    throw new Error(`❌ HTTP error! Status: ${response.status}`);
                 }
 
                 const data = await response.json();
-                setAssignedTickets(data._embedded?.tickets || []);
+                const tickets = data._embedded?.tickets || [];
+                setAssignedTickets(tickets);
             } catch (error) {
-                console.error("Error fetching assigned tickets:", error);
                 setError(error.message);
             } finally {
                 setLoading(false);
@@ -50,71 +59,107 @@ const TeamMemberDashboard = () => {
         };
 
         fetchAssignedTickets();
-    }, [selectedTeamMember]);
+    }, [userId]);
+
+    const handleAddComment = async (ticket) => {
+        const token = localStorage.getItem("token");
+        const ticketId = ticket._links?.self?.href.split("/").pop();  // Extract ticket ID from the URL
+
+        if (!ticketId || !ticketComments[ticketId]) {
+            alert("❌ Please enter a comment before submitting.");
+            return;
+        }
+
+        try {
+            const newComment = {
+                ticket: { ticketId },
+                user: { userId: Number(userId) },
+                comment: ticketComments[ticketId],
+                createdAt: new Date().toISOString(),
+            };
+
+            await addCommentToTicket(ticketId, newComment, token);
+            alert("✅ Comment added successfully!");
+
+            setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
+        } catch (error) {
+            alert("❌ Failed to add comment.");
+        }
+    };
+
+    const handleCommentChange = (ticketId, value) => {
+        setTicketComments((prevComments) => ({
+            ...prevComments,
+            [ticketId]: value,
+        }));
+    };
 
     return (
         <div>
-            <h1>🚀 Team Member Dashboard</h1>
+            <div class="header-container">
+                <h1><span class="emoji"></span> Welcome, {userName}! <span class="emoji"></span></h1>
+                <h3>Your Role: {userRole}</h3>
+            </div>
 
-            {error && <p style={{ color: "red" }}>Error: {error}</p>}
 
-            <label>
-                Select Team Member:
-                <select onChange={(e) => setSelectedTeamMember(e.target.value)} value={selectedTeamMember || ""}>
-                    <option value="">-- Select --</option>
-                    {teamMembers.map(member => (
-                        <option key={member._links.self.href} value={member._links.self.href.split("/").pop()}>
-                            {member.userName}
-                        </option>
-                    ))}
-                </select>
-            </label>
+            {loading && <p>⏳ Loading tickets...</p>}
+            {error && <p className="error">❌ Error: {error}</p>}
 
-            {loading && <p>Loading tickets...</p>}
+            {!loading && !error && assignedTickets.length > 0 ? (
+                <div className="ticket-list-container">
+                    <table className="ticket-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Add Comment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {assignedTickets.map((ticket) => {
+                                const ticketId = ticket._links?.self?.href.split("/").pop();  // Extract ticket ID
 
-            {selectedTeamMember && !loading && (
-                <div>
-                    <h2>Assigned Tickets for {teamMembers.find(m => m._links.self.href.split("/").pop() === selectedTeamMember)?.userName}</h2>
-                    {assignedTickets.length === 0 ? (
-                        <p>No tickets assigned.</p>
-                    ) : (
-                        <table border="1">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Created At</th>
-                                    <th>Updated At</th>
-                                    <th>Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {assignedTickets.map((ticket, index) => (
-                                    <tr key={index}>
+                                return (
+                                    <tr key={ticketId}>
+                                        <td className="ticket-id">{ticketId}</td>
                                         <td>{ticket.title}</td>
-                                        <td>{ticket.description}</td>
-                                        <td style={{
-                                            color: ticket.status === "OPEN" ? "red" :
-                                                ticket.status === "IN_PROGRESS" ? "orange" : "green",
-                                            fontWeight: "bold"
-                                        }}>
+                                        <td
+                                            className={`status-${ticket.status.toLowerCase()}`}
+                                        >
                                             {ticket.status}
                                         </td>
                                         <td>{new Date(ticket.createdAt).toLocaleString()}</td>
-                                        <td>{new Date(ticket.updatedAt).toLocaleString()}</td>
                                         <td>
-                                            <a href={ticket._links.self.href} target="_blank" rel="noopener noreferrer">
-                                                View Ticket
-                                            </a>
+                                            <div class="input-container">
+                                                <textarea
+                                                    value={ticketComments[ticketId] || ""}
+                                                    onChange={(e) => handleCommentChange(ticketId, e.target.value)}
+                                                />
+                                                <button onClick={() => handleAddComment(ticket)}>Add</button>
+                                            </div>
                                         </td>
+
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
+            ) : (
+                <p>❌ No tickets assigned to you.</p>
             )}
+
+            <div class="logout-button-container">
+                <button class="logout-button" onClick={() => {
+                    localStorage.clear();
+                    navigate("/loginPage");
+                }}>
+                    Logout
+                </button>
+            </div>
+
         </div>
     );
 };

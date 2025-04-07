@@ -83,7 +83,7 @@ const LoginPage = () => {
         navigate("/customerInterface")
       }
       else {
-        navigate("/LoginUserDashboard");
+        navigate("/TeamMemberDashboard");
       }
   
     } catch (error) {
