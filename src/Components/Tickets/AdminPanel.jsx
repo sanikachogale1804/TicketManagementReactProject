@@ -18,6 +18,7 @@ function AdminPanel() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [comments, setComments] = useState([]);
+  const [showComments, setShowComments] = useState(false); // For toggling comments visibility
 
   useEffect(() => {
     const fetchData = async () => {
@@ -155,8 +156,8 @@ function AdminPanel() {
   const handleShowComments = (ticketId) => {
     setSelectedTicketId(ticketId);  // Set the selected ticket ID
     fetchComments(ticketId);  // Fetch comments for the selected ticket
+    setShowComments(true);  // Toggle comments visibility
   };
-
 
   if (loading) return <p>Loading...</p>;
 
@@ -264,10 +265,11 @@ function AdminPanel() {
                   </td>
                   <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>
                   <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>
-                  <div class="view-comments-btn-container">
-                    <button class="view-comments-btn">View Comments</button>
-                  </div>
-
+                  <td>
+                    <button onClick={() => handleShowComments(ticket.ticket_id)} className="view-comments-btn">
+                      View Comments
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -277,26 +279,23 @@ function AdminPanel() {
         )}
       </div>
 
-
       {/* Comments Section */}
-      {/* <div className="comments-container">
-    {comments.length === 0 ? (
-      <p>No comments available for this ticket.</p>
-    ) : (
-      <ul>
-        {comments.map((comment, index) => (
-          <li key={index}>
-            <p>{comment.comment}</p>
-            <span>{new Date(comment.createdAt).toLocaleString()}</span>
-          </li>
-        ))}
-      </ul>
-    )}
-  </div> */}
-    </div>
+      {showComments && comments.length > 0 && (
+        <div className="comments-container">
+          <h3>Comments</h3>
+          <ul>
+            {comments.map((comment, index) => (
+              <li key={index}>
+                <p>{comment.comment}</p>
+                <span>{new Date(comment.createdAt).toLocaleString()}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
+    </div>
   );
 }
-
 
 export default AdminPanel;
