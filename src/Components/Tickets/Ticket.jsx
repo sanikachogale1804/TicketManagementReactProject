@@ -63,7 +63,8 @@ function Ticket() {
             <thead>
               <tr>
                 <th>Ticket ID</th>
-                <th>Title</th>
+                <th>Site ID</th> 
+                <th>IASSP Name</th> 
                 <th>Description</th>
                 <th>Status</th>
                 <th>Start Date</th>
@@ -75,7 +76,8 @@ function Ticket() {
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.ticketId}> {/* Use ticketId here */}
                   <td>{ticket.ticketId}</td> {/* Display ticketId */}
-                  <td>{ticket.title}</td>
+                  <td>{ticket.siteID}</td>  {/* Display Site ID */}
+                  <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
                   <td>{ticket.description}</td>
                   <td>{ticket.status}</td>
                   <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>

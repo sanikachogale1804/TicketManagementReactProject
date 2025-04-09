@@ -1,9 +1,38 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../Image/cogent logo.jpg'
-import '../CSS/HomePage.css'
+import logo from '../Image/cogent logo.jpg';
+import '../CSS/HomePage.css';
+import { getTicketsWithId } from '../Services/TicketService';  // Importing the service function to fetch tickets
 
 function HomePage() {
+  const [tickets, setTickets] = useState([]);  // State to hold the tickets data
+  const [ticketStats, setTicketStats] = useState({
+    open: 0,
+    closed: 0,
+    inProgress: 0,
+  });
+
+  // Fetch tickets and calculate stats
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const fetchedTickets = await getTicketsWithId();
+        setTickets(fetchedTickets);
+
+        const stats = {
+          open: fetchedTickets.filter(ticket => ticket.status === 'OPEN').length,
+          closed: fetchedTickets.filter(ticket => ticket.status === 'CLOSED').length,
+          inProgress: fetchedTickets.filter(ticket => ticket.status === 'IN_PROGRESS').length,
+        };
+        setTicketStats(stats);
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+      }
+    };
+
+    fetchTickets();
+  }, []);  // Empty dependency array to run the effect only once when the component mounts
+
   return (
     <div className="dashboard-container light-theme">
       {/* Sidebar */}
@@ -33,15 +62,15 @@ function HomePage() {
             <h2>Ticket Overview</h2>
             <div className="stats-card open">
               <h3>Open Tickets</h3>
-              <p className="ticket-count">12</p>
+              <p className="ticket-count">{ticketStats.open}</p> {/* Dynamically render Open tickets count */}
             </div>
             <div className="stats-card closed">
               <h3>Closed Tickets</h3>
-              <p className="ticket-count">56</p>
+              <p className="ticket-count">{ticketStats.closed}</p> {/* Dynamically render Closed tickets count */}
             </div>
             <div className="stats-card progress">
               <h3>In Progress</h3>
-              <p className="ticket-count">3</p>
+              <p className="ticket-count">{ticketStats.inProgress}</p> {/* Dynamically render In Progress tickets count */}
             </div>
           </div>
 
@@ -81,6 +110,5 @@ function HomePage() {
     </div>
   );
 }
-
 
 export default HomePage;

@@ -20,6 +20,12 @@ function AdminPanel() {
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false); // For toggling comments visibility
 
+  const [ticketStats, setTicketStats] = useState({
+    open: 0,
+    inProgress: 0,
+    closed: 0,
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -48,6 +54,13 @@ function AdminPanel() {
 
         setTickets(updatedTickets);
         setTeamMembers(fetchedTeamMembers);
+
+        const stats = {
+          open: updatedTickets.filter(ticket => ticket.status === "OPEN").length,
+          inProgress: updatedTickets.filter(ticket => ticket.status === "IN_PROGRESS").length,
+          closed: updatedTickets.filter(ticket => ticket.status === "CLOSED").length,
+        };
+        setTicketStats(stats);
       } catch (error) {
         console.error("❌ Error fetching data:", error);
       } finally {
@@ -57,6 +70,8 @@ function AdminPanel() {
 
     fetchData();
   }, []);
+
+
 
   // ✅ FIXED: Assign ticket only if all required values are set
   const handleAssignTicket = async () => {
@@ -104,7 +119,7 @@ function AdminPanel() {
       alert("Failed to update ticket status.");
     }
   };
-  
+
   const filteredTickets = tickets.filter((ticket) => {
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
@@ -227,14 +242,34 @@ function AdminPanel() {
         </div>
       </div>
 
+      {/* Ticket Stats Overview - Positioned Below Navbar */}
+      <div className="ticket-stats-overview">
+        <h2 className="ticket-stats-title">Ticket Overview</h2>
+        <div className="ticket-stats-card open-tickets">
+          <h3 className="ticket-stats-heading">Open Tickets</h3>
+          <p className="ticket-stats-count">{ticketStats.open}</p>
+        </div>
+        <div className="ticket-stats-card closed-tickets">
+          <h3 className="ticket-stats-heading">Closed Tickets</h3>
+          <p className="ticket-stats-count">{ticketStats.closed}</p>
+        </div>
+        <div className="ticket-stats-card in-progress-tickets">
+          <h3 className="ticket-stats-heading">In Progress</h3>
+          <p className="ticket-stats-count">{ticketStats.inProgress}</p>
+        </div>
+      </div>
+
       {/* Tickets Table */}
       <div className="ticket-list-container">
         <h3>Tickets</h3>
+
         {filteredTickets.length > 0 ? (
           <table className="ticket-table">
             <thead>
               <tr>
                 <th>Ticket ID</th>
+                <th>Site ID</th>
+                <th>IASSP Name</th>
                 <th>Description</th> {/* Changed from Reason to Description */}
                 <th>Status</th>
                 <th>Assigned To</th>
@@ -248,6 +283,8 @@ function AdminPanel() {
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.ticket_id}>
                   <td>{ticket.ticket_id}</td>
+                  <td>{ticket.siteID}</td>  {/* Display Site ID */}
+                  <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
                   <td>{ticket.description}</td> {/* Render the description here */}
                   <td>{ticket.status}</td>
                   <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>

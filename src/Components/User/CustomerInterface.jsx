@@ -69,7 +69,9 @@ function CustomerInterface({ userId }) {
               <thead>
                 <tr>
                   <th>Ticket ID</th>
-                  <th>Reason for Request</th>
+                  <th>Site ID</th> 
+                  <th>IASSP Name</th> 
+                  <th>Reason For Footage</th> 
                   <th>Status</th>
                   <th>Created At</th>
                   {/* <th>Actions</th> */}
@@ -81,7 +83,9 @@ function CustomerInterface({ userId }) {
                   .map((ticket) => (
                     <tr key={ticket.ticketId}>
                       <td>{ticket.ticketId}</td>  {/* Display ticketId */}
-                      <td>{ticket.title}</td>
+                      <td>{ticket.siteID}</td>  {/* Display Site ID */}
+                      <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
+                      <td>{ticket.description}</td>
                       <td>{ticket.status}</td>
                       <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
                       {/* <td>

@@ -440,3 +440,88 @@ body, .dashboard-container {
 .search-bar input::placeholder {
   color: #aaa; /* Lighter color for the placeholder */
 }
+
+/* Ticket Stats Overview */
+.ticket-stats-overview {
+  margin: 8px 0;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ticket-stats-title {
+  font-size: 14px; /* Smaller title font size */
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center; /* Center-align the title */
+}
+
+.ticket-stats-card {
+  display: inline-block;
+  width: 28%; /* Reduced width further for more compact layout */
+  margin-right: 6px; /* Reduced margin */
+  padding: 6px; /* Reduced padding */
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  vertical-align: top; /* Align cards at the top */
+}
+
+.ticket-stats-card:last-child {
+  margin-right: 0;
+}
+
+.ticket-stats-heading {
+  font-size: 12px; /* Smaller heading font size */
+  color: #555;
+  margin-bottom: 4px; /* Reduced margin */
+}
+
+.ticket-stats-count {
+  font-size: 18px; /* Smaller count font size */
+  font-weight: bold;
+  color: #333;
+}
+
+/* Styles for specific ticket categories */
+.open-tickets {
+  background-color: #e3f8e7; /* Light green background */
+  border-left: 5px solid #28a745; /* Green left border */
+}
+
+.closed-tickets {
+  background-color: #f8d7da; /* Light red background */
+  border-left: 5px solid #dc3545; /* Red left border */
+}
+
+.in-progress-tickets {
+  background-color: #fff3cd; /* Light yellow background */
+  border-left: 5px solid #ffc107; /* Yellow left border */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ticket-stats-card {
+    width: 100%; /* Stack cards vertically on smaller screens */
+    margin-bottom: 8px; /* Adjust bottom margin */
+  }
+
+  .ticket-stats-overview {
+    padding: 8px;
+  }
+
+  .ticket-stats-title {
+    font-size: 12px; /* Smaller title on mobile */
+  }
+
+  .ticket-stats-heading {
+    font-size: 10px; /* Smaller heading on mobile */
+  }
+
+  .ticket-stats-count {
+    font-size: 16px; /* Smaller count size on mobile */
+  }
+}
