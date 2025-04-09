@@ -1,11 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 
+// Make sure to configure axios base URL for your API if not already set up
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080", // Adjust as needed
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Get token from localStorage
-  },
+  baseURL: 'http://localhost:8080',  // Adjust the base URL as needed
 });
 
 

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { addCommentToTicket } from "../Services/TicketService";
+
 import '../CSS/TeamMemberDashboard.css'
+import { addCommentToTicket } from "../Services/TicketService";
+
 
 const TeamMemberDashboard = () => {
     const [userName, setUserName] = useState("");
@@ -72,15 +74,19 @@ const TeamMemberDashboard = () => {
 
         try {
             const newComment = {
-                ticket: { ticketId },
-                user: { userId: Number(userId) },
+                ticketId: { ticketId: ticketId },  // Use ticketId here
+                userId: { userId: Number(userId) },  // Use userId from localStorage
                 comment: ticketComments[ticketId],
                 createdAt: new Date().toISOString(),
             };
 
-            await addCommentToTicket(ticketId, newComment, token);
-            alert("✅ Comment added successfully!");
+            // Send the comment to the backend using the API function
+            const response = await addCommentToTicket(ticketId, newComment, token);
+            if (response) {
+                alert("✅ Comment added successfully!");
+            }
 
+            // Clear the comment input after submitting
             setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
         } catch (error) {
             alert("❌ Failed to add comment.");
@@ -96,11 +102,10 @@ const TeamMemberDashboard = () => {
 
     return (
         <div>
-            <div class="header-container">
-                <h1><span class="emoji"></span> Welcome, {userName}! <span class="emoji"></span></h1>
+            <div className="header-container">
+                <h1><span className="emoji"></span> Welcome, {userName}! <span className="emoji"></span></h1>
                 <h3>Your Role: {userRole}</h3>
             </div>
-
 
             {loading && <p>⏳ Loading tickets...</p>}
             {error && <p className="error">❌ Error: {error}</p>}
@@ -111,7 +116,9 @@ const TeamMemberDashboard = () => {
                         <thead>
                             <tr>
                                 <th>Ticket ID</th>
-                                <th>Title</th>
+                                <th>Site ID</th>
+                                <th>IASSP Name</th>
+                                <th>Description</th>
                                 <th>Status</th>
                                 <th>Created At</th>
                                 <th>Add Comment</th>
@@ -124,15 +131,17 @@ const TeamMemberDashboard = () => {
                                 return (
                                     <tr key={ticketId}>
                                         <td className="ticket-id">{ticketId}</td>
-                                        <td>{ticket.title}</td>
+                                        <td>{ticket.siteID}</td>  {/* Display Site ID */}
+                                        <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
+                                        <td>{ticket.description}</td>
                                         <td
-                                            className={`status-${ticket.status.toLowerCase()}`}
+                                            className={`status-${ticket.status?.toLowerCase() || "unknown"}`}
                                         >
-                                            {ticket.status}
+                                            {ticket.status || "Unknown"}
                                         </td>
                                         <td>{new Date(ticket.createdAt).toLocaleString()}</td>
                                         <td>
-                                            <div class="input-container">
+                                            <div className="input-container">
                                                 <textarea
                                                     value={ticketComments[ticketId] || ""}
                                                     onChange={(e) => handleCommentChange(ticketId, e.target.value)}
@@ -140,7 +149,6 @@ const TeamMemberDashboard = () => {
                                                 <button onClick={() => handleAddComment(ticket)}>Add</button>
                                             </div>
                                         </td>
-
                                     </tr>
                                 );
                             })}
@@ -151,8 +159,8 @@ const TeamMemberDashboard = () => {
                 <p>❌ No tickets assigned to you.</p>
             )}
 
-            <div class="logout-button-container">
-                <button class="logout-button" onClick={() => {
+            <div className="logout-button-container">
+                <button className="logout-button" onClick={() => {
                     localStorage.clear();
                     navigate("/loginPage");
                 }}>

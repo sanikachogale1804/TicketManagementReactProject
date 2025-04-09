@@ -95,16 +95,10 @@ export const updateTicket = async (ticketId, updatedTicket) => {
   }
 };
 
-export const addCommentToTicket = async (ticketId, commentData) => {
+export const addCommentToTicket = async (ticketId, commentData, token) => {
   try {
-    const token = localStorage.getItem("token");
-    
-    if (!token) {
-      throw new Error("Authorization token is missing.");
-    }
-
     const response = await axiosInstance.post(
-      `/tickets/${ticketId}/comments`,
+      '/comments',  // Correct endpoint
       commentData,
       {
         headers: {
