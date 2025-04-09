@@ -70,6 +70,20 @@ export const addTicket = (ticket) => {
     .then((data) => data);
 };
 
+const API_URL = 'http://localhost:8080/tickets';
+export const createTicket  = async (ticketData) => {
+  try {
+    const response = await axios.post('http://localhost:8080/tickets', ticketData);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      throw new Error('Ticket with the same Site ID and Description already exists.');
+    } else {
+      throw new Error('Error creating ticket: ' + error.message);
+    }
+  }
+};
+
 // Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {

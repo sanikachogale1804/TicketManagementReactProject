@@ -44,7 +44,7 @@ function CustomerInterface({ userId }) {
 
   return (
     <div className="customer-interface">
-      <h2>Your Tickets</h2>
+      <h2>Image And Footage Request</h2>
 
       {/* New Ticket Form Component */}
       <NewTicketForm onTicketCreated={(newTicket) => setTickets((prevTickets) => [...prevTickets, newTicket])} />

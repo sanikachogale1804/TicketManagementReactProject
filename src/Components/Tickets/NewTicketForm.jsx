@@ -4,10 +4,10 @@ import '../CSS/NewTicketForm.css';
 
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
-    title: '',
+    iasspname: '',
+    siteID: '',
     description: '',
     status: 'OPEN',
-    customerUserId: '',
     startDate: '',
     endDate: '',
   });
@@ -21,7 +21,7 @@ function NewTicketForm({ onTicketCreated }) {
   };
 
   const validateForm = () => {
-    if (!ticket.title || !ticket.description || !ticket.startDate || !ticket.endDate) {
+    if (!ticket.iasspname || !ticket.siteID || !ticket.description || !ticket.startDate || !ticket.endDate) {
       setError('❌ Please fill out all fields.');
       return false;
     }
@@ -41,30 +41,36 @@ function NewTicketForm({ onTicketCreated }) {
 
   const submitHandler = (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+  
+    if (!ticket.iasspname || ticket.iasspname.trim() === "") {
+      setError("⚠️ 'IASSP Name' cannot be empty.");
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
 
     setIsSubmitting(true);
 
     const newTicket = {
-      title: ticket.title,
+      iasspname: ticket.iasspname,
+      siteID: ticket.siteID,
       description: ticket.description,
-      status: ticket.status,
-      customerUserId: ticket.customerUserId,
-      startDate: ticket.startDate,
-      endDate: ticket.endDate,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      status: ticket.status || 'OPEN',
+      startDate: ticket.startDate, // Only sending required fields
+      endDate: ticket.endDate, // Only sending required fields
     };
 
-    console.log("🟢 Submitting new ticket:", newTicket);
+    console.log('🟢 Submitting new ticket:', newTicket);
 
     addTicket(newTicket)
       .then((data) => {
         setTicket({
-          title: '',
+          iasspname: '',
+          siteID: '',
           description: '',
           status: 'OPEN',
-          customerUserId: '',
           startDate: '',
           endDate: '',
         });
@@ -72,8 +78,9 @@ function NewTicketForm({ onTicketCreated }) {
         setIsSubmitting(false);
       })
       .catch((error) => {
-        console.error('❌ Failed to add ticket:', error);
+        console.error('❌ Failed to add ticket:', error.message);
         setIsSubmitting(false);
+        setError('❌ There was a conflict while creating the ticket. Please check the details.');
       });
   };
 
@@ -84,20 +91,50 @@ function NewTicketForm({ onTicketCreated }) {
         <table className="ticket-form-table">
           <tbody>
             <tr>
-              <td><label>Reason for Footage Request</label></td>
-              <td><input type="text" name="title" value={ticket.title} onChange={handleChange} className="form-input" /></td>
+              <td><label>IASSP Name</label></td>
+              <td>
+                <select
+                  name="iasspname"
+                  value={ticket.iasspname}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                >
+                  <option value="">Select a company</option>
+                  <option value="Skipper Limited">Skipper Limited</option>
+                  <option value="Dinesh Engineers Limited">Dinesh Engineers Limited</option>
+                  <option value="NexGen Digital Infrastructure">NexGen Digital Infrastructure</option>
+                  <option value="Bondada Engineering Limited">Bondada Engineering Limited</option>
+                  <option value="Pace Digitek">Pace Digitek</option>
+                  <option value="Pratap Technocrats Pvt Ltd">Pratap Technocrats Pvt Ltd</option>
+                </select>
+              </td>
             </tr>
             <tr>
-              <td><label>Description</label></td>
+              <td><label>Site ID</label></td>
+              <td>
+                <input
+                  type="text"
+                  name="siteID"
+                  value={ticket.siteID}
+                  onChange={handleChange}
+                  className="form-input"
+                  maxLength="12"
+                  required
+                />
+              </td>
+            </tr>
+            <tr>
+              <td><label>description</label></td>
               <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" /></td>
             </tr>
             <tr>
               <td><label>Start Date & Time</label></td>
-              <td><input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" /></td>
+              <td><input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" required /></td>
             </tr>
             <tr>
               <td><label>End Date & Time</label></td>
-              <td><input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" /></td>
+              <td><input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" required /></td>
             </tr>
             <tr>
               <td><label>Status</label></td>
