@@ -83,39 +83,33 @@ function AdminPanel() {
   };
 
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
-    console.log("🔍 Debug: Ticket ID ->", ticketId);
-    console.log("🔍 Debug: New Status ->", newStatus);
-
-    if (!ticketId) {
-      alert("❌ Error: Ticket ID is undefined!");
-      return;
-    }
+    if (!ticketId || !newStatus) return;
 
     try {
-      console.log(`📢 Updating Ticket ${ticketId} to ${newStatus}`);
+      console.log(`Updating Ticket ${ticketId} to Status: ${newStatus}`);
 
       const updatedTicket = await updateTicketStatus(ticketId, newStatus);
 
-      console.log("✅ API Response:", updatedTicket); // Debugging ke liye response check karo
-
-      setTickets(prevTickets =>
-        prevTickets.map(ticket =>
-          ticket.ticket_id === ticketId ? { ...ticket, status: newStatus } : ticket
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.ticket_id === ticketId
+            ? { ...ticket, status: updatedTicket.status }
+            : ticket
         )
       );
 
-      alert(`✅ Ticket ${ticketId} status updated to ${newStatus}`);
+      alert(`Ticket status updated to ${newStatus}`);
     } catch (error) {
-      console.error("❌ API Error:", error.response?.data || error.message);
-      alert(`❌ Failed to update ticket status: ${error.message}`);
+      console.error("Error updating ticket status:", error);
+      alert("Failed to update ticket status.");
     }
   };
-
+  
   const filteredTickets = tickets.filter((ticket) => {
     const matchesStatus = selectedFilter ? ticket.status === selectedFilter : true;
     const matchesSearchQuery =
-      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
+      (ticket.title && ticket.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (ticket.description && ticket.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesDateRange =
       (!startDate || new Date(ticket.createdAt) >= new Date(startDate)) &&
@@ -123,6 +117,7 @@ function AdminPanel() {
 
     return matchesStatus && matchesSearchQuery && matchesDateRange;
   });
+
 
   // Fetch comments for the selected ticket
   const fetchComments = async (ticketId) => {
@@ -240,7 +235,7 @@ function AdminPanel() {
             <thead>
               <tr>
                 <th>Ticket ID</th>
-                <th>Reason</th>
+                <th>Description</th> {/* Changed from Reason to Description */}
                 <th>Status</th>
                 <th>Assigned To</th>
                 <th>Update Status</th>
@@ -253,7 +248,7 @@ function AdminPanel() {
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.ticket_id}>
                   <td>{ticket.ticket_id}</td>
-                  <td>{ticket.title}</td>
+                  <td>{ticket.description}</td> {/* Render the description here */}
                   <td>{ticket.status}</td>
                   <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>
                   <td>

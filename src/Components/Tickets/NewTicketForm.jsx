@@ -7,7 +7,6 @@ function NewTicketForm({ onTicketCreated }) {
     iasspname: '',
     siteID: '',
     description: '',
-    status: 'OPEN',
     startDate: '',
     endDate: '',
   });
@@ -41,7 +40,7 @@ function NewTicketForm({ onTicketCreated }) {
 
   const submitHandler = (e) => {
     e.preventDefault();
-  
+
     if (!ticket.iasspname || ticket.iasspname.trim() === "") {
       setError("⚠️ 'IASSP Name' cannot be empty.");
       return;
@@ -53,13 +52,14 @@ function NewTicketForm({ onTicketCreated }) {
 
     setIsSubmitting(true);
 
+    // Here, we set status to 'OPEN' by default and don't need to include it in the form
     const newTicket = {
       iasspname: ticket.iasspname,
       siteID: ticket.siteID,
       description: ticket.description,
-      status: ticket.status || 'OPEN',
-      startDate: ticket.startDate, // Only sending required fields
-      endDate: ticket.endDate, // Only sending required fields
+      status: 'OPEN',  // Always 'OPEN' by default
+      startDate: ticket.startDate,
+      endDate: ticket.endDate,
     };
 
     console.log('🟢 Submitting new ticket:', newTicket);
@@ -70,7 +70,6 @@ function NewTicketForm({ onTicketCreated }) {
           iasspname: '',
           siteID: '',
           description: '',
-          status: 'OPEN',
           startDate: '',
           endDate: '',
         });
@@ -125,8 +124,8 @@ function NewTicketForm({ onTicketCreated }) {
               </td>
             </tr>
             <tr>
-              <td><label>description</label></td>
-              <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" /></td>
+              <td><label>Description</label></td>
+              <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" required /></td>
             </tr>
             <tr>
               <td><label>Start Date & Time</label></td>
@@ -135,16 +134,6 @@ function NewTicketForm({ onTicketCreated }) {
             <tr>
               <td><label>End Date & Time</label></td>
               <td><input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" required /></td>
-            </tr>
-            <tr>
-              <td><label>Status</label></td>
-              <td>
-                <select name="status" value={ticket.status} onChange={handleChange} className="form-select">
-                  <option value="OPEN">Open</option>
-                  <option value="IN_PROGRESS">In Progress</option>
-                  <option value="CLOSED">Closed</option>
-                </select>
-              </td>
             </tr>
           </tbody>
         </table>

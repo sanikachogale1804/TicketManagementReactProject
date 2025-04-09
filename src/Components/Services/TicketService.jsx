@@ -194,7 +194,8 @@ export const updateTicketStatus  = async (ticketId, newStatus) => {
 
       const response = await axios.put(`http://localhost:8080/tickets/${ticketId}`, {
           ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
-          title: existingTicket.title, // 📝 Title pass karo
+          iasspname:existingTicket.iasspname,
+          siteID: existingTicket.siteID,
           description: existingTicket.description, // 📝 Description bhi bhejo
           status: newStatus, // ✅ Naya status
           createdAt: existingTicket.createdAt, // 🕒 Pehla createdAt send karo
