@@ -276,30 +276,58 @@ function AdminPanel() {
             </thead>
             <tbody>
               {filteredTickets.map((ticket) => (
-                <tr key={ticket.ticket_id}>
-                  <td>{ticket.ticket_id}</td>
-                  <td>{ticket.siteID}</td>  {/* Display Site ID */}
-                  <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
-                  <td>{ticket.description}</td> {/* Render the description here */}
-                  <td>{ticket.status}</td>
-                  <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>
-                  <td>
-                    <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)} className="status-select">
-                      <option value="OPEN">OPEN</option>
-                      <option value="IN_PROGRESS">IN_PROGRESS</option>
-                      <option value="CLOSED">CLOSED</option>
-                    </select>
-                  </td>
-                  <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>
-                  <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>
-                  <td>
-                    <button onClick={() => handleShowComments(ticket.ticket_id)} className="view-comments-btn">
-                      View Comments
-                    </button>
-                  </td>
-                </tr>
+                <React.Fragment key={ticket.ticket_id}>
+                  <tr>
+                    <td>{ticket.ticket_id}</td>
+                    <td>{ticket.siteID}</td>
+                    <td>{ticket.iasspname}</td>
+                    <td>{ticket.description}</td>
+                    <td>{ticket.status}</td>
+                    <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>
+                    <td>
+                      <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)} className="status-select">
+                        <option value="OPEN">OPEN</option>
+                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                        <option value="CLOSED">CLOSED</option>
+                      </select>
+                    </td>
+                    <td>{ticket.startDate ? new Date(ticket.startDate).toLocaleString() : 'N/A'}</td>
+                    <td>{ticket.endDate ? new Date(ticket.endDate).toLocaleString() : 'N/A'}</td>
+                    <td>
+                      <button onClick={() => handleShowComments(ticket.ticket_id)} className="view-comments-btn">
+                        {commentTicketId === ticket.ticket_id && showComments ? "Hide Comments" : "View Comments"}
+                      </button>
+                    </td>
+                  </tr>
+
+                  {/* Comments Row */}
+                  {commentTicketId === ticket.ticket_id && showComments && (
+                    <tr className="comments-row">
+                      <td colSpan="10">
+                        <div className="comments-container fade-in">
+                          <h4>💬 Comments:</h4>
+                          {comments.length > 0 ? (
+                            <ul className="comments-list">
+                              {comments.map((comment, index) => (
+                                <li key={index} className="comment-item">
+                                  <p className="comment-text">🗒️ {comment.comment}</p>
+                                  <span className="comment-date">
+                                    {new Date(comment.createdAt).toLocaleString()}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p>No comments found for this ticket.</p>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
+
           </table>
         ) : (
           <p>No tickets to display</p>
@@ -307,15 +335,21 @@ function AdminPanel() {
       </div>
 
       {/* Comments Section */}
+      {/* ✨ COMMENTS SECTION WITH STYLING */}
       {showComments && (
-        <div className="comments-container">
-          <h3>Comments for Ticket ID: {commentTicketId}</h3>
+        <div className="comments-container fade-in">
+          <h3>
+            💬 Comments for Ticket ID:{" "}
+            <span style={{ color: "#007BFF" }}>{commentTicketId}</span>
+          </h3>
           {comments.length > 0 ? (
-            <ul>
+            <ul className="comments-list">
               {comments.map((comment, index) => (
-                <li key={index}>
-                  <p>{comment.comment}</p>
-                  <span>{new Date(comment.createdAt).toLocaleString()}</span>
+                <li key={index} className="comment-item">
+                  <p className="comment-text">🗒️ {comment.comment}</p>
+                  <span className="comment-date">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
                 </li>
               ))}
             </ul>

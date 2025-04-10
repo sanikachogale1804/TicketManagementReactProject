@@ -540,6 +540,18 @@ body, .dashboard-container {
   font-size: 0.85rem;
   color: #666;
 }
+.comments-row {
+  background-color: #f9f9f9;
+  transition: all 0.3s ease-in-out;
+}
+.comment-item {
+  margin-bottom: 10px;
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 14px;
+}
 
 
 /* Responsive Design */

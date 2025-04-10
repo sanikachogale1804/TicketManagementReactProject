@@ -1,32 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { getTicketsByUser } from '../Services/TicketService';  // Import your API methods
-// import { Link } from 'react-router-dom';  // For navigation to ticket details page
+import { getTicketsByUser } from '../Services/TicketService';
+import axios from 'axios';
 import '../CSS/CustomerInterface.css';
 import NewTicketForm from '../Tickets/NewTicketForm';
 
 function CustomerInterface({ userId }) {
   const [tickets, setTickets] = useState([]);
-  const [filter, setFilter] = useState('ALL');  // Filter for status (OPEN, IN_PROGRESS, CLOSED, or ALL)
+  const [filter, setFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState([]);
+  const [showComments, setShowComments] = useState(false);
+  const [commentTicketId, setCommentTicketId] = useState(null);
 
-  // Fetch tickets for the customer
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await getTicketsByUser(userId);  // You can filter on backend as needed
-        console.log("Fetched tickets:", response); // Log the response to confirm the structure
-        
-        // Extract tickets from response._embedded.tickets
+        const response = await getTicketsByUser(userId);
         const ticketsData = response._embedded?.tickets || [];
-        
-        // Map tickets and add ticket_id if not already present
+
         const ticketsWithId = ticketsData.map((ticket) => {
-          // If ticketId is not present, extract it from the URL (if it's in a _links field)
-          const ticketId = ticket.ticketId || ticket._links?.ticket?.href?.split("/").pop(); // Extract ticket ID if not present
-          return { ...ticket, ticketId }; // Ensure ticketId is part of the ticket object
+          const ticketId = ticket.ticketId || ticket._links?.ticket?.href?.split("/").pop();
+          return { ...ticket, ticketId };
         });
 
-        setTickets(ticketsWithId); // Set tickets with ID added
+        setTickets(ticketsWithId);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tickets:', error);
@@ -37,19 +34,39 @@ function CustomerInterface({ userId }) {
     fetchTickets();
   }, [userId]);
 
-  // Handle status filter change
   const handleFilterChange = (e) => {
     setFilter(e.target.value);
+  };
+
+  const fetchComments = async (ticketId) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/tickets/${ticketId}/comments`);
+      const commentsData = response.data._embedded?.comments || [];
+      setComments(commentsData);
+      console.log("Fetched comments:", commentsData);
+    } catch (error) {
+      console.error(`Error fetching comments for Ticket ${ticketId}:`, error);
+      setComments([]);
+    }
+  };
+
+  const handleShowComments = (ticketId) => {
+    if (commentTicketId === ticketId && showComments) {
+      setShowComments(false);
+      setCommentTicketId(null);
+    } else {
+      fetchComments(ticketId);
+      setCommentTicketId(ticketId);
+      setShowComments(true);
+    }
   };
 
   return (
     <div className="customer-interface">
       <h2>Image And Footage Request</h2>
 
-      {/* New Ticket Form Component */}
       <NewTicketForm onTicketCreated={(newTicket) => setTickets((prevTickets) => [...prevTickets, newTicket])} />
 
-      {/* Status filter */}
       <div className="ticket-filters">
         <label>Filter by Status: </label>
         <select value={filter} onChange={handleFilterChange}>
@@ -69,45 +86,57 @@ function CustomerInterface({ userId }) {
               <thead>
                 <tr>
                   <th>Ticket ID</th>
-                  <th>Site ID</th> 
-                  <th>IASSP Name</th> 
-                  <th>Reason For Footage</th> 
+                  <th>Site ID</th>
+                  <th>IASSP Name</th>
+                  <th>Reason For Footage</th>
                   <th>Status</th>
                   <th>Created At</th>
-                  {/* <th>Actions</th> */}
+                  <th>Comments</th>
                 </tr>
               </thead>
               <tbody>
                 {tickets
-                  .filter(ticket => filter === 'ALL' || ticket.status === filter)  // Apply the filter based on status
+                  .filter(ticket => filter === 'ALL' || ticket.status === filter)
                   .map((ticket) => (
-                    <tr key={ticket.ticketId}>
-                      <td>{ticket.ticketId}</td>  {/* Display ticketId */}
-                      <td>{ticket.siteID}</td>  {/* Display Site ID */}
-                      <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
-                      <td>{ticket.description}</td>
-                      <td>{ticket.status}</td>
-                      <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
-                      {/* <td>
-                        <Link to={`/tickets/${ticket.ticketId}`}>View</Link> |
-                        {ticket.status !== 'CLOSED' && (
-                          <>
-                            <button
-                              onClick={() => handleStatusChange(ticket.ticketId, 'IN_PROGRESS')}
-                              disabled={ticket.status === 'IN_PROGRESS'}
-                            >
-                              In Progress
-                            </button>
-                            <button
-                              onClick={() => handleStatusChange(ticket.ticketId, 'CLOSED')}
-                              disabled={ticket.status === 'CLOSED'}
-                            >
-                              Close
-                            </button>
-                          </>
-                        )}
-                      </td> */}
-                    </tr>
+                    <React.Fragment key={ticket.ticketId}>
+                      <tr>
+                        <td>{ticket.ticketId}</td>
+                        <td>{ticket.siteID}</td>
+                        <td>{ticket.iasspname}</td>
+                        <td>{ticket.description}</td>
+                        <td>{ticket.status}</td>
+                        <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          <button onClick={() => handleShowComments(ticket.ticketId)} className="view-comments-btn">
+                            {commentTicketId === ticket.ticketId && showComments ? "Hide Comments" : "View Comments"}
+                          </button>
+                        </td>
+                      </tr>
+
+                      {commentTicketId === ticket.ticketId && showComments && (
+                        <tr className="comments-row">
+                          <td colSpan="7">
+                            <div className="comments-container fade-in">
+                              <h4>💬 Comments:</h4>
+                              {comments.length > 0 ? (
+                                <ul className="comments-list">
+                                  {comments.map((comment, index) => (
+                                    <li key={index} className="comment-item">
+                                      <p className="comment-text">🗒️ {comment.comment}</p>
+                                      <span className="comment-date">
+                                        {new Date(comment.createdAt).toLocaleString()}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p>No comments found for this ticket.</p>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
               </tbody>
             </table>

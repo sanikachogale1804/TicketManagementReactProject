@@ -52,4 +52,38 @@
     background-color: #ccc;
     cursor: not-allowed;
   }
+  .view-comments-btn {
+    padding: 4px 8px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .view-comments-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .comments-container {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-left: 4px solid #007BFF;
+    margin-top: 10px;
+  }
+  
+  .comment-item {
+    margin-bottom: 8px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+  }
+  
+  .comment-text {
+    font-size: 14px;
+  }
+  
+  .comment-date {
+    font-size: 12px;
+    color: gray;
+  }
   
