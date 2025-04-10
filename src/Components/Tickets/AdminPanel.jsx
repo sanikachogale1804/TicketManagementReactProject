@@ -6,6 +6,8 @@ import {
   getTicketsWithId,
 } from "../Services/TicketService";
 import '../CSS/AdminPanel.css';
+import axios from 'axios';
+
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
@@ -136,36 +138,29 @@ function AdminPanel() {
 
   const fetchComments = async (ticketId) => {
     try {
-      const response = await fetch(`http://localhost:8080/comments`);
-      if (!response.ok) throw new Error("Failed to fetch comments");
+      const response = await axios.get(`http://localhost:8080/tickets/${ticketId}/comments`);
+      const comments = response.data._embedded?.comments || [];
   
-      const data = await response.json();
-  
-      if (data && data._embedded && Array.isArray(data._embedded.comments)) {
-        const filtered = data._embedded.comments.filter((comment) => {
-          const ticketLink = comment._links?.ticket?.href || "";
-          const idFromLink = ticketLink.split("/").slice(-2)[0]; // 👈 gets '1' from '/comments/1/ticket'
-          return idFromLink === ticketId.toString(); // match with clicked ticket
-        });
-  
-        console.log("🎯 Filtered Comments for Ticket ID", ticketId, "=>", filtered);
-        setComments(filtered);
-      } else {
-        setComments([]);
-      }
+      setComments(comments);
+      console.log(`✅ Comments for Ticket ${ticketId}:`, comments);
     } catch (error) {
-      console.error("❌ Error:", error);
+      console.error(`❌ Error fetching comments for Ticket ${ticketId}:`, error);
       setComments([]);
     }
   };
   
-
+  
   // Function to handle viewing comments for a specific ticket
   const handleShowComments = (ticketId) => {
-    setSelectedTicketId(ticketId);  // Set the selected ticket ID
-    fetchComments(ticketId);  // Fetch comments for the selected ticket
-    setShowComments(true);  // Toggle comments visibility
+    if (selectedTicketId === ticketId && showComments) {
+      setShowComments(false);
+    } else {
+      setSelectedTicketId(ticketId);
+      fetchComments(ticketId);
+      setShowComments(true);
+    }
   };
+  
 
   if (loading) return <p>Loading...</p>;
 
