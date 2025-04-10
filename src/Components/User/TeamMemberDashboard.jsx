@@ -98,8 +98,7 @@ const TeamMemberDashboard = () => {
             console.error("❌ Error adding comment:", error);
             alert("❌ Failed to add comment.");
         }
-    };
-    
+    };    
 
     const handleCommentChange = (ticketId, value) => {
         setTicketComments((prevComments) => ({

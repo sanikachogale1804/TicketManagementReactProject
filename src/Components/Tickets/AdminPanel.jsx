@@ -134,33 +134,31 @@ function AdminPanel() {
   });
 
 
-  // Fetch comments for the selected ticket
   const fetchComments = async (ticketId) => {
     try {
-      // Call the API to fetch the comments of a specific ticket
-      const response = await fetch(`http://localhost:8080/tickets/${ticketId}/comments`);
-
-      if (!response.ok) {
-        throw new Error("❌ Error fetching comments");
-      }
-
+      const response = await fetch(`http://localhost:8080/comments`);
+      if (!response.ok) throw new Error("Failed to fetch comments");
+  
       const data = await response.json();
-
-      // Log the response to inspect its structure
-      console.log("Fetched Comments Response:", data);
-
-      // Ensure the response contains comments under '_embedded.comments'
-      if (data && data._embedded && Array.isArray(data._embedded.comments) && data._embedded.comments.length > 0) {
-        setComments(data._embedded.comments); // Set the comments state
+  
+      if (data && data._embedded && Array.isArray(data._embedded.comments)) {
+        const filtered = data._embedded.comments.filter((comment) => {
+          const ticketLink = comment._links?.ticket?.href || "";
+          const idFromLink = ticketLink.split("/").slice(-2)[0]; // 👈 gets '1' from '/comments/1/ticket'
+          return idFromLink === ticketId.toString(); // match with clicked ticket
+        });
+  
+        console.log("🎯 Filtered Comments for Ticket ID", ticketId, "=>", filtered);
+        setComments(filtered);
       } else {
-        console.log("No comments available or unexpected response format.");
-        setComments([]); // If no comments are available, set an empty array
+        setComments([]);
       }
     } catch (error) {
-      console.error("❌ Error fetching comments:", error);
-      setComments([]); // Optionally, handle errors by setting an empty array
+      console.error("❌ Error:", error);
+      setComments([]);
     }
   };
+  
 
   // Function to handle viewing comments for a specific ticket
   const handleShowComments = (ticketId) => {
@@ -314,7 +312,7 @@ function AdminPanel() {
       {/* Comments Section */}
       {showComments && comments.length > 0 && (
         <div className="comments-container">
-          <h3>Comments</h3>
+          <h3>Comments for Ticket ID: {selectedTicketId}</h3>
           <ul>
             {comments.map((comment, index) => (
               <li key={index}>
