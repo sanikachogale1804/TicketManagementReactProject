@@ -70,7 +70,7 @@ export const addTicket = (ticket) => {
     .then((data) => data);
 };
 
-const API_URL = 'http://localhost:8080/tickets';
+// const API_URL = 'http://localhost:8080/tickets';
 export const createTicket  = async (ticketData) => {
   try {
     const response = await axios.post('http://localhost:8080/tickets', ticketData);
@@ -93,6 +93,20 @@ export const updateTicket = async (ticketId, updatedTicket) => {
     console.error("Error updating ticket:", error);
     throw error;
   }
+};
+
+export const createComment = async (ticketId, commentPayload, token) => {
+  const response = await axios.post(
+    `http://localhost:8080/comments`,
+    commentPayload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+  return response.data;
 };
 
 export const addCommentToTicket = async (commentId, ticketId) => {
