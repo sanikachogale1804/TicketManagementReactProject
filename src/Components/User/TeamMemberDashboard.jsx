@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import '../CSS/TeamMemberDashboard.css'
 import { addCommentToTicket } from "../Services/TicketService";
 
@@ -65,7 +64,7 @@ const TeamMemberDashboard = () => {
 
     const handleAddComment = async (ticket) => {
         const token = localStorage.getItem("token");
-        const ticketId = ticket._links?.self?.href.split("/").pop();  // Extract ticket ID from the URL
+        const ticketId = ticket._links?.self?.href.split("/").pop(); // Extract ticket ID
 
         if (!ticketId || !ticketComments[ticketId]) {
             alert("❌ Please enter a comment before submitting.");
@@ -73,22 +72,24 @@ const TeamMemberDashboard = () => {
         }
 
         try {
-            const newComment = {
-                ticketId: { ticketId: ticketId },  // Use ticketId here
-                userId: { userId: Number(userId) },  // Use userId from localStorage
+            const commentPayload = {
+                userId: { userId: Number(userId) }, // This is fine if the backend expects this
                 comment: ticketComments[ticketId],
                 createdAt: new Date().toISOString(),
             };
 
-            // Send the comment to the backend using the API function
-            const response = await addCommentToTicket(ticketId, newComment, token);
-            if (response) {
-                alert("✅ Comment added successfully!");
-            }
+            // ✅ Step 1: POST the comment without ticketId
+            const response = await addCommentToTicket(ticketId, commentPayload, token);
+            console.log("✅ Comment Created:", response);
 
-            // Clear the comment input after submitting
+            // ✅ Step 2: Assign the ticket using ticket-comment relation endpoint
+            const commentId = response.commentId || response.id; // Adjust depending on backend field
+            await addCommentToTicket(commentId, ticketId);
+
+            alert("✅ Comment added and ticket assigned successfully!");
             setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
         } catch (error) {
+            console.error("Error adding comment:", error);
             alert("❌ Failed to add comment.");
         }
     };

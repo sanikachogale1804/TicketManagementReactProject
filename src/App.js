@@ -14,6 +14,7 @@ import CustomerInterface from './Components/User/CustomerInterface';
 import HomePage from './Components/HomePage/HomePage';
 import TeamMemberDashboard from './Components/User/TeamMemberDashboard';
 import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
+import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 
 
 
@@ -75,6 +76,10 @@ const routes = createBrowserRouter([
   {
     path:"/loginUserDashboard",
     element:<LoggedinUserDashboard/>
+  },
+  {
+    path:"/calendarDashboard",
+    element:<CalendarDashboard/>
   }
 ]);
 

@@ -95,31 +95,22 @@ export const updateTicket = async (ticketId, updatedTicket) => {
   }
 };
 
-export const addCommentToTicket = async (ticketId, commentData, token) => {
+export const addCommentToTicket = async (commentId, ticketId) => {
   try {
-    const response = await axiosInstance.post(
-      '/comments',  // Correct endpoint
-      commentData,
+    const response = await axios.put(
+      `http://localhost:8080/comments/${commentId}/ticket`,
+      `http://localhost:8080/tickets/${ticketId}`, // URI to the ticket resource
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "text/uri-list",
         },
       }
     );
-
-    console.log("✅ Comment Added Successfully:", response.data);
-    return response.data;
+    console.log("✅ Ticket assigned successfully:", response.status);
   } catch (error) {
-    console.error("❌ Error adding comment:", {
-      status: error.response?.status || "Unknown Status",
-      message: error.response?.data?.message || error.message,
-      details: error.response?.data || "No additional details",
-    });
-
-    throw error;
+    console.error("❌ Error assigning ticket:", error.response?.data || error);
   }
 };
-
 
 // Get Team Members
 export const getTeamMembers = async () => {

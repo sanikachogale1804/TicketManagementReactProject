@@ -1,0 +1,110 @@
+/* CalendarDashboard.css */
+
+.calendar-container {
+    padding: 1.5rem;
+    font-family: sans-serif;
+    background-color: #f9fafb;
+  }
+  
+  .calendar-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 14px;
+    background-color: white;
+  }
+  
+  .calendar-header {
+    background-color: #f5f7fa;
+    color: #374151;
+    padding: 12px 8px;
+    border: 1px solid #d1d5db;
+    font-weight: bold;
+  }
+  
+  /* Standard cell styling */
+  .calendar-cell {
+    padding: 14px 8px;
+    border: 1px solid #e5e7eb;
+    vertical-align: top;
+    background-color: #fff;
+  }
+  
+  /* Light background for weekends */
+  .calendar-table td:nth-child(2),
+  .calendar-table td:nth-child(8) {
+    background-color: #f9f9f9;
+  }
+  
+  /* Highlight total column and bottom total row */
+  .calendar-table td:last-child,
+  .calendar-table tr:last-child td {
+    background-color: #2f3e4d;
+    color: #ffffff;
+    font-weight: bold;
+  }
+  
+  /* Upward trend cell */
+  .up {
+    background-color: #e6f4ea;
+    color: #15803d; /* deep green */
+  }
+  
+  /* Downward trend cell */
+  .down {
+    background-color: #fef2f2;
+    color: #b91c1c; /* deep red */
+  }
+  
+  /* Optional: You can add icons via ::before pseudo-elements if desired */
+  .up::before {
+    content: "↑ ";
+    color: #15803d;
+    font-weight: bold;
+  }
+  
+  .down::before {
+    content: "↓ ";
+    color: #b91c1c;
+    font-weight: bold;
+  }
+  
+  .main-value {
+    font-weight: bold;
+    font-size: 16px;
+  }
+  
+  .trend-text {
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
+  }
+  
+  .trend-text.up {
+    color: #15803d;
+    background-color: #e6f4ea;
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  
+  .trend-text.down {
+    color: #b91c1c;
+    background-color: #fef2f2;
+    padding: 2px 4px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+  
