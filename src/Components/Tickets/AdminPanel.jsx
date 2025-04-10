@@ -21,6 +21,8 @@ function AdminPanel() {
   const [endDate, setEndDate] = useState("");
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false); // For toggling comments visibility
+  const [commentTicketId, setCommentTicketId] = useState(null);
+
 
   const [ticketStats, setTicketStats] = useState({
     open: 0,
@@ -140,7 +142,7 @@ function AdminPanel() {
     try {
       const response = await axios.get(`http://localhost:8080/tickets/${ticketId}/comments`);
       const comments = response.data._embedded?.comments || [];
-  
+
       setComments(comments);
       console.log(`✅ Comments for Ticket ${ticketId}:`, comments);
     } catch (error) {
@@ -148,19 +150,19 @@ function AdminPanel() {
       setComments([]);
     }
   };
-  
-  
+
+
   // Function to handle viewing comments for a specific ticket
   const handleShowComments = (ticketId) => {
-    if (selectedTicketId === ticketId && showComments) {
+    if (commentTicketId === ticketId && showComments) {
       setShowComments(false);
+      setCommentTicketId(null);
     } else {
-      setSelectedTicketId(ticketId);
       fetchComments(ticketId);
+      setCommentTicketId(ticketId);
       setShowComments(true);
     }
   };
-  
 
   if (loading) return <p>Loading...</p>;
 
@@ -305,17 +307,21 @@ function AdminPanel() {
       </div>
 
       {/* Comments Section */}
-      {showComments && comments.length > 0 && (
+      {showComments && (
         <div className="comments-container">
-          <h3>Comments for Ticket ID: {selectedTicketId}</h3>
-          <ul>
-            {comments.map((comment, index) => (
-              <li key={index}>
-                <p>{comment.comment}</p>
-                <span>{new Date(comment.createdAt).toLocaleString()}</span>
-              </li>
-            ))}
-          </ul>
+          <h3>Comments for Ticket ID: {commentTicketId}</h3>
+          {comments.length > 0 ? (
+            <ul>
+              {comments.map((comment, index) => (
+                <li key={index}>
+                  <p>{comment.comment}</p>
+                  <span>{new Date(comment.createdAt).toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No comments found for this ticket.</p>
+          )}
         </div>
       )}
 
