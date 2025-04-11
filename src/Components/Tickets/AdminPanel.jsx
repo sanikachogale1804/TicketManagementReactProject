@@ -252,6 +252,7 @@ function AdminPanel() {
           <h3 className="ticket-stats-heading">In Progress</h3>
           <p className="ticket-stats-count">{ticketStats.inProgress}</p>
         </div>
+       
       </div>
 
       {/* Tickets Table */}

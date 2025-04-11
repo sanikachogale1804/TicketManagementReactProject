@@ -476,30 +476,31 @@ body, .dashboard-container {
 
 .ticket-stats-heading {
   font-size: 12px; /* Smaller heading font size */
-  color: #555;
+  color: white;
+  font-weight: bold;
   margin-bottom: 4px; /* Reduced margin */
 }
 
 .ticket-stats-count {
   font-size: 18px; /* Smaller count font size */
   font-weight: bold;
-  color: #333;
+  color: white;
 }
 
 /* Styles for specific ticket categories */
 .open-tickets {
-  background-color: #e3f8e7; /* Light green background */
-  border-left: 5px solid #28a745; /* Green left border */
+  background-color: #3498db; /* Light green background */
+  border-left: 5px solid #3498db; /* Green left border */
 }
 
 .closed-tickets {
-  background-color: #f8d7da; /* Light red background */
-  border-left: 5px solid #dc3545; /* Red left border */
+  background-color:  #2ecc71; /* Light red background */
+  border-left: 5px solid  #2ecc71; /* Red left border */
 }
 
 .in-progress-tickets {
-  background-color: #fff3cd; /* Light yellow background */
-  border-left: 5px solid #ffc107; /* Yellow left border */
+  background-color:  #f39c12; /* Light yellow background */
+  border-left: 5px solid #f39c12 /* Yellow left border */
 }
 .comments-container {
   background-color: #f0f4f8;
@@ -553,17 +554,24 @@ body, .dashboard-container {
   font-size: 14px;
 }
 
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .ticket-stats-card {
     width: 100%; /* Stack cards vertically on smaller screens */
     margin-bottom: 8px; /* Adjust bottom margin */
   }
-
   .ticket-stats-overview {
-    padding: 8px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 16px;
+    margin: 0 auto;
+    text-align: center;
+    width: 80%;          /* Add a width to help it center visually */
+    max-width: 900px;    /* Optional: limit max size */
   }
+  
 
   .ticket-stats-title {
     font-size: 12px; /* Smaller title on mobile */
