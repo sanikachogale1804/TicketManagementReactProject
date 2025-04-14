@@ -494,7 +494,7 @@ body, .dashboard-container {
 }
 
 .closed-tickets {
-  background-color:  #2ecc71; /* Light red background */
+  background-color:  #2ecc71; 
   border-left: 5px solid  #2ecc71; /* Red left border */
 }
 
@@ -584,4 +584,25 @@ body, .dashboard-container {
   .ticket-stats-count {
     font-size: 16px; /* Smaller count size on mobile */
   }
+}
+.status-label {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+/* Specific status color coding */
+.status-label.open {
+  color: red;
+}
+
+.status-label.in_progress {
+  color: orange;
+}
+
+.status-label.closed {
+  background-color: transparent;
+  color: green;
 }

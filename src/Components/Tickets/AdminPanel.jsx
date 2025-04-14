@@ -88,18 +88,25 @@ function AdminPanel() {
       const teamMemberUrl = selectedTeamMember._links.self.href;
       console.log(`📌 Assigning Ticket ${selectedTicketId} to ${teamMemberUrl}`);
 
+      // Step 1: Assign the ticket
       await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
+      console.log(`✅ Ticket ${selectedTicketId} assigned.`);
 
-      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName}`);
+      // Step 2: Automatically update the status to IN_PROGRESS
+      await updateTicketStatus(selectedTicketId, "IN_PROGRESS");
+      console.log(`🟡 Ticket ${selectedTicketId} status updated to IN_PROGRESS.`);
 
-      // ✅ Assign hone ke baad fresh data leke ao
+      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName} and moved to IN_PROGRESS`);
+
+      // Step 3: Fetch updated ticket list
       const updatedTickets = await getTicketsWithId();
       setTickets(updatedTickets);
     } catch (error) {
-      console.error("❌ Failed to assign ticket:", error);
-      alert("Error assigning ticket.");
+      console.error("❌ Failed to assign ticket or update status:", error);
+      alert("Error assigning ticket or updating status.");
     }
   };
+
 
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
     if (!ticketId || !newStatus) return;
@@ -252,7 +259,7 @@ function AdminPanel() {
           <h3 className="ticket-stats-heading">In Progress</h3>
           <p className="ticket-stats-count">{ticketStats.inProgress}</p>
         </div>
-       
+
       </div>
 
       {/* Tickets Table */}
@@ -283,7 +290,11 @@ function AdminPanel() {
                     <td>{ticket.siteID}</td>
                     <td>{ticket.iasspname}</td>
                     <td>{ticket.description}</td>
-                    <td>{ticket.status}</td>
+                    <td>
+                      <span className={`status-label ${ticket.status.toLowerCase()}`}>
+                        {ticket.status}
+                      </span>
+                    </td>
                     <td>{ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned"}</td>
                     <td>
                       <select onChange={(e) => handleUpdateTicketStatus(ticket.ticket_id, e.target.value)} className="status-select">
