@@ -92,15 +92,36 @@ function AdminPanel() {
       await assignTicketToTeamMember(selectedTicketId, teamMemberUrl);
       console.log(`✅ Ticket ${selectedTicketId} assigned.`);
 
-      // Step 2: Automatically update the status to IN_PROGRESS
+      // Step 2: Update the status to IN_PROGRESS
       await updateTicketStatus(selectedTicketId, "IN_PROGRESS");
       console.log(`🟡 Ticket ${selectedTicketId} status updated to IN_PROGRESS.`);
 
-      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName} and moved to IN_PROGRESS`);
+      // 🆕 Step 3: Refetch assigned user from HATEOAS link to get full object
+      const updatedTickets = await Promise.all(
+        tickets.map(async (ticket) => {
+          if (ticket.ticket_id === selectedTicketId && ticket._links.assignedTo) {
+            const assignedUserResponse = await fetch(ticket._links.assignedTo.href);
+            const assignedUser = await assignedUserResponse.json();
+            return {
+              ...ticket,
+              status: "IN_PROGRESS",
+              assignedTo: assignedUser
+            };
+          }
+          return ticket;
+        })
+      );
 
-      // Step 3: Fetch updated ticket list
-      const updatedTickets = await getTicketsWithId();
       setTickets(updatedTickets);
+
+      // Step 4: Update ticket stats locally
+      setTicketStats((prevStats) => ({
+        ...prevStats,
+        open: Math.max(prevStats.open - 1, 0),
+        inProgress: prevStats.inProgress + 1,
+      }));
+
+      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName} and moved to IN_PROGRESS`);
     } catch (error) {
       console.error("❌ Failed to assign ticket or update status:", error);
       alert("Error assigning ticket or updating status.");
@@ -149,17 +170,17 @@ function AdminPanel() {
     try {
       const response = await axios.get(`http://localhost:8080/tickets/${ticketId}/comments`);
       const fetchedComments = response.data._embedded?.comments || [];
-  
+
       setComments(fetchedComments);
       console.log(`✅ Comments for Ticket ${ticketId}:`, fetchedComments);
-  
+
       // 🔄 Auto-close ticket if comments exist
       if (fetchedComments.length > 0) {
         console.log("🚀 Auto-closing the ticket since comments exist...");
-  
+
         // Step 1: Update the status on the server
         await updateTicketStatus(ticketId, "CLOSED");
-  
+
         // Step 2: Update the status in UI
         setTickets((prevTickets) =>
           prevTickets.map((ticket) =>
@@ -168,14 +189,14 @@ function AdminPanel() {
               : ticket
           )
         );
-  
+
         console.log(`✅ Ticket ${ticketId} status updated to CLOSED`);
       }
     } catch (error) {
       console.error(`❌ Error fetching comments for Ticket ${ticketId}:`, error);
       setComments([]);
     }
-  };  
+  };
 
 
   // Function to handle viewing comments for a specific ticket
