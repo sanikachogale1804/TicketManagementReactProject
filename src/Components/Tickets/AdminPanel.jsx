@@ -45,8 +45,13 @@ function AdminPanel() {
             if (ticket._links.assignedTo) {
               try {
                 const assignedUserResponse = await fetch(ticket._links.assignedTo.href);
-                const assignedUser = await assignedUserResponse.json();
-                return { ...ticket, assignedTo: assignedUser }; // ✅ Assigned user add karo
+                if (assignedUserResponse.ok) {
+                  const assignedUser = await assignedUserResponse.json();
+                  return { ...ticket, assignedTo: assignedUser };
+                } else {
+                  console.warn(`⚠️ No assigned user found for Ticket ${ticket.ticket_id}`);
+                  return { ...ticket, assignedTo: null };
+                }
               } catch (error) {
                 console.error("❌ Error fetching assigned user:", error);
                 return { ...ticket, assignedTo: null };
@@ -55,6 +60,7 @@ function AdminPanel() {
             return { ...ticket, assignedTo: null };
           })
         );
+
 
         setTickets(updatedTickets);
         setTeamMembers(fetchedTeamMembers);
@@ -96,38 +102,42 @@ function AdminPanel() {
       await updateTicketStatus(selectedTicketId, "IN_PROGRESS");
       console.log(`🟡 Ticket ${selectedTicketId} status updated to IN_PROGRESS.`);
 
-      // 🆕 Step 3: Refetch assigned user from HATEOAS link to get full object
-      const updatedTickets = await Promise.all(
-        tickets.map(async (ticket) => {
-          if (ticket.ticket_id === selectedTicketId && ticket._links.assignedTo) {
-            const assignedUserResponse = await fetch(ticket._links.assignedTo.href);
-            const assignedUser = await assignedUserResponse.json();
-            return {
-              ...ticket,
-              status: "IN_PROGRESS",
-              assignedTo: assignedUser
-            };
+      // ✅ Step 3: Fetch assigned user from backend using HATEOAS link
+      const assignedUserRes = await fetch(teamMemberUrl);
+      const assignedUser = await assignedUserRes.json();
+
+      // ✅ Step 4: Update ticket in local state with new assigned user
+      const updatedTickets = tickets.map((ticket) =>
+        ticket.ticket_id === selectedTicketId
+          ? {
+            ...ticket,
+            status: "IN_PROGRESS",
+            assignedTo: assignedUser,
           }
-          return ticket;
-        })
+          : ticket
       );
 
       setTickets(updatedTickets);
 
-      // Step 4: Update ticket stats locally
+      // Step 5: Update ticket stats locally
       setTicketStats((prevStats) => ({
         ...prevStats,
         open: Math.max(prevStats.open - 1, 0),
         inProgress: prevStats.inProgress + 1,
       }));
 
-      alert(`✅ Ticket ${selectedTicketId} assigned to ${selectedTeamMember.userName} and moved to IN_PROGRESS`);
+      alert(
+        `✅ Ticket ${selectedTicketId} assigned to ${assignedUser.userName} and moved to IN_PROGRESS`
+      );
+
+      // Optional: Reset selections
+      setSelectedTicketId(null);
+      setSelectedTeamMember(null);
     } catch (error) {
       console.error("❌ Failed to assign ticket or update status:", error);
       alert("Error assigning ticket or updating status.");
     }
   };
-
 
   const handleUpdateTicketStatus = async (ticketId, newStatus) => {
     if (!ticketId || !newStatus) return;

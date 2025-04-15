@@ -37,7 +37,7 @@ const TeamMemberDashboard = () => {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:8080/users/${userId}/assignedTickets`, {
+                const response = await fetch(`http://192.168.1.91:8080/users/${userId}/assignedTickets`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
