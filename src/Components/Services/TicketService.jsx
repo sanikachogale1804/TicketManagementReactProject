@@ -3,7 +3,7 @@ import axios from "axios";
 const isLocalhost = window.location.hostname === 'localhost';
 const BASE_URL = isLocalhost
   ? "http://localhost:8080"
-  : "https://silver-unicorn-fb39cf.netlify.app";
+  : "https://creative-cascaron-a830b6.netlify.app/";
 const API_LINK = `${BASE_URL}/tickets`;
 
 const getAuthToken = () => {
