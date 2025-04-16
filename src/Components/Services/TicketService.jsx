@@ -1,42 +1,114 @@
-import axios from 'axios';
+import axios from "axios";
 
-// Base URL for your backend API
-const BASE_URL = "http://localhost:8080"; // Adjust as needed
-const API_LINK = "http://localhost:8080/tickets";
+const isLocalhost = window.location.hostname === 'localhost';
+const BASE_URL = isLocalhost
+  ? "http://localhost:8080"
+  : "https://silver-unicorn-fb39cf.netlify.app";
+const API_LINK = `${BASE_URL}/tickets`;
 
-// Get JWT token from localStorage
 const getAuthToken = () => {
-  return localStorage.getItem('token'); // Assuming token is saved here
+  return localStorage.getItem('token');
 };
 
-// Axios instance with JWT token in headers
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getAuthToken()}`, // Add token to request headers
+    'Authorization': `Bearer ${getAuthToken()}`,
   },
 });
 
-// Axios request interceptor to handle expired tokens
 axiosInstance.interceptors.response.use(
-  response => response, // If the response is successful, return the response
+  response => response,
   async (error) => {
-    // If the token is expired (401 Unauthorized), handle the error
     if (error.response && error.response.status === 401) {
       alert("Session expired, please log in again.");
-      localStorage.removeItem('token'); // Remove expired token
-      window.location.href = "/login"; // Redirect to login page
+      localStorage.removeItem('token');
+      window.location.href = "/login";
     }
-    return Promise.reject(error); // Return the error to be handled elsewhere
+    return Promise.reject(error);
   }
 );
 
-// API Calls
+export const getUsers = () => {
+  return fetch(`${BASE_URL}/users`)
+    .then((response) => response.json())
+    .then(data => data);
+};
+
+export const registerUser = (user) => {
+  return fetch(`${BASE_URL}/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(user),
+    credentials: 'include',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data) {
+        return data;
+      } else {
+        throw new Error('Registration failed');
+      }
+    })
+    .catch((error) => {
+      console.error('Error registering user:', error);
+      throw error;
+    });
+};
+
+export const loginUser = async (credentials) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/login`,
+      credentials,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Login failed:', error);
+    throw error;
+  }
+};
+
+export const getCurrentUser = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+
+    const response = await axios.get(`${BASE_URL}/users`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching current user:', error);
+    throw error;
+  }
+};
+
+export const logout = () => {
+  localStorage.removeItem('token');
+  window.location.href = "/login";
+};
+
+export const isAuthenticated = () => {
+  return localStorage.getItem('token') !== null;
+};
 
 export const getTickets = async () => {
   try {
-    const response = await fetch("http://localhost:8080/tickets", {
+    const response = await fetch(`${API_LINK}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -53,11 +125,10 @@ export const getTickets = async () => {
     return data;
   } catch (error) {
     console.error("Error fetching tickets:", error);
-    return []; // Return an empty array on failure
+    return [];
   }
 };
 
-// Add a new Ticket
 export const addTicket = (ticket) => {
   return fetch(API_LINK, {
     method: "POST",
@@ -70,10 +141,9 @@ export const addTicket = (ticket) => {
     .then((data) => data);
 };
 
-// const API_URL = 'http://localhost:8080/tickets';
-export const createTicket  = async (ticketData) => {
+export const createTicket = async (ticketData) => {
   try {
-    const response = await axios.post('http://localhost:8080/tickets', ticketData);
+    const response = await axios.post(`${API_LINK}`, ticketData);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 409) {
@@ -84,11 +154,10 @@ export const createTicket  = async (ticketData) => {
   }
 };
 
-// Update Ticket
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {
     const response = await axiosInstance.put(`/tickets/${ticketId}`, updatedTicket);
-    return response.data; // Return the updated ticket
+    return response.data;
   } catch (error) {
     console.error("Error updating ticket:", error);
     throw error;
@@ -97,7 +166,7 @@ export const updateTicket = async (ticketId, updatedTicket) => {
 
 export const createComment = async (ticketId, commentPayload, token) => {
   const response = await axios.post(
-    `http://localhost:8080/comments`,
+    `${BASE_URL}/comments`,
     commentPayload,
     {
       headers: {
@@ -112,8 +181,8 @@ export const createComment = async (ticketId, commentPayload, token) => {
 export const addCommentToTicket = async (commentId, ticketId) => {
   try {
     const response = await axios.put(
-      `http://localhost:8080/comments/${commentId}/ticket`,
-      `http://localhost:8080/tickets/${ticketId}`, // URI to the ticket resource
+      `${BASE_URL}/comments/${commentId}/ticket`,
+      `${BASE_URL}/tickets/${ticketId}`,
       {
         headers: {
           "Content-Type": "text/uri-list",
@@ -126,29 +195,27 @@ export const addCommentToTicket = async (commentId, ticketId) => {
   }
 };
 
-// Get Team Members
 export const getTeamMembers = async () => {
   try {
     const response = await axiosInstance.get("/users");
     const teamMembers = response.data._embedded?.users || [];
-    return teamMembers.filter(user => user.role === "TEAMMEMBER"); // Filter only team members
+    return teamMembers.filter(user => user.role === "TEAMMEMBER");
   } catch (error) {
     console.error("Error fetching team members:", error);
-    return []; // Return an empty array in case of error
+    return [];
   }
 };
 
-// Assign Ticket to a Team Member
 export const assignTicketToTeamMember = async (ticketId, teamMemberUrl) => {
   console.log(`📌 Assigning Ticket ID: ${ticketId} to ${teamMemberUrl}`);
 
   try {
     const response = await axiosInstance.put(
       `/tickets/${ticketId}/assignedTo`,
-      teamMemberUrl, // Sending raw URI
+      teamMemberUrl,
       {
         headers: {
-          "Content-Type": "text/uri-list", // Ensuring correct content type
+          "Content-Type": "text/uri-list",
         },
       }
     );
@@ -161,7 +228,6 @@ export const assignTicketToTeamMember = async (ticketId, teamMemberUrl) => {
   }
 };
 
-// Get Tickets assigned to a specific user
 export const getTicketsByUser = async (userId) => {
   try {
     const response = await axiosInstance.get(`/tickets?assignedTo=${userId}`);
@@ -172,55 +238,49 @@ export const getTicketsByUser = async (userId) => {
   }
 };
 
-// const API_URL = "http://localhost:8080/tickets";
-
-export const updateTicketStatus  = async (ticketId, newStatus) => {
+export const updateTicketStatus = async (ticketId, newStatus) => {
   try {
-      if (!ticketId) {
-          throw new Error("Ticket ID is missing!");
-      }
+    if (!ticketId) {
+      throw new Error("Ticket ID is missing!");
+    }
 
-      // ✅ Step 1: Pehle ticket ki current details fetch karo
-      const ticketResponse = await axios.get(`http://localhost:8080/tickets/${ticketId}`);
-      const existingTicket = ticketResponse.data;
+    const ticketResponse = await axios.get(`${API_LINK}/${ticketId}`);
+    const existingTicket = ticketResponse.data;
 
-      if (!existingTicket.createdAt) {
-          throw new Error("Missing createdAt field in existing ticket data!");
-      }
+    if (!existingTicket.createdAt) {
+      throw new Error("Missing createdAt field in existing ticket data!");
+    }
 
-      // ✅ Step 2: Update ke liye required fields send karo
-      const updatedAt = new Date().toISOString(); // 🕒 Current timestamp
+    const updatedAt = new Date().toISOString();
 
-      const response = await axios.put(`http://localhost:8080/tickets/${ticketId}`, {
-          ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
-          iasspname:existingTicket.iasspname,
-          siteID: existingTicket.siteID,
-          description: existingTicket.description, // 📝 Description bhi bhejo
-          status: newStatus, // ✅ Naya status
-          createdAt: existingTicket.createdAt, // 🕒 Pehla createdAt send karo
-          updatedAt: updatedAt, // 🕒 Naya updatedAt send karo
-          assignedTo: existingTicket.assignedTo // 🎯 AssignedTo bhi preserve karo
-      });
+    const response = await axios.put(`${API_LINK}/${ticketId}`, {
+      ticketId: existingTicket.ticketId,
+      iasspname: existingTicket.iasspname,
+      siteID: existingTicket.siteID,
+      description: existingTicket.description,
+      status: newStatus,
+      createdAt: existingTicket.createdAt,
+      updatedAt: updatedAt,
+      assignedTo: existingTicket.assignedTo
+    });
 
-      return response.data;
+    return response.data;
   } catch (error) {
-      console.error("❌ API Error:", error.response?.data || error.message);
-      throw error;
+    console.error("❌ API Error:", error.response?.data || error.message);
+    throw error;
   }
 };
 
 export const getTicketsWithId = async () => {
-  const data = await getTickets(); // Call existing function
-
+  const data = await getTickets();
   const formattedTickets = data._embedded?.tickets.map(ticket => ({
     ...ticket,
-    ticket_id: ticket._links?.self?.href.split("/").pop() // Extract last part (ID)
+    ticket_id: ticket._links?.self?.href.split("/").pop()
   })) || [];
 
   console.log("✅ Tickets with extracted IDs:", formattedTickets);
   return formattedTickets;
 };
-
 
 export const getAssignedTickets = async (userId) => {
   try {
@@ -232,11 +292,9 @@ export const getAssignedTickets = async (userId) => {
   }
 };
 
-
-
 export const getCommentsForTicket = async (ticketId, token) => {
   try {
-    const response = await fetch(`https://your-api.com/tickets/${ticketId}/comments`, {
+    const response = await fetch(`${BASE_URL}/tickets/${ticketId}/comments`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -249,7 +307,7 @@ export const getCommentsForTicket = async (ticketId, token) => {
     }
 
     const data = await response.json();
-    console.log(`📌 Comments for Ticket ${ticketId}:`, data);  // ✅ Debugging ke liye
+    console.log(`📌 Comments for Ticket ${ticketId}:`, data);
     return data;
   } catch (error) {
     console.error("❌ Error fetching comments:", error);

@@ -15,6 +15,7 @@ import HomePage from './Components/HomePage/HomePage';
 import TeamMemberDashboard from './Components/User/TeamMemberDashboard';
 import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
 import CalendarDashboard from './Components/HomePage/CalendarDashboard';
+import { Navigate } from 'react-router-dom';
 
 
 
@@ -22,9 +23,13 @@ import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 // Define routes
 const routes = createBrowserRouter([
   {
-     path: "/ticketForm",
+    path: "/",
+    element: <HomePage />
+  },
+  {
+    path: "/ticketForm",
     element: <TicketForm />
-   },
+  },
   {
     path: "/userpanel",
     element: <UserPanel />
@@ -46,49 +51,49 @@ const routes = createBrowserRouter([
     element: <RegisterPage />
   },
   {
-    path:"/adminPanel",
-    element:<AdminPanel/>
+    path: "/adminPanel",
+    element: <AdminPanel />
   },
   {
-    path:"/loginPage",
-    element:<LoginPage/>
+    path: "/loginPage",
+    element: <LoginPage />
   },
   {
-    path:"/customerTickets",
-    element:<CustomerTickets/>
+    path: "/customerTickets",
+    element: <CustomerTickets />
   },
   {
-    path:"/ticketSearch",
-    element:<TicketSearch/>
+    path: "/ticketSearch",
+    element: <TicketSearch />
   },
   {
-    path:"/customerInterface",
-    element:<CustomerInterface/>
+    path: "/customerInterface",
+    element: <CustomerInterface />
   },
   {
-    path:"/homePage",
-    element:<HomePage/>
+    path: "/homePage",
+    element: <HomePage />
   },
   {
-    path:"/teamMemberDashboard",
-    element:<TeamMemberDashboard/>
+    path: "/teamMemberDashboard",
+    element: <TeamMemberDashboard />
   },
   {
-    path:"/loginUserDashboard",
-    element:<LoggedinUserDashboard/>
+    path: "/loginUserDashboard",
+    element: <LoggedinUserDashboard />
   },
   {
-    path:"/calendarDashboard",
-    element:<CalendarDashboard/>
+    path: "/calendarDashboard",
+    element: <CalendarDashboard />
   }
 ]);
 
 function App() {
   return (
     // <UserProvider>  {/* Wrap everything inside UserProvider to manage user state */}
-      <div>
-        <RouterProvider router={routes} />
-      </div>
+    <div>
+      <RouterProvider router={routes} />
+    </div>
     // {/* </UserProvider> */}
   );
 }

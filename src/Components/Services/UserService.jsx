@@ -1,84 +1,81 @@
 import axios from "axios";
 
-const Api_link="http://localhost:8080/users"
- 
- export const getUsers = () => {
-     return fetch(Api_link)
-       .then((response) => response.json())
-       .then(data=>data);
-   };
- 
-  export const registerUser = (user) => {
-    return fetch('http://localhost:8080/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(user),
-      credentials: 'include',  // Include cookies in the request (if needed)
+const isLocalhost = window.location.hostname === 'localhost';
+const BASE_URL = isLocalhost ? "http://localhost:8080" : "https://your-deployed-backend-url.com";
+const Api_link = `${BASE_URL}/users`;
+
+export const getUsers = () => {
+  return fetch(Api_link)
+    .then((response) => response.json())
+    .then(data => data);
+};
+
+export const registerUser = (user) => {
+  return fetch(`${BASE_URL}/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(user),
+    credentials: 'include',
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data) {
+        return data;
+      } else {
+        throw new Error('Registration failed');
+      }
     })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          return data; // Return user object or success message if registration is successful
-        } else {
-          throw new Error('Registration failed');
-        }
-      })
-      .catch((error) => {
-        console.error('Error registering user:', error);
-        throw error; // Return the error for further handling
-      });
-  };
-  const API_URL = 'http://localhost:8080';  // Update this to point to the backend server URL
+    .catch((error) => {
+      console.error('Error registering user:', error);
+      throw error;
+    });
+};
 
-  export const loginUser = async (credentials) => {
-    try {
-      const response = await axios.post(
-        'http://localhost:8080/login', 
-        credentials, 
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      return response.data;  // Return the response data (JWT token)
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;  // Throw the error to handle it in the LoginPage
-    }
-  };
-
-
- // Get current user details (role and id)
- export const getCurrentUser = async () => {
+export const loginUser = async (credentials) => {
   try {
-    const token = localStorage.getItem('authToken'); // Assuming you're storing the token in localStorage
+    const response = await axios.post(
+      `${BASE_URL}/login`,
+      credentials,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Login failed:', error);
+    throw error;
+  }
+};
+
+export const getCurrentUser = async () => {
+  try {
+    const token = localStorage.getItem('authToken');
     if (!token) {
       throw new Error('No authentication token found');
     }
 
-    const response = await axios.get(`${API_URL}/users`, {
+    const response = await axios.get(`${BASE_URL}/users`, {
       headers: {
-        Authorization: `Bearer ${token}`, // Send the token in the header for authentication
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    return response.data; // Returns the user data, like { id: 1, role: 'CUSTOMER' }
+    return response.data;
   } catch (error) {
     console.error('Error fetching current user:', error);
-    throw error; // Propagate the error
+    throw error;
   }
 };
 
-
 export const logout = () => {
-  localStorage.removeItem('token'); // Clear the token
-  window.location.href = "/login"; // Redirect to the login page
+  localStorage.removeItem('token');
+  window.location.href = "/login";
 };
 
-// Check if user is authenticated by looking for the token
 export const isAuthenticated = () => {
   return localStorage.getItem('token') !== null;
 };
