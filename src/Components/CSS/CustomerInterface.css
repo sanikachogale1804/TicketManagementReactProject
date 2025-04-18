@@ -87,3 +87,23 @@
     color: gray;
   }
   
+  .status-cell {
+    font-weight: bold;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-align: center;
+    color: white;
+  }
+  
+  .status-cell.closed {
+    color: #4CAF50; /* Green */
+  }
+  
+  .status-cell.open {
+    color: #f44336; /* Red */
+  }
+  
+  .status-cell.in-progress {
+    color: #ff9800; /* Orange */
+  }
+  

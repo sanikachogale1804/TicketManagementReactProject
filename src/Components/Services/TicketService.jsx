@@ -1,11 +1,7 @@
 import axios from "axios";
 
-const isLocalhost = window.location.hostname === 'localhost';
-const BASE_URL = isLocalhost
-  ? "http://localhost:8080"
-  : "https://creative-cascaron-a830b6.netlify.app/";
-const API_LINK = `${BASE_URL}/tickets`;
-
+const BASE_URL = "http://localhost:8080"; // Adjust as needed
+const API_LINK = "http://localhost:8080/tickets";
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
@@ -108,7 +104,7 @@ export const isAuthenticated = () => {
 
 export const getTickets = async () => {
   try {
-    const response = await fetch(`${API_LINK}`, {
+    const response = await fetch("http://localhost:8080/tickets", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -143,7 +139,7 @@ export const addTicket = (ticket) => {
 
 export const createTicket = async (ticketData) => {
   try {
-    const response = await axios.post(`${API_LINK}`, ticketData);
+    const response = await axios.post("http://localhost:8080/tickets", ticketData);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 409) {
@@ -166,7 +162,7 @@ export const updateTicket = async (ticketId, updatedTicket) => {
 
 export const createComment = async (ticketId, commentPayload, token) => {
   const response = await axios.post(
-    `${BASE_URL}/comments`,
+    `http://localhost:8080/comments`,
     commentPayload,
     {
       headers: {
@@ -181,8 +177,8 @@ export const createComment = async (ticketId, commentPayload, token) => {
 export const addCommentToTicket = async (commentId, ticketId) => {
   try {
     const response = await axios.put(
-      `${BASE_URL}/comments/${commentId}/ticket`,
-      `${BASE_URL}/tickets/${ticketId}`,
+      `http://localhost:8080/comments/${commentId}/ticket`,
+      `http://localhost:8080/tickets/${ticketId}`, // URI to the ticket resource
       {
         headers: {
           "Content-Type": "text/uri-list",
@@ -244,24 +240,24 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
       throw new Error("Ticket ID is missing!");
     }
 
-    const ticketResponse = await axios.get(`${API_LINK}/${ticketId}`);
+    const ticketResponse = await axios.get(`http://localhost:8080/tickets/${ticketId}`);
     const existingTicket = ticketResponse.data;
 
     if (!existingTicket.createdAt) {
       throw new Error("Missing createdAt field in existing ticket data!");
     }
 
-    const updatedAt = new Date().toISOString();
+    const updatedAt = new Date().toISOString(); // 🕒 Current timestamp
 
-    const response = await axios.put(`${API_LINK}/${ticketId}`, {
-      ticketId: existingTicket.ticketId,
+    const response = await axios.put(`http://localhost:8080/tickets/${ticketId}`, {
+      ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
       iasspname: existingTicket.iasspname,
       siteID: existingTicket.siteID,
-      description: existingTicket.description,
-      status: newStatus,
-      createdAt: existingTicket.createdAt,
-      updatedAt: updatedAt,
-      assignedTo: existingTicket.assignedTo
+      description: existingTicket.description, // 📝 Description bhi bhejo
+      status: newStatus, // ✅ Naya status
+      createdAt: existingTicket.createdAt, // 🕒 Pehla createdAt send karo
+      updatedAt: updatedAt, // 🕒 Naya updatedAt send karo
+      assignedTo: existingTicket.assignedTo // 🎯 AssignedTo bhi preserve karo
     });
 
     return response.data;
@@ -294,7 +290,7 @@ export const getAssignedTickets = async (userId) => {
 
 export const getCommentsForTicket = async (ticketId, token) => {
   try {
-    const response = await fetch(`${BASE_URL}/tickets/${ticketId}/comments`, {
+    const response = await fetch(`https://your-api.com/tickets/${ticketId}/comments`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

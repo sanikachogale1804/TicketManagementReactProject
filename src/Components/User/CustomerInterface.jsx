@@ -104,7 +104,10 @@ function CustomerInterface({ userId }) {
                         <td>{ticket.siteID}</td>
                         <td>{ticket.iasspname}</td>
                         <td>{ticket.description}</td>
-                        <td>{ticket.status}</td>
+                        <td className={`status-cell ${ticket.status.toLowerCase().replace('_', '-')}`}>
+                          {ticket.status}
+                        </td>
+
                         <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
                         <td>
                           <button onClick={() => handleShowComments(ticket.ticketId)} className="view-comments-btn">
