@@ -16,6 +16,9 @@ import TeamMemberDashboard from './Components/User/TeamMemberDashboard';
 import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
 import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 
+// 👇 Import RedirectHandler
+import RedirectHandler from './Components/Auth/ReactHandler';
+
 // 👇 Token check function
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
@@ -28,10 +31,10 @@ const PrivateRoute = ({ element }) => {
 
 // 👇 Define routes with protection
 const routes = createBrowserRouter([
+  { path: "/", element: <RedirectHandler /> }, // 👈 updated root route
   { path: "/loginPage", element: <LoginPage /> },
   { path: "/registerPage", element: <RegisterPage /> },
 
-  { path: "/", element: <PrivateRoute element={<HomePage />} /> },
   { path: "/ticketForm", element: <PrivateRoute element={<TicketForm />} /> },
   { path: "/userpanel", element: <PrivateRoute element={<UserPanel />} /> },
   { path: "/ticketstatus", element: <PrivateRoute element={<TicketStatus />} /> },
@@ -46,8 +49,8 @@ const routes = createBrowserRouter([
   { path: "/loginUserDashboard", element: <PrivateRoute element={<LoggedinUserDashboard />} /> },
   { path: "/calendarDashboard", element: <PrivateRoute element={<CalendarDashboard />} /> },
 
-  // 👇 Default route (if no path matches)
-  { path: "*", element: <Navigate to="/loginPage" replace /> }
+  // 👇 Redirect unmatched routes
+  { path: "*", element: <Navigate to="/" replace /> }
 ]);
 
 function App() {

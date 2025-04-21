@@ -2,22 +2,16 @@ import React, { useEffect, useState, useRef } from "react";
 import "../CSS/CalendarDashboard.css";
 import { getTicketsWithId } from "../Services/TicketService";
 import { CheckCircle, AlertCircle } from "lucide-react";
+import Calendar from "react-calendar";
+import { motion, AnimatePresence } from "framer-motion";
 
 const CalendarDashboard = () => {
   const [weeks, setWeeks] = useState([]);
   const [monthYear, setMonthYear] = useState("April 2025");
   const [totals, setTotals] = useState({ received: 0, closed: 0, pending: 0, outOfTat: 0 });
   const [selectedMonth, setSelectedMonth] = useState("2025-04");
-
-  const monthInputRef = useRef(null);
-
-  const handleTitleClick = () => {
-    if (monthInputRef.current?.showPicker) {
-      monthInputRef.current.showPicker();
-    } else {
-      monthInputRef.current?.focus();
-    }
-  };
+  const [showCalendar, setShowCalendar] = useState(false);
+  const calendarRef = useRef();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +25,7 @@ const CalendarDashboard = () => {
 
       tickets.forEach(ticket => {
         const createdAt = new Date(ticket.createdAt);
-        const dateKey = createdAt.toLocaleDateString("en-CA"); // yyyy-mm-dd (local timezone safe)
+        const dateKey = createdAt.toLocaleDateString("en-CA");
         const monthKey = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, "0")}`;
 
         if (monthKey !== selectedMonth) return;
@@ -94,6 +88,13 @@ const CalendarDashboard = () => {
     fetchData();
   }, [selectedMonth]);
 
+  const handleMonthChange = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    setSelectedMonth(`${year}-${month}`);
+    setShowCalendar(false);
+  };
+
   const formatDate = (date) => {
     return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
   };
@@ -127,56 +128,65 @@ const CalendarDashboard = () => {
     );
   };
 
+  // 👇 Close calendar on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (calendarRef.current && !calendarRef.current.contains(event.target)) {
+        setShowCalendar(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="calendar-container">
+    <div className="calendar-container" style={{ position: "relative" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <h2 className="calendar-title">
-          📅 Ticket Summary - {monthYear}
-        </h2>
-        <div>
-          <button onClick={handleTitleClick} className="calendar-button">📆 Select Month</button>
-          <input
-            type="month"
-            ref={monthInputRef}
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            style={{
-              visibility: "hidden",
-              position: "absolute",
-              width: 0,
-              height: 0,
-              padding: 0,
-              border: 0
-            }}
-          />
+        <h2 className="calendar-title">📅 Ticket Summary - {monthYear}</h2>
+        <div style={{ position: "relative" }} ref={calendarRef}>
+          <button onClick={() => setShowCalendar(prev => !prev)} className="calendar-button">📆 Select Month</button>
+          <AnimatePresence>
+            {showCalendar && (
+              <motion.div
+                className="calendar-popup"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Calendar
+                  onChange={handleMonthChange}
+                  value={new Date(selectedMonth + "-01")}
+                  view="month"
+                  maxDetail="year"
+                  showNeighboringMonth={false}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
+      {/* Existing Calendar Table (unchanged) */}
       <div className="calendar-grid expanded">
         <div className="calendar-header">Wk</div>
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Total"].map(day => (
           <div key={day} className="calendar-header">{day}</div>
         ))}
-
         {weeks.map((week, i) => {
-          const weekTotal = week.reduce(
-            (acc, day) => {
-              acc.received += day.received;
-              acc.closed += day.closed;
-              acc.pending += day.pending;
-              acc.outOfTat += day.outOfTat;
-              return acc;
-            },
-            { received: 0, closed: 0, pending: 0, outOfTat: 0 }
-          );
+          const weekTotal = week.reduce((acc, day) => {
+            acc.received += day.received;
+            acc.closed += day.closed;
+            acc.pending += day.pending;
+            acc.outOfTat += day.outOfTat;
+            return acc;
+          }, { received: 0, closed: 0, pending: 0, outOfTat: 0 });
 
           return (
             <React.Fragment key={i}>
               <div className="calendar-week-label">{14 + i}</div>
               {week.map((day, j) => (
-                <div key={j} className="calendar-day">
-                  {renderCell(day)}
-                </div>
+                <div key={j} className="calendar-day">{renderCell(day)}</div>
               ))}
               <div className="calendar-day week-summary-cell">
                 <div className="weekly-totals">

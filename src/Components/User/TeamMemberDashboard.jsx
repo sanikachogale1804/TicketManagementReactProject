@@ -37,7 +37,7 @@ const TeamMemberDashboard = () => {
                     return;
                 }
 
-                const response = await fetch(`http://192.168.1.91:8080/users/${userId}/assignedTickets`, {
+                const response = await fetch(`http://localhost:8080/users/${userId}/assignedTickets`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -65,33 +65,33 @@ const TeamMemberDashboard = () => {
     const handleAddComment = async (ticket) => {
         const token = localStorage.getItem("token");
         const ticketId = ticket._links?.self?.href.split("/").pop();
-    
+
         if (!ticketId || !ticketComments[ticketId]) {
             alert("❌ Please enter a comment before submitting.");
             return;
         }
-    
+
         try {
             const commentPayload = {
                 userId: { userId: Number(userId) },
                 comment: ticketComments[ticketId],
                 createdAt: new Date().toISOString(),
             };
-    
+
             // ✅ Step 1: Create comment
             const newComment = await createComment(ticketId, commentPayload, token);
             console.log("✅ Comment Created:", newComment);
-    
+
             // ✅ Step 2: Extract comment ID from _links.self.href
             const commentId = newComment._links?.self?.href?.split("/").pop();
-    
+
             if (!commentId) {
                 throw new Error("❌ Failed to extract comment ID from response.");
             }
-    
+
             // ✅ Step 3: Assign comment to ticket
             await addCommentToTicket(commentId, ticketId);
-    
+
             alert("✅ Comment added and ticket assigned successfully!");
             setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
         } catch (error) {
@@ -106,6 +106,7 @@ const TeamMemberDashboard = () => {
             [ticketId]: value,
         }));
     };
+
 
     return (
         <div>
