@@ -1,0 +1,25 @@
+/* CategoryChart.css */
+.chart-container {
+    padding: 24px;
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .chart-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  
+  .chart-pie {
+    display: flex;
+    justify-content: center;
+    height: 300px;
+    width: 300px;
+  }
+  
