@@ -18,6 +18,7 @@ import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 
 // 👇 Import RedirectHandler
 import RedirectHandler from './Components/Auth/ReactHandler';
+import CameraReportList from './Components/Camera/CameraReportList';
 
 // 👇 Token check function
 const isAuthenticated = () => {
@@ -48,6 +49,7 @@ const routes = createBrowserRouter([
   { path: "/teamMemberDashboard", element: <PrivateRoute element={<TeamMemberDashboard />} /> },
   { path: "/loginUserDashboard", element: <PrivateRoute element={<LoggedinUserDashboard />} /> },
   { path: "/calendarDashboard", element: <PrivateRoute element={<CalendarDashboard />} /> },
+  { path: "/cameraReport", element: <PrivateRoute element={<CameraReportList />} /> },
 
   // 👇 Redirect unmatched routes
   { path: "*", element: <Navigate to="/" replace /> }
