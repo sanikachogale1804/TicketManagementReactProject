@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchCameraReports, fetchStorageInfo } from "../Services/CameraReport.jsx";
+import { fetchStorageInfo } from "../Services/CameraReport.jsx";
 import CategoryChart from './CategoryChart'; // Import the chart component
 
 const CameraReportList = () => {
@@ -8,11 +8,40 @@ const CameraReportList = () => {
   const [storageInfo, setStorageInfo] = useState(null);
   const [searchQuery, setSearchQuery] = useState(""); // State for search query
   const [selectedCategory, setSelectedCategory] = useState(""); // State for selected category
+  const [selectedSiteId, setSelectedSiteId] = useState(""); // State for selected site ID
+  const [sites, setSites] = useState([]); // State for available sites
+
+  // Fetch camera reports by siteId from the backend
+  const fetchCameraReportsBySite = async (siteId) => {
+    try {
+      const response = await fetch(`http://localhost:8080/camera-reports?siteId=${siteId}`);
+      const data = await response.json();
+      console.log("Fetched camera reports:", data);  // Log the full camera report data
+      return data; // Ensure you return the complete response object
+    } catch (error) {
+      console.error("Error fetching camera reports by site:", error);
+      throw error;
+    }
+  };
+
+  // Fetch site data from the server
+  const fetchSites = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/siteMasterData");
+      const data = await response.json();
+      console.log("Fetched sites data:", data); // Log the data
+      setSites(data._embedded?.siteMasterDatas || []); // Set the state with the correct data
+    } catch (error) {
+      console.error("Error fetching sites:", error);
+    }
+  };
 
   useEffect(() => {
-    fetchCameraReports()
+    // Fetch reports when the site changes
+    fetchCameraReportsBySite(selectedSiteId)
       .then((data) => {
-        setReports(data);
+        const reports = data._embedded?.cameraReports || [];
+        setReports(reports);
         setLoading(false);
       })
       .catch((error) => {
@@ -20,8 +49,12 @@ const CameraReportList = () => {
         setLoading(false);
       });
 
+    // Fetch storage information
     fetchStorageInfo().then(setStorageInfo);
-  }, []);
+
+    // Fetch available sites
+    fetchSites();
+  }, [selectedSiteId]);
 
   const handleSearchChange = (event) => {
     setSearchQuery(event.target.value); // Update search query
@@ -31,7 +64,10 @@ const CameraReportList = () => {
     setSelectedCategory(event.target.value); // Update selected category
   };
 
-  // Function to categorize the reports based on recording days
+  const handleSiteIdChange = (event) => {
+    setSelectedSiteId(event.target.value); // Update selected site ID
+  };
+
   const getCategory = (recordingDays) => {
     if (recordingDays >= 0 && recordingDays <= 7) {
       return "Category 1 (0-7 days)";
@@ -44,13 +80,15 @@ const CameraReportList = () => {
     }
   };
 
-  // Filter reports based on the search query (cameraId) and selected category
   const filteredReports = reports.filter((report) => {
     const matchesSearchQuery = report.cameraId.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory
       ? getCategory(report.recordingDays) === selectedCategory
       : true;
-    return matchesSearchQuery && matchesCategory;
+    const matchesSiteId = selectedSiteId
+      ? report.site && report.site.siteId === selectedSiteId
+      : true;
+    return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
 
   if (loading) return <p>Loading camera reports...</p>;
@@ -69,7 +107,6 @@ const CameraReportList = () => {
 
       <CategoryChart reports={filteredReports} /> {/* Display the pie chart with filtered reports */}
 
-      {/* Search and Category input fields */}
       <div className="mb-4 flex items-center gap-4">
         <input
           type="text"
@@ -89,38 +126,52 @@ const CameraReportList = () => {
           <option value="Category 3 (15-30 days)">Category 3 (15-30 days)</option>
           <option value="Category 4 (30+ days)">Category 4 (30+ days)</option>
         </select>
+        <select
+          value={selectedSiteId}
+          onChange={handleSiteIdChange}
+          className="p-2 border rounded"
+        >
+          <option value="">All Sites</option>
+          {Array.isArray(sites) && sites.length > 0 ? (
+            sites.map((site) => (
+              <option key={site.siteId} value={site.siteId}>
+                {site.siteId}
+              </option>
+            ))
+          ) : (
+            <option>No sites available</option>
+          )}
+        </select>
       </div>
 
       <table className="w-full table-auto border border-gray-300 mt-6">
         <thead>
           <tr className="bg-gray-200">
-          <th className="p-2 border">ID</th>
             <th className="p-2 border">Camera ID</th>
             <th className="p-2 border">Start Date</th>
             <th className="p-2 border">End Date</th>
             <th className="p-2 border">Recording Days</th>
             <th className="p-2 border">Storage Used (GB)</th>
-            {/* <th className="p-2 border">Date Issue</th> */}
             <th className="p-2 border">Total Space (GB)</th>
             <th className="p-2 border">Used Space (GB)</th>
             <th className="p-2 border">Free Space (GB)</th>
-            <th className="p-2 border">Category</th> {/* New category column */}
+            <th className="p-2 border">Category</th>
+            <th className="p-2 border">Site ID</th>
           </tr>
         </thead>
         <tbody>
           {filteredReports.map((report) => (
-            <tr key={report.id}>
-               <td className="p-2 border">{report.id}</td> 
+            <tr key={report.cameraId}>
               <td className="p-2 border">{report.cameraId}</td>
               <td className="p-2 border">{report.startDate}</td>
               <td className="p-2 border">{report.endDate}</td>
               <td className="p-2 border">{report.recordingDays}</td>
               <td className="p-2 border">{report.storageUsedGB.toFixed(2)}</td>
-              {/* <td className="p-2 border">{report.dateIssue ? "Yes" : "No"}</td> */}
               <td className="p-2 border">{report.totalSpaceGB ? report.totalSpaceGB.toFixed(2) : "N/A"}</td>
               <td className="p-2 border">{report.usedSpaceGB ? report.usedSpaceGB.toFixed(2) : "N/A"}</td>
               <td className="p-2 border">{report.freeSpaceGB ? report.freeSpaceGB.toFixed(2) : "N/A"}</td>
-              <td className="p-2 border">{getCategory(report.recordingDays)}</td> {/* Category column */}
+              <td className="p-2 border">{getCategory(report.recordingDays)}</td>
+              <td className="p-2 border">{report.site?.siteId || "N/A"}</td>
             </tr>
           ))}
         </tbody>
