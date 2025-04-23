@@ -1,0 +1,110 @@
+/* CameraReportList.css */
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e2f;
+    color: #ffffff;
+  }
+  
+  .dashboard-layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .sidebar {
+    width: 220px;
+    background-color: #111827;
+    padding: 1rem;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar-title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .sidebar-menu {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar-menu li {
+    margin: 1rem 0;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sidebar-menu li:hover {
+    background-color: #1f2937;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    background-color: #1e1e2f;
+  }
+  
+  .dashboard-title {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .storage-info {
+    display: flex;
+    gap: 2rem;
+    background-color: #2d2d44;
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  
+  .filters {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .search-input,
+  .dropdown {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    color: #000;
+  }
+  
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #2d2d44;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .report-table th,
+  .report-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #3b3b52;
+  }
+  
+  .report-table th {
+    background-color: #1f2937;
+    color: #ffffff;
+  }
+  
+  .report-table tr:hover {
+    background-color: #3a3a5a;
+  }
+  
+  .not-assigned {
+    color: #f87171;
+  }

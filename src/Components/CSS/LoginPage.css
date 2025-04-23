@@ -11,10 +11,12 @@
   
   h2 {
     text-align: center;
+    color: black;
   }
   
   form div {
     margin-bottom: 15px;
+    color: black;
   }
   
   input {
