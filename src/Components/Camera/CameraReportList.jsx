@@ -1,93 +1,90 @@
 import React, { useEffect, useState } from "react";
 import { fetchStorageInfo } from "../Services/CameraReport.jsx";
-import CategoryChart from './CategoryChart'; // Import the chart component
+import CategoryChart from './CategoryChart';
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [storageInfo, setStorageInfo] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(""); // State for search query
-  const [selectedCategory, setSelectedCategory] = useState(""); // State for selected category
-  const [selectedSiteId, setSelectedSiteId] = useState(""); // State for selected site ID
-  const [sites, setSites] = useState([]); // State for available sites
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSiteId, setSelectedSiteId] = useState("");
+  const [sites, setSites] = useState([]);
 
-  // Fetch camera reports by siteId from the backend
   const fetchCameraReportsBySite = async (siteId) => {
     try {
       const response = await fetch(`http://localhost:8080/camera-reports?siteId=${siteId}`);
       const data = await response.json();
-      console.log("Fetched camera reports:", data);  // Log the full camera report data
-      return data; // Ensure you return the complete response object
+      console.log("Fetched camera reports:", data);
+      return data;
     } catch (error) {
       console.error("Error fetching camera reports by site:", error);
       throw error;
     }
   };
 
-  // Fetch site data from the server
   const fetchSites = async () => {
     try {
       const response = await fetch("http://localhost:8080/siteMasterData");
       const data = await response.json();
-      console.log("Fetched sites data:", data); // Log the data
-      setSites(data._embedded?.siteMasterDatas || []); // Set the state with the correct data
+      console.log("Fetched sites data:", data);
+      setSites(data._embedded?.siteMasterDatas || []);
     } catch (error) {
       console.error("Error fetching sites:", error);
     }
   };
 
   useEffect(() => {
-    // Fetch reports when the site changes
-    fetchCameraReportsBySite(selectedSiteId)
-      .then((data) => {
+    const fetchAndEnrichReports = async () => {
+      try {
+        const data = await fetchCameraReportsBySite(selectedSiteId);
         const reports = data._embedded?.cameraReports || [];
-        setReports(reports);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch reports:", error);
-        setLoading(false);
-      });
 
-    // Fetch storage information
+        // Enrich each report with its site data (follow HATEOAS link)
+        const enrichedReports = await Promise.all(
+          reports.map(async (report) => {
+            if (report._links?.site?.href) {
+              try {
+                const siteRes = await fetch(report._links.site.href);
+                const siteData = await siteRes.json();
+                return { ...report, site: siteData };
+              } catch (error) {
+                console.warn("Failed to fetch site for report:", report.cameraId);
+                return report;
+              }
+            }
+            return report;
+          })
+        );
+
+        setReports(enrichedReports);
+        setLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch or enrich reports:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchAndEnrichReports();
     fetchStorageInfo().then(setStorageInfo);
-
-    // Fetch available sites
     fetchSites();
   }, [selectedSiteId]);
 
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value); // Update search query
-  };
-
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value); // Update selected category
-  };
-
-  const handleSiteIdChange = (event) => {
-    setSelectedSiteId(event.target.value); // Update selected site ID
-  };
+  const handleSearchChange = (event) => setSearchQuery(event.target.value);
+  const handleCategoryChange = (event) => setSelectedCategory(event.target.value);
+  const handleSiteIdChange = (event) => setSelectedSiteId(event.target.value);
 
   const getCategory = (recordingDays) => {
-    if (recordingDays >= 0 && recordingDays <= 7) {
-      return "Category 1 (0-7 days)";
-    } else if (recordingDays >= 8 && recordingDays <= 14) {
-      return "Category 2 (8-14 days)";
-    } else if (recordingDays >= 15 && recordingDays <= 30) {
-      return "Category 3 (15-30 days)";
-    } else {
-      return "Category 4 (30+ days)";
-    }
+    if (recordingDays >= 0 && recordingDays <= 7) return "Category 1 (0-7 days)";
+    if (recordingDays >= 8 && recordingDays <= 14) return "Category 2 (8-14 days)";
+    if (recordingDays >= 15 && recordingDays <= 30) return "Category 3 (15-30 days)";
+    return "Category 4 (30+ days)";
   };
 
   const filteredReports = reports.filter((report) => {
     const matchesSearchQuery = report.cameraId.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory
-      ? getCategory(report.recordingDays) === selectedCategory
-      : true;
-    const matchesSiteId = selectedSiteId
-      ? report.site && report.site.siteId === selectedSiteId
-      : true;
+    const matchesCategory = selectedCategory ? getCategory(report.recordingDays) === selectedCategory : true;
+    const matchesSiteId = !selectedSiteId || (report.site && report.site.siteId === selectedSiteId);
     return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
 
@@ -105,9 +102,9 @@ const CameraReportList = () => {
         </div>
       )}
 
-      <CategoryChart reports={filteredReports} /> {/* Display the pie chart with filtered reports */}
+      <CategoryChart reports={filteredReports} />
 
-      <div className="mb-4 flex items-center gap-4">
+      <div className="mb-4 flex flex-wrap gap-4 items-center">
         <input
           type="text"
           placeholder="Search by Camera ID"
@@ -115,22 +112,14 @@ const CameraReportList = () => {
           onChange={handleSearchChange}
           className="p-2 border rounded"
         />
-        <select
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-          className="p-2 border rounded"
-        >
+        <select value={selectedCategory} onChange={handleCategoryChange} className="p-2 border rounded">
           <option value="">All Categories</option>
           <option value="Category 1 (0-7 days)">Category 1 (0-7 days)</option>
           <option value="Category 2 (8-14 days)">Category 2 (8-14 days)</option>
           <option value="Category 3 (15-30 days)">Category 3 (15-30 days)</option>
           <option value="Category 4 (30+ days)">Category 4 (30+ days)</option>
         </select>
-        <select
-          value={selectedSiteId}
-          onChange={handleSiteIdChange}
-          className="p-2 border rounded"
-        >
+        <select value={selectedSiteId} onChange={handleSiteIdChange} className="p-2 border rounded">
           <option value="">All Sites</option>
           {Array.isArray(sites) && sites.length > 0 ? (
             sites.map((site) => (
@@ -171,7 +160,13 @@ const CameraReportList = () => {
               <td className="p-2 border">{report.usedSpaceGB ? report.usedSpaceGB.toFixed(2) : "N/A"}</td>
               <td className="p-2 border">{report.freeSpaceGB ? report.freeSpaceGB.toFixed(2) : "N/A"}</td>
               <td className="p-2 border">{getCategory(report.recordingDays)}</td>
-              <td className="p-2 border">{report.site?.siteId || "N/A"}</td>
+              <td className="p-2 border">
+                {report.site?.siteId ? (
+                  report.site.siteId
+                ) : (
+                  <span className="text-red-500 font-semibold">🔗 Not Assigned</span>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>
