@@ -1,0 +1,85 @@
+.chart-card {
+  background-color: #1a1a2e;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  width: 95%;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.chart-header {
+  background-color: #1a1a2e;
+  color: #ffffffdd;
+  padding: 1rem;
+  border-radius: 12px 12px 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  font-family: 'Segoe UI', sans-serif;
+  width: 100%;
+  margin-bottom: 1rem;
+  box-shadow: none;
+}
+
+.chart-content {
+  display: flex;
+  justify-content: space-between; /* Properly space out the content */
+  background-color: #1a1a2e;
+  padding: 1rem;
+  border-radius: 0 0 12px 12px;
+  gap: 1.5rem;
+  align-items: center;
+  color: #fff;
+  width: 100%;
+  flex-wrap: wrap; /* Allow elements to wrap when screen size is smaller */
+  box-shadow: none;
+  min-height: 300px; /* Ensure a minimum height to avoid cramped layout */
+}
+
+.chart-pie {
+  width: 100%;
+  max-width: 400px; /* Max width for the pie chart */
+  height: 300px;
+  flex-grow: 1;
+}
+
+.chart-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  color: #fff;
+  flex-grow: 1;
+  padding-left: 1rem; /* Added padding to the left to separate from pie chart */
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-total {
+  background-color: rgb(172, 11, 212); /* Pink */
+}
+
+.dot-free {
+  background-color: #D47C1B; /* Orange */
+}
+
+.dot-used {
+  background-color: #00C0C3; /* Blue */
+}
+
+@media (min-width: 768px) {
+  .chart-content {
+    flex-direction: row;
+    justify-content: space-between; /* Ensure proper space distribution */
+  }
+}

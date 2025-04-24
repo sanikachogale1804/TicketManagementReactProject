@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import CategoryChart from './CategoryChart';
+import StorageChart from './StorageChart';
 import '../CSS/CameraReportList.css';
 import CategoryStorageChart from "./CategoryStorageChart";
+import { addNewSite } from "../Services/CameraReportService"; // Import the service for adding a site
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -10,7 +11,10 @@ const CameraReportList = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSiteId, setSelectedSiteId] = useState("");
   const [sites, setSites] = useState([]);
+  const [newSiteId, setNewSiteId] = useState(""); // New state for site input
+  const [newSiteLiveDate, setNewSiteLiveDate] = useState(""); // New state for site live date
 
+  // Fetch camera reports based on site
   const fetchCameraReportsBySite = async (siteId) => {
     try {
       const response = await fetch(`http://localhost:8080/camera-reports?siteId=${siteId}`);
@@ -22,6 +26,7 @@ const CameraReportList = () => {
     }
   };
 
+  // Fetch sites data
   const fetchSites = async () => {
     try {
       const response = await fetch("http://localhost:8080/siteMasterData");
@@ -32,6 +37,7 @@ const CameraReportList = () => {
     }
   };
 
+  // Fetch and enrich reports with site info
   useEffect(() => {
     const fetchAndEnrichReports = async () => {
       try {
@@ -66,10 +72,40 @@ const CameraReportList = () => {
     fetchSites();
   }, [selectedSiteId]);
 
+  // Handle search query change
   const handleSearchChange = (event) => setSearchQuery(event.target.value);
+
+  // Handle category filter change
   const handleCategoryChange = (event) => setSelectedCategory(event.target.value);
+
+  // Handle site selection change
   const handleSiteIdChange = (event) => setSelectedSiteId(event.target.value);
 
+  // Handle adding new site
+  const handleAddNewSite = async (event) => {
+    event.preventDefault();
+  
+    // Convert date to dd-mm-yyyy format
+    const [year, month, day] = newSiteLiveDate.split("-");
+    const formattedDate = `${day}-${month}-${year}`;
+  
+    const newSite = {
+      siteId: newSiteId,
+      siteLiveDate: formattedDate,
+    };
+  
+    try {
+      await addNewSite(newSite);
+      setNewSiteId("");
+      setNewSiteLiveDate("");
+      alert("New site added successfully!");
+    } catch (error) {
+      console.error("Error adding new site:", error);
+      alert("Error adding new site.");
+    }
+  };  
+
+  // Get category based on recording days
   const getCategory = (recordingDays) => {
     if (recordingDays >= 0 && recordingDays <= 7) return "Category 1 (0-7 days)";
     if (recordingDays >= 8 && recordingDays <= 14) return "Category 2 (8-14 days)";
@@ -77,6 +113,7 @@ const CameraReportList = () => {
     return "Category 4 (30+ days)";
   };
 
+  // Filter the reports based on search, category, and site
   const filteredReports = reports.filter((report) => {
     const matchesSearchQuery = report.cameraId.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory ? getCategory(report.recordingDays) === selectedCategory : true;
@@ -84,6 +121,7 @@ const CameraReportList = () => {
     return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
 
+  // Calculate total, used, and free space
   const totalSpace = filteredReports.reduce((sum, r) => sum + (r.totalSpaceGB || 0), 0).toFixed(2);
   const usedSpace = filteredReports.reduce((sum, r) => sum + (r.usedSpaceGB || 0), 0).toFixed(2);
   const freeSpace = filteredReports.reduce((sum, r) => sum + (r.freeSpaceGB || 0), 0).toFixed(2);
@@ -92,30 +130,15 @@ const CameraReportList = () => {
 
   return (
     <div className="dashboard-layout">
-      <nav className="sidebar">
-        <h3 className="sidebar-title">TrueNAS</h3>
-        <ul className="sidebar-menu">
-          <li>Dashboard</li>
-          <li>Accounts</li>
-          <li>System</li>
-          <li>Tasks</li>
-          <li>Storage</li>
-          <li>Sharing</li>
-          <li>Reporting</li>
-          <li>Shell</li>
-          <li>Guide</li>
-        </ul>
-      </nav>
-
       <main className="main-content">
         <h2 className="dashboard-title">Camera Reports Dashboard</h2>
 
         <div className="grid-panels">
           <div className="panel-card">
-            <CategoryChart reports={filteredReports} />
+            <StorageChart reports={filteredReports} />
           </div>
           <div className="panel-card">
-          <CategoryStorageChart reports={filteredReports} />
+            <CategoryStorageChart reports={filteredReports} />
           </div>
         </div>
 
@@ -142,6 +165,28 @@ const CameraReportList = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Add new site form */}
+        <div className="add-site-form">
+          <h4>Add New Site</h4>
+          <form onSubmit={handleAddNewSite}>
+            <input
+              type="text"
+              placeholder="Enter Site ID"
+              value={newSiteId}
+              onChange={(e) => setNewSiteId(e.target.value)}
+              required
+            />
+            <input
+              type="date"
+              placeholder="Enter Live Date"
+              value={newSiteLiveDate}
+              onChange={(e) => setNewSiteLiveDate(e.target.value)}
+              required
+            />
+            <button type="submit">Add Site</button>
+          </form>
         </div>
 
         <div className="panel-card wide">

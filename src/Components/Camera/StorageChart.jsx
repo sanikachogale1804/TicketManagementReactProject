@@ -1,11 +1,11 @@
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import '../CSS/CategoryChart.css';
+import '../CSS/StorageChart.css';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const CategoryChart = ({ reports }) => {
+const StorageChart = ({ reports }) => {
   // Calculate the total, used, and free space
   const totalSpace = reports.reduce((sum, r) => sum + (r.totalSpaceGB || 0), 0).toFixed(2);
   const usedSpace = reports.reduce((sum, r) => sum + (r.usedSpaceGB || 0), 0).toFixed(2);
@@ -62,4 +62,4 @@ const CategoryChart = ({ reports }) => {
   );
 };
 
-export default CategoryChart;
+export default StorageChart;
