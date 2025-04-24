@@ -51,6 +51,7 @@ const routes = createBrowserRouter([
   { path: "/calendarDashboard", element: <PrivateRoute element={<CalendarDashboard />} /> },
   { path: "/cameraReport", element: <PrivateRoute element={<CameraReportList />} /> },
 
+
   // 👇 Redirect unmatched routes
   { path: "*", element: <Navigate to="/" replace /> }
 ]);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import CategoryChart from './CategoryChart';
 import '../CSS/CameraReportList.css';
+import CategoryStorageChart from "./CategoryStorageChart";
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -110,18 +111,11 @@ const CameraReportList = () => {
         <h2 className="dashboard-title">Camera Reports Dashboard</h2>
 
         <div className="grid-panels">
-          {/* <div className="panel-card">
-            <h4>Storage Info</h4>
-            <ul>
-              <li><strong>Total Space:</strong> {totalSpace} GB</li>
-              <li><strong>Used Space:</strong> {usedSpace} GB</li>
-              <li><strong>Free Space:</strong> {freeSpace} GB</li>
-            </ul>
-          </div> */}
-
-          <div className="panel-card wide">
-            <h4>Camera Report Categories</h4>
+          <div className="panel-card">
             <CategoryChart reports={filteredReports} />
+          </div>
+          <div className="panel-card">
+          <CategoryStorageChart reports={filteredReports} />
           </div>
         </div>
 
