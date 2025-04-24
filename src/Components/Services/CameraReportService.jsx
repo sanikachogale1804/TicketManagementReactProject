@@ -19,10 +19,6 @@ export const fetchStorageInfo = async () => {
     return response.data;
   };
 
-  // src/services/siteService.js
-
-// src/services/siteService.js
-
 export const addNewSite = async (siteData) => {
   try {
     const response = await fetch("http://localhost:8080/siteMasterData", {
@@ -45,3 +41,13 @@ export const addNewSite = async (siteData) => {
   }
 };
 
+export const addCameraReport = async (report) => {
+  const response = await fetch("http://localhost:8080/camera-reports", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(report),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to add camera report");
+  }
+};

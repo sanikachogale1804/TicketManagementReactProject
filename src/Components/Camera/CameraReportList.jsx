@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import StorageChart from './StorageChart';
 import '../CSS/CameraReportList.css';
 import CategoryStorageChart from "./CategoryStorageChart";
-import { addNewSite } from "../Services/CameraReportService"; // Import the service for adding a site
+import { addNewSite } from "../Services/CameraReportService";
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -11,10 +11,12 @@ const CameraReportList = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSiteId, setSelectedSiteId] = useState("");
   const [sites, setSites] = useState([]);
-  const [newSiteId, setNewSiteId] = useState(""); // New state for site input
-  const [newSiteLiveDate, setNewSiteLiveDate] = useState(""); // New state for site live date
+  const [newSiteId, setNewSiteId] = useState("");
+  const [newSiteLiveDate, setNewSiteLiveDate] = useState("");
 
-  // Fetch camera reports based on site
+  const [cameraIdToMap, setCameraIdToMap] = useState("");
+  const [siteIdToMap, setSiteIdToMap] = useState("");
+
   const fetchCameraReportsBySite = async (siteId) => {
     try {
       const response = await fetch(`http://localhost:8080/camera-reports?siteId=${siteId}`);
@@ -26,7 +28,6 @@ const CameraReportList = () => {
     }
   };
 
-  // Fetch sites data
   const fetchSites = async () => {
     try {
       const response = await fetch("http://localhost:8080/siteMasterData");
@@ -37,7 +38,6 @@ const CameraReportList = () => {
     }
   };
 
-  // Fetch and enrich reports with site info
   useEffect(() => {
     const fetchAndEnrichReports = async () => {
       try {
@@ -72,48 +72,74 @@ const CameraReportList = () => {
     fetchSites();
   }, [selectedSiteId]);
 
-  // Handle search query change
-  const handleSearchChange = (event) => setSearchQuery(event.target.value);
-
-  // Handle category filter change
-  const handleCategoryChange = (event) => setSelectedCategory(event.target.value);
-
-  // Handle site selection change
-  const handleSiteIdChange = (event) => setSelectedSiteId(event.target.value);
-
-  // Handle adding new site
   const handleAddNewSite = async (event) => {
     event.preventDefault();
-  
-    // Convert date to dd-mm-yyyy format
     const [year, month, day] = newSiteLiveDate.split("-");
     const formattedDate = `${day}-${month}-${year}`;
-  
+
     const newSite = {
       siteId: newSiteId,
       siteLiveDate: formattedDate,
     };
-  
+
     try {
       await addNewSite(newSite);
       setNewSiteId("");
       setNewSiteLiveDate("");
       alert("New site added successfully!");
+      fetchSites();
     } catch (error) {
       console.error("Error adding new site:", error);
       alert("Error adding new site.");
     }
-  };  
+  };
 
-  // Get category based on recording days
+  const handleMapCameraToSite = async () => {
+    if (!cameraIdToMap || !siteIdToMap) {
+      alert("Please enter both Camera ID and Site ID.");
+      return;
+    }
+  
+    try {
+      // 1. Find the numeric camera report ID by cameraId
+      const response = await fetch(`http://localhost:8080/camera-reports/search/findByCameraId?cameraId=${cameraIdToMap}`);
+      if (!response.ok) throw new Error("Camera ID not found");
+  
+      const data = await response.json();
+      const cameraReportId = data.id; // assuming response contains .id
+  
+      // 2. Perform the mapping using numeric ID
+      const putResponse = await fetch(`http://localhost:8080/camera-reports/${cameraReportId}/site`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "text/uri-list",
+        },
+        body: `http://localhost:8080/siteMasterData/${siteIdToMap}`,
+      });
+  
+      if (!putResponse.ok) {
+        const errorText = await putResponse.text();
+        throw new Error(`Server Error: ${putResponse.status} - ${errorText}`);
+      }
+  
+      alert("Camera successfully mapped to site!");
+      setCameraIdToMap("");
+      setSiteIdToMap("");
+      window.location.reload();
+    } catch (error) {
+      console.error("Mapping failed:", error);
+      alert(`Mapping failed: ${error.message}`);
+    }
+  };
+  
+
   const getCategory = (recordingDays) => {
-    if (recordingDays >= 0 && recordingDays <= 7) return "Category 1 (0-7 days)";
-    if (recordingDays >= 8 && recordingDays <= 14) return "Category 2 (8-14 days)";
-    if (recordingDays >= 15 && recordingDays <= 30) return "Category 3 (15-30 days)";
+    if (recordingDays <= 7) return "Category 1 (0-7 days)";
+    if (recordingDays <= 14) return "Category 2 (8-14 days)";
+    if (recordingDays <= 30) return "Category 3 (15-30 days)";
     return "Category 4 (30+ days)";
   };
 
-  // Filter the reports based on search, category, and site
   const filteredReports = reports.filter((report) => {
     const matchesSearchQuery = report.cameraId.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory ? getCategory(report.recordingDays) === selectedCategory : true;
@@ -121,7 +147,6 @@ const CameraReportList = () => {
     return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
 
-  // Calculate total, used, and free space
   const totalSpace = filteredReports.reduce((sum, r) => sum + (r.totalSpaceGB || 0), 0).toFixed(2);
   const usedSpace = filteredReports.reduce((sum, r) => sum + (r.usedSpaceGB || 0), 0).toFixed(2);
   const freeSpace = filteredReports.reduce((sum, r) => sum + (r.freeSpaceGB || 0), 0).toFixed(2);
@@ -134,59 +159,41 @@ const CameraReportList = () => {
         <h2 className="dashboard-title">Camera Reports Dashboard</h2>
 
         <div className="grid-panels">
-          <div className="panel-card">
-            <StorageChart reports={filteredReports} />
-          </div>
-          <div className="panel-card">
-            <CategoryStorageChart reports={filteredReports} />
-          </div>
+          <div className="panel-card"><StorageChart reports={filteredReports} /></div>
+          <div className="panel-card"><CategoryStorageChart reports={filteredReports} /></div>
         </div>
 
         <div className="filters">
-          <input
-            type="text"
-            placeholder="Search by Camera ID"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-          <select value={selectedCategory} onChange={handleCategoryChange} className="dropdown">
+          <input type="text" placeholder="Search by Camera ID" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="search-input" />
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className="dropdown">
             <option value="">All Categories</option>
             <option value="Category 1 (0-7 days)">Category 1 (0-7 days)</option>
             <option value="Category 2 (8-14 days)">Category 2 (8-14 days)</option>
             <option value="Category 3 (15-30 days)">Category 3 (15-30 days)</option>
             <option value="Category 4 (30+ days)">Category 4 (30+ days)</option>
           </select>
-          <select value={selectedSiteId} onChange={handleSiteIdChange} className="dropdown">
+          <select value={selectedSiteId} onChange={(e) => setSelectedSiteId(e.target.value)} className="dropdown">
             <option value="">All Sites</option>
             {sites.map((site) => (
-              <option key={site.siteId} value={site.siteId} className="text-black">
-                {site.siteId}
-              </option>
+              <option key={site.siteId} value={site.siteId}>{site.siteId}</option>
             ))}
           </select>
         </div>
 
-        {/* Add new site form */}
         <div className="add-site-form">
           <h4>Add New Site</h4>
           <form onSubmit={handleAddNewSite}>
-            <input
-              type="text"
-              placeholder="Enter Site ID"
-              value={newSiteId}
-              onChange={(e) => setNewSiteId(e.target.value)}
-              required
-            />
-            <input
-              type="date"
-              placeholder="Enter Live Date"
-              value={newSiteLiveDate}
-              onChange={(e) => setNewSiteLiveDate(e.target.value)}
-              required
-            />
+            <input type="text" placeholder="Enter Site ID" value={newSiteId} onChange={(e) => setNewSiteId(e.target.value)} required />
+            <input type="date" value={newSiteLiveDate} onChange={(e) => setNewSiteLiveDate(e.target.value)} required />
             <button type="submit">Add Site</button>
           </form>
+        </div>
+
+        <div className="map-camera-form">
+          <h4>Map Camera to Site</h4>
+          <input type="text" placeholder="Enter Camera ID" value={cameraIdToMap} onChange={(e) => setCameraIdToMap(e.target.value)} />
+          <input type="text" placeholder="Enter Site ID" value={siteIdToMap} onChange={(e) => setSiteIdToMap(e.target.value)} />
+          <button onClick={handleMapCameraToSite}>Map Camera</button>
         </div>
 
         <div className="panel-card wide">
