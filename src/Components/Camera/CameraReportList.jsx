@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { fetchStorageInfo } from "../Services/CameraReport.jsx";
 import CategoryChart from './CategoryChart';
 import '../CSS/CameraReportList.css';
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [storageInfo, setStorageInfo] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSiteId, setSelectedSiteId] = useState("");
@@ -64,7 +62,6 @@ const CameraReportList = () => {
     };
 
     fetchAndEnrichReports();
-    fetchStorageInfo().then(setStorageInfo);
     fetchSites();
   }, [selectedSiteId]);
 
@@ -85,6 +82,10 @@ const CameraReportList = () => {
     const matchesSiteId = !selectedSiteId || (report.site && report.site.siteId === selectedSiteId);
     return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
+
+  const totalSpace = filteredReports.reduce((sum, r) => sum + (r.totalSpaceGB || 0), 0).toFixed(2);
+  const usedSpace = filteredReports.reduce((sum, r) => sum + (r.usedSpaceGB || 0), 0).toFixed(2);
+  const freeSpace = filteredReports.reduce((sum, r) => sum + (r.freeSpaceGB || 0), 0).toFixed(2);
 
   if (loading) return <p className="text-white">Loading camera reports...</p>;
 
@@ -108,15 +109,21 @@ const CameraReportList = () => {
       <main className="main-content">
         <h2 className="dashboard-title">Camera Reports Dashboard</h2>
 
-        {storageInfo && (
-          <div className="storage-info">
-            <p><strong>Total Space:</strong> {storageInfo.totalSpaceGB.toFixed(2)} GB</p>
-            <p><strong>Used Space:</strong> {storageInfo.usedSpaceGB.toFixed(2)} GB</p>
-            <p><strong>Free Space:</strong> {storageInfo.freeSpaceGB.toFixed(2)} GB</p>
-          </div>
-        )}
+        <div className="grid-panels">
+          {/* <div className="panel-card">
+            <h4>Storage Info</h4>
+            <ul>
+              <li><strong>Total Space:</strong> {totalSpace} GB</li>
+              <li><strong>Used Space:</strong> {usedSpace} GB</li>
+              <li><strong>Free Space:</strong> {freeSpace} GB</li>
+            </ul>
+          </div> */}
 
-        <CategoryChart reports={filteredReports} />
+          <div className="panel-card wide">
+            <h4>Camera Report Categories</h4>
+            <CategoryChart reports={filteredReports} />
+          </div>
+        </div>
 
         <div className="filters">
           <input
@@ -135,56 +142,49 @@ const CameraReportList = () => {
           </select>
           <select value={selectedSiteId} onChange={handleSiteIdChange} className="dropdown">
             <option value="">All Sites</option>
-            {Array.isArray(sites) && sites.length > 0 ? (
-              sites.map((site) => (
-                <option key={site.siteId} value={site.siteId} className="text-black">
-                  {site.siteId}
-                </option>
-              ))
-            ) : (
-              <option>No sites available</option>
-            )}
+            {sites.map((site) => (
+              <option key={site.siteId} value={site.siteId} className="text-black">
+                {site.siteId}
+              </option>
+            ))}
           </select>
         </div>
 
-        <table className="report-table">
-          <thead>
-            <tr>
-              <th>Camera ID</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Recording Days</th>
-              <th>Storage Used (GB)</th>
-              <th>Total Space (GB)</th>
-              <th>Used Space (GB)</th>
-              <th>Free Space (GB)</th>
-              <th>Category</th>
-              <th>Site ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredReports.map((report) => (
-              <tr key={report.cameraId}>
-                <td>{report.cameraId}</td>
-                <td>{report.startDate}</td>
-                <td>{report.endDate}</td>
-                <td>{report.recordingDays}</td>
-                <td>{report.storageUsedGB.toFixed(2)}</td>
-                <td>{report.totalSpaceGB ? report.totalSpaceGB.toFixed(2) : "N/A"}</td>
-                <td>{report.usedSpaceGB ? report.usedSpaceGB.toFixed(2) : "N/A"}</td>
-                <td>{report.freeSpaceGB ? report.freeSpaceGB.toFixed(2) : "N/A"}</td>
-                <td>{getCategory(report.recordingDays)}</td>
-                <td>
-                  {report.site?.siteId ? (
-                    report.site.siteId
-                  ) : (
-                    <span className="not-assigned">🔗 Not Assigned</span>
-                  )}
-                </td>
+        <div className="panel-card wide">
+          <h4>Camera Report Table</h4>
+          <table className="report-table">
+            <thead>
+              <tr>
+                <th>Camera ID</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Days</th>
+                <th>Storage (GB)</th>
+                <th>Total</th>
+                <th>Used</th>
+                <th>Free</th>
+                <th>Category</th>
+                <th>Site</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredReports.map((report) => (
+                <tr key={report.cameraId}>
+                  <td>{report.cameraId}</td>
+                  <td>{report.startDate}</td>
+                  <td>{report.endDate}</td>
+                  <td>{report.recordingDays}</td>
+                  <td>{report.storageUsedGB.toFixed(2)}</td>
+                  <td>{report.totalSpaceGB?.toFixed(2) || "N/A"}</td>
+                  <td>{report.usedSpaceGB?.toFixed(2) || "N/A"}</td>
+                  <td>{report.freeSpaceGB?.toFixed(2) || "N/A"}</td>
+                  <td>{getCategory(report.recordingDays)}</td>
+                  <td>{report.site?.siteId || <span className="not-assigned">🔗 Not Assigned</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );

@@ -1,25 +1,69 @@
-/* CategoryChart.css */
-.chart-container {
-    padding: 24px;
-    background-color: white;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    max-width: 600px;
-    margin: 0 auto;
+.chart-card {
+  background-color: #1a1a2e; /* Dark background like TrueNAS */
+  color: #fff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  width: 360px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.chart-header {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #ffffffdd;
+}
+
+.chart-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.chart-pie {
+  width: 160px;
+  height: 160px;
+  position: relative;
+}
+
+.chart-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-total {
+  background-color: rgb(172, 11, 212);  /* Pink for Total */
+}
+
+.dot-free {
+  background-color: #D47C1B;  /* Orange for Free */
+}
+
+.dot-used {
+  background-color: #00C0C3;  /* Blue for Used */
+}
+
+@media (min-width: 768px) {
+  .chart-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
-  
-  .chart-header {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 24px;
-    text-align: center;
-  }
-  
-  .chart-pie {
-    display: flex;
-    justify-content: center;
-    height: 300px;
-    width: 300px;
-  }
-  
+}
