@@ -107,3 +107,52 @@ body {
 .not-assigned {
   color: #f87171;
 }
+
+.top-right-forms {
+  display: flex;
+  justify-content: space-between; /* Align both forms horizontally */
+  position: absolute;
+  top: 0.2rem; /* Reduced top margin */
+  right: 1.5rem; /* Reduced right margin */
+  gap: 1.2rem; /* Increased the gap between the two forms */
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.25rem; /* Further reduced padding */
+  border-radius: 6px; /* Smaller border radius */
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+  max-width: 380px; /* Adjusted max-width for both forms to fit side by side */
+  font-size: 0.7rem; /* Smaller font size */
+}
+
+/* Title of forms */
+.top-right-forms h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.75rem; /* Smaller heading */
+  color: #f3f4f6;
+}
+
+/* Input fields and buttons */
+.top-right-forms input,
+.top-right-forms button {
+  margin: 0.1rem 0; /* Smaller margin */
+  padding: 0.2rem 0.4rem; /* Reduced padding for input fields */
+  font-size: 0.7rem; /* Smaller font size */
+  width: 100%;
+  border-radius: 6px;
+  border: none;
+}
+
+/* Button styling */
+.top-right-forms button {
+  margin-top: 0.2rem;
+  padding: 0.2rem 0.4rem; /* Even smaller button padding */
+  font-size: 0.7rem; /* Smaller button font size */
+  background-color: #4b5563;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.top-right-forms button:hover {
+  background-color: #6b7280;
+}

@@ -14,7 +14,6 @@ const CameraReportList = () => {
   const [sites, setSites] = useState([]);
   const [newSiteId, setNewSiteId] = useState("");
   const [newSiteLiveDate, setNewSiteLiveDate] = useState("");
-
   const [cameraIdToMap, setCameraIdToMap] = useState("");
   const [siteIdToMap, setSiteIdToMap] = useState("");
 
@@ -99,15 +98,14 @@ const CameraReportList = () => {
     try {
       const response = await axios.put(
         `http://localhost:8080/camera-reports/${cameraReportId}/site`,
-        { siteDbId: siteDbId } 
+        { siteDbId: siteDbId }
       );
       console.log("Mapping successful", response.data);
     } catch (error) {
       console.error("Mapping failed:", error.response?.data || error.message);
     }
   };
-  
-  
+
   const getCategory = (recordingDays) => {
     if (recordingDays <= 7) return "Category 1 (0-7 days)";
     if (recordingDays <= 14) return "Category 2 (8-14 days)";
@@ -131,7 +129,27 @@ const CameraReportList = () => {
   return (
     <div className="dashboard-layout">
       <main className="main-content">
-        <h2 className="dashboard-title">Camera Reports Dashboard</h2>
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">Camera Reports Dashboard</h2>
+
+          <div className="top-right-forms">
+            <div className="add-site-form">
+              <h4>Add New Site</h4>
+              <form onSubmit={handleAddNewSite}>
+                <input type="text" placeholder="Enter Site ID" value={newSiteId} onChange={(e) => setNewSiteId(e.target.value)} required />
+                <input type="date" value={newSiteLiveDate} onChange={(e) => setNewSiteLiveDate(e.target.value)} required />
+                <button type="submit">Add Site</button>
+              </form>
+            </div>
+
+            <div className="map-camera-form">
+              <h4>Map Camera to Site</h4>
+              <input type="text" placeholder="Enter Camera ID" value={cameraIdToMap} onChange={(e) => setCameraIdToMap(e.target.value)} />
+              <input type="text" placeholder="Enter Site ID" value={siteIdToMap} onChange={(e) => setSiteIdToMap(e.target.value)} />
+              <button onClick={() => handleMapCameraToSite(cameraIdToMap, siteIdToMap)}>Map Camera</button>
+            </div>
+          </div>
+        </div>
 
         <div className="grid-panels">
           <div className="panel-card"><StorageChart reports={filteredReports} /></div>
@@ -153,22 +171,6 @@ const CameraReportList = () => {
               <option key={site.siteId} value={site.siteId}>{site.siteId}</option>
             ))}
           </select>
-        </div>
-
-        <div className="add-site-form">
-          <h4>Add New Site</h4>
-          <form onSubmit={handleAddNewSite}>
-            <input type="text" placeholder="Enter Site ID" value={newSiteId} onChange={(e) => setNewSiteId(e.target.value)} required />
-            <input type="date" value={newSiteLiveDate} onChange={(e) => setNewSiteLiveDate(e.target.value)} required />
-            <button type="submit">Add Site</button>
-          </form>
-        </div>
-
-        <div className="map-camera-form">
-          <h4>Map Camera to Site</h4>
-          <input type="text" placeholder="Enter Camera ID" value={cameraIdToMap} onChange={(e) => setCameraIdToMap(e.target.value)} />
-          <input type="text" placeholder="Enter Site ID" value={siteIdToMap} onChange={(e) => setSiteIdToMap(e.target.value)} />
-          <button onClick={() => handleMapCameraToSite(cameraIdToMap, siteIdToMap)}>Map Camera</button>
         </div>
 
         <div className="panel-card wide">
