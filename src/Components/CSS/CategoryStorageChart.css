@@ -1,31 +1,76 @@
 .chart-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-  }
-  
-  .chart-bar {
-    flex: 1;
-  }
-  
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #1a1a2e;
+  padding: 1rem;
+  border-radius: 0 0 12px 12px;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  min-height: 300px;
+}
+
+.chart-pie,
+.chart-bar {
+  flex: 1 1 300px;
+  max-width: 400px;
+  height: 300px;
+  box-sizing: border-box;
+}
+
+.chart-summary {
+  flex: 1 1 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  color: #fff;
+  padding-left: 1rem;
+  box-sizing: border-box;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-used {
+  background-color: #00C0C3;
+}
+
+.dot-free {
+  background-color: #D47C1B;
+}
+
+.dot-total {
+  background-color: rgb(172, 11, 212);
+}
+
+@media (max-width: 768px) {
   .chart-summary {
-    margin-left: 20px;
-    display: flex;
+    padding-left: 0;
+  }
+
+  .chart-content {
     flex-direction: column;
-    gap: 10px;
-  }
-  
-  .summary-item {
-    display: flex;
     align-items: center;
-    font-size: 14px;
   }
-  
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 8px;
+
+  .chart-pie,
+  .chart-bar {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
   }
-  
+}

@@ -3,6 +3,7 @@ import StorageChart from './StorageChart';
 import '../CSS/CameraReportList.css';
 import CategoryStorageChart from "./CategoryStorageChart";
 import { addNewSite } from "../Services/CameraReportService";
+import axios from "axios";
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -63,8 +64,8 @@ const CameraReportList = () => {
         setReports(enrichedReports);
         setLoading(false);
       } catch (error) {
-        console.error("Failed to fetch or enrich reports:", error);
         setLoading(false);
+        alert("Failed to fetch camera reports. Please try again later.");
       }
     };
 
@@ -75,7 +76,7 @@ const CameraReportList = () => {
   const handleAddNewSite = async (event) => {
     event.preventDefault();
     const [year, month, day] = newSiteLiveDate.split("-");
-    const formattedDate = `${day}-${month}-${year}`;
+    const formattedDate = `${year}-${month}-${day}`;
 
     const newSite = {
       siteId: newSiteId,
@@ -94,45 +95,19 @@ const CameraReportList = () => {
     }
   };
 
-  const handleMapCameraToSite = async () => {
-    if (!cameraIdToMap || !siteIdToMap) {
-      alert("Please enter both Camera ID and Site ID.");
-      return;
-    }
-  
+  const handleMapCameraToSite = async (cameraReportId, siteDbId) => {
     try {
-      // 1. Find the numeric camera report ID by cameraId
-      const response = await fetch(`http://localhost:8080/camera-reports/search/findByCameraId?cameraId=${cameraIdToMap}`);
-      if (!response.ok) throw new Error("Camera ID not found");
-  
-      const data = await response.json();
-      const cameraReportId = data.id; // assuming response contains .id
-  
-      // 2. Perform the mapping using numeric ID
-      const putResponse = await fetch(`http://localhost:8080/camera-reports/${cameraReportId}/site`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "text/uri-list",
-        },
-        body: `http://localhost:8080/siteMasterData/${siteIdToMap}`,
-      });
-  
-      if (!putResponse.ok) {
-        const errorText = await putResponse.text();
-        throw new Error(`Server Error: ${putResponse.status} - ${errorText}`);
-      }
-  
-      alert("Camera successfully mapped to site!");
-      setCameraIdToMap("");
-      setSiteIdToMap("");
-      window.location.reload();
+      const response = await axios.put(
+        `http://localhost:8080/camera-reports/${cameraReportId}/site`,
+        { siteDbId: siteDbId } 
+      );
+      console.log("Mapping successful", response.data);
     } catch (error) {
-      console.error("Mapping failed:", error);
-      alert(`Mapping failed: ${error.message}`);
+      console.error("Mapping failed:", error.response?.data || error.message);
     }
   };
   
-
+  
   const getCategory = (recordingDays) => {
     if (recordingDays <= 7) return "Category 1 (0-7 days)";
     if (recordingDays <= 14) return "Category 2 (8-14 days)";
@@ -193,7 +168,7 @@ const CameraReportList = () => {
           <h4>Map Camera to Site</h4>
           <input type="text" placeholder="Enter Camera ID" value={cameraIdToMap} onChange={(e) => setCameraIdToMap(e.target.value)} />
           <input type="text" placeholder="Enter Site ID" value={siteIdToMap} onChange={(e) => setSiteIdToMap(e.target.value)} />
-          <button onClick={handleMapCameraToSite}>Map Camera</button>
+          <button onClick={() => handleMapCameraToSite(cameraIdToMap, siteIdToMap)}>Map Camera</button>
         </div>
 
         <div className="panel-card wide">
@@ -214,20 +189,23 @@ const CameraReportList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredReports.map((report) => (
-                <tr key={report.cameraId}>
-                  <td>{report.cameraId}</td>
-                  <td>{report.startDate}</td>
-                  <td>{report.endDate}</td>
-                  <td>{report.recordingDays}</td>
-                  <td>{report.storageUsedGB.toFixed(2)}</td>
-                  <td>{report.totalSpaceGB?.toFixed(2) || "N/A"}</td>
-                  <td>{report.usedSpaceGB?.toFixed(2) || "N/A"}</td>
-                  <td>{report.freeSpaceGB?.toFixed(2) || "N/A"}</td>
-                  <td>{getCategory(report.recordingDays)}</td>
-                  <td>{report.site?.siteId || <span className="not-assigned">🔗 Not Assigned</span>}</td>
-                </tr>
-              ))}
+              {filteredReports.map((report, index) => {
+                const uniqueKey = report.cameraId ? `${report.cameraId}-${index}` : `report-${index}`;
+                return (
+                  <tr key={uniqueKey}>
+                    <td>{report.cameraId}</td>
+                    <td>{report.startDate}</td>
+                    <td>{report.endDate}</td>
+                    <td>{report.recordingDays}</td>
+                    <td>{report.storageUsedGB.toFixed(2)}</td>
+                    <td>{report.totalSpaceGB?.toFixed(2) || "N/A"}</td>
+                    <td>{report.usedSpaceGB?.toFixed(2) || "N/A"}</td>
+                    <td>{report.freeSpaceGB?.toFixed(2) || "N/A"}</td>
+                    <td>{getCategory(report.recordingDays)}</td>
+                    <td>{report.site?.siteId || <span className="not-assigned">🔗 Not Assigned</span>}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -5,81 +5,163 @@
   border-radius: 12px;
   width: 95%;
   font-family: 'Segoe UI', sans-serif;
+  box-sizing: border-box;
+  margin: auto;
 }
 
-.chart-header {
-  background-color: #1a1a2e;
-  color: #ffffffdd;
-  padding: 1rem;
-  border-radius: 12px 12px 0 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  font-family: 'Segoe UI', sans-serif;
+/* Header with responsive NetApp and Host info */
+.chart-header-with-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   width: 100%;
+  padding: 1rem;
+  background-color: #1a1a2e;
+  border-radius: 12px 12px 0 0;
   margin-bottom: 1rem;
-  box-shadow: none;
+  box-sizing: border-box;
 }
 
+.chart-header-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #ffffffdd;
+  flex: 1 1 auto;
+}
+
+.chart-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 1 1 auto;
+  min-width: 180px;
+}
+
+.netapp-green {
+  color: green;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.hostname-text {
+  color: #ccc;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+  font-weight: bold;
+}
+
+/* Unified chart content */
 .chart-content {
   display: flex;
-  justify-content: space-between; /* Properly space out the content */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
   background-color: #1a1a2e;
   padding: 1rem;
   border-radius: 0 0 12px 12px;
   gap: 1.5rem;
-  align-items: center;
-  color: #fff;
-  width: 100%;
-  flex-wrap: wrap; /* Allow elements to wrap when screen size is smaller */
-  box-shadow: none;
-  min-height: 300px; /* Ensure a minimum height to avoid cramped layout */
+  box-sizing: border-box;
+  min-height: 300px;
 }
 
-.chart-pie {
-  width: 100%;
-  max-width: 400px; /* Max width for the pie chart */
+/* Charts inside card */
+.chart-pie,
+.chart-bar {
+  flex: 1 1 300px;
+  max-width: 400px;
   height: 300px;
-  flex-grow: 1;
+  box-sizing: border-box;
 }
 
+/* Summary Section */
 .chart-summary {
+  flex: 1 1 250px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 0.7rem;
   font-size: 0.9rem;
   color: #fff;
-  flex-grow: 1;
-  padding-left: 1rem; /* Added padding to the left to separate from pie chart */
+  padding-left: 1rem;
+  box-sizing: border-box;
 }
 
 .summary-item {
   display: flex;
   align-items: center;
+  font-size: 14px;
   gap: 0.5rem;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
 }
 
-.dot-total {
-  background-color: rgb(172, 11, 212); /* Pink */
+.dot-used {
+  background-color: #00C0C3;
 }
 
 .dot-free {
-  background-color: #D47C1B; /* Orange */
+  background-color: #D47C1B;
 }
 
-.dot-used {
-  background-color: #00C0C3; /* Blue */
+.dot-total {
+  background-color: rgb(172, 11, 212);
 }
 
-@media (min-width: 768px) {
+/* Footer */
+.chart-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  font-size: 0.95rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.live-date-time,
+.last-update-time {
+  color: white;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .chart-header-info {
+    align-items: flex-start;
+  }
+
+  .chart-header-with-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-summary {
+    padding-left: 0;
+  }
+
   .chart-content {
-    flex-direction: row;
-    justify-content: space-between; /* Ensure proper space distribution */
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .chart-pie,
+  .chart-bar {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
   }
 }
