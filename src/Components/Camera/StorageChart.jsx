@@ -52,7 +52,7 @@ const StorageChart = ({ reports }) => {
       <div className="chart-header-with-info">
         <div className="chart-header-title">Storage Usage</div>
         <div className="chart-header-info">
-          <div className="netapp-green">NetApp</div>
+          <div className="netapp">NetApp</div>
           <div className="hostname-text">HostName: CogentSecurity.ai</div>
         </div>
       </div>

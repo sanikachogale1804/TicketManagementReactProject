@@ -4,6 +4,7 @@ import '../CSS/CameraReportList.css';
 import CategoryStorageChart from "./CategoryStorageChart";
 import { addNewSite } from "../Services/CameraReportService";
 import axios from "axios";
+import logo from '../Image/logo-removebg-preview.png';
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -101,7 +102,6 @@ const CameraReportList = () => {
       alert("Error adding new site.");
     }
   };
-  
 
   const handleMapCameraToSite = async (cameraId, siteId) => {
     try {
@@ -138,7 +138,6 @@ const CameraReportList = () => {
     }
   };
 
-
   const getCategory = (recordingDays) => {
     if (recordingDays <= 7) return "Category 1 (0-7 days)";
     if (recordingDays <= 14) return "Category 2 (8-14 days)";
@@ -153,16 +152,15 @@ const CameraReportList = () => {
     return matchesSearchQuery && matchesCategory && matchesSiteId;
   });
 
-  const totalSpace = filteredReports.reduce((sum, r) => sum + (r.totalSpaceGB || 0), 0).toFixed(2);
-  const usedSpace = filteredReports.reduce((sum, r) => sum + (r.usedSpaceGB || 0), 0).toFixed(2);
-  const freeSpace = filteredReports.reduce((sum, r) => sum + (r.freeSpaceGB || 0), 0).toFixed(2);
-
   if (loading) return <p className="text-white">Loading camera reports...</p>;
 
   return (
     <div className="dashboard-layout">
       <main className="main-content">
         <div className="dashboard-header">
+          <div className="logo">
+            <img src={logo} alt="Logo" className="logo-image" />
+          </div>
           <h2 className="dashboard-title">Camera Reports Dashboard</h2>
 
           <div className="top-right-forms">

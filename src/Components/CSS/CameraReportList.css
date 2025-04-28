@@ -21,13 +21,13 @@ body {
   width: 100% !important;
 }
 
-/* Retain existing styles */
+/* Retain existing styles
 .dashboard-title {
   color: white;
   font-size: 2rem;
   margin-bottom: 1.5rem;
   text-align: center;
-}
+} */
 
 .storage-info {
   display: flex;
@@ -38,14 +38,15 @@ body {
   margin-bottom: 2rem;
 }
 
+/* Filters: Align all filters in a single row */
 .filters {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;  /* Align filters in a line */
   gap: 1rem;
   margin: 1.5rem 0;
 }
 
+/* Filter styles for input and dropdown */
 .search-input,
 .dropdown {
   padding: 0.5rem;
@@ -156,3 +157,39 @@ body {
 .top-right-forms button:hover {
   background-color: #6b7280;
 }
+
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+/* Adjust the header layout */
+.dashboard-header {
+  display: flex;
+  align-items: center; /* Aligns logo and title vertically */
+  justify-content: center; /* Centers title horizontally */
+  margin-bottom: 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem; /* Adjust the space between the logo and title */
+}
+
+.logo-image {
+  width: 80px;
+  height: auto;
+}
+
+/* Center the title in the header */
+.dashboard-title {
+  color: white;
+  font-size: 2rem;
+  margin: 0; /* Removed bottom margin */
+  text-align: center;
+  flex-grow: 1; /* Ensures title takes available space */
+}
+

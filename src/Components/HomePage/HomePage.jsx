@@ -5,7 +5,6 @@ import '../CSS/HomePage.css';
 import { getTicketsWithId } from '../Services/TicketService';
 import CalendarDashboard from './CalendarDashboard'; // Adjust path if needed
 
-
 function HomePage() {
   const [ticketStats, setTicketStats] = useState({
     total: 0,
@@ -14,7 +13,6 @@ function HomePage() {
     inProgress: 0,
     outOfTat: 0,
   });
-  
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -50,7 +48,6 @@ function HomePage() {
       }
     };
 
-
     fetchTickets();
   }, []);
 
@@ -61,8 +58,8 @@ function HomePage() {
           <img src={logo} alt="TicketMS Logo" className="logo" />
         </div>
         <ul className="sidebar-links">
-          <li><Link to="/dashboard" className="sidebar-link">Dashboard</Link></li>
-
+          <li><Link to="/dashboard" className="sidebar-link">Images & Footage</Link></li>
+          <li><Link to="/cameraReport" className="sidebar-link">NAS Dashboard</Link></li>
           <li><Link to="/adminPanel" className="sidebar-link">Admin Interface</Link></li>
           <li><Link to="/loginPage" className="sidebar-link">Login</Link></li>
         </ul>
@@ -99,7 +96,6 @@ function HomePage() {
           </div>
 
           <CalendarDashboard />
-
         </div>
 
         <footer className="footer office-footer">
