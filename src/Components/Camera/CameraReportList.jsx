@@ -74,14 +74,22 @@ const CameraReportList = () => {
 
   const handleAddNewSite = async (event) => {
     event.preventDefault();
+  
+    // Ensure newSiteLiveDate is in correct format DD-MM-YYYY
     const [year, month, day] = newSiteLiveDate.split("-");
-    const formattedDate = `${year}-${month}-${day}`;
-
+    const formattedDate = `${day}-${month}-${year}`; // Change format to DD-MM-YYYY
+  
+    // Validate date format (optional, but ensures proper input)
+    if (!newSiteId || !newSiteLiveDate) {
+      alert("Please provide both Site ID and Site Live Date.");
+      return;
+    }
+  
     const newSite = {
       siteId: newSiteId,
-      siteLiveDate: formattedDate,
+      siteLiveDate: formattedDate, // Ensure it's in DD-MM-YYYY format
     };
-
+  
     try {
       await addNewSite(newSite);
       setNewSiteId("");
@@ -93,6 +101,7 @@ const CameraReportList = () => {
       alert("Error adding new site.");
     }
   };
+  
 
   const handleMapCameraToSite = async (cameraId, siteId) => {
     try {
@@ -102,16 +111,16 @@ const CameraReportList = () => {
       const cameraReportUrl = cameraReport._links.self.href;
       const parts = cameraReportUrl.split("/");
       const cameraReportDbId = parts[parts.length - 1];
-  
+
       console.log("cameraReportDbId = ", cameraReportDbId);
-  
+
       // Step 2: Find Site by siteId (UVTSADB00102 etc.)
       const siteResponse = await axios.get(`http://localhost:8080/siteMasterData/search/findBySiteId?siteId=${siteId}`);
       const site = siteResponse.data;
       const siteUrl = site._links.self.href;  // This will be something like http://localhost:8080/siteMasterData/1
-  
+
       console.log("siteUrl = ", siteUrl);
-  
+
       // Step 3: PUT request
       await axios.put(
         `http://localhost:8080/camera-reports/${cameraReportDbId}/site`,
@@ -122,13 +131,13 @@ const CameraReportList = () => {
           }
         }
       );
-  
+
       console.log("Mapping successful!");
     } catch (error) {
       console.error("Mapping failed:", error.response?.data || error.message);
     }
   };
-  
+
 
   const getCategory = (recordingDays) => {
     if (recordingDays <= 7) return "Category 1 (0-7 days)";

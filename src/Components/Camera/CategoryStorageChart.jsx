@@ -1,4 +1,3 @@
-// src/components/CategoryStorageChart.js
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
@@ -61,7 +60,7 @@ const CategoryStorageChart = ({ reports }) => {
     <div className="chart-card">
       <div className="chart-header">Cameras per Storage</div>
       <div className="chart-content">
-        <div className="chart-bar" style={{ width: '70%', height: '300px' }}>
+        <div className="chart-bar-cameras-storage">
           <Bar data={data} options={options} />
         </div>
         <div className="chart-summary">
