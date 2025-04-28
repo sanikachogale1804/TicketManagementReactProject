@@ -94,17 +94,41 @@ const CameraReportList = () => {
     }
   };
 
-  const handleMapCameraToSite = async (cameraReportId, siteDbId) => {
+  const handleMapCameraToSite = async (cameraId, siteId) => {
     try {
-      const response = await axios.put(
-        `http://localhost:8080/camera-reports/${cameraReportId}/site`,
-        { siteDbId: siteDbId }
+      // Step 1: Find CameraReport by cameraId
+      const response = await axios.get(`http://localhost:8080/camera-reports/search/findByCameraId?cameraId=${cameraId}`);
+      const cameraReport = response.data;
+      const cameraReportUrl = cameraReport._links.self.href;
+      const parts = cameraReportUrl.split("/");
+      const cameraReportDbId = parts[parts.length - 1];
+  
+      console.log("cameraReportDbId = ", cameraReportDbId);
+  
+      // Step 2: Find Site by siteId (UVTSADB00102 etc.)
+      const siteResponse = await axios.get(`http://localhost:8080/siteMasterData/search/findBySiteId?siteId=${siteId}`);
+      const site = siteResponse.data;
+      const siteUrl = site._links.self.href;  // This will be something like http://localhost:8080/siteMasterData/1
+  
+      console.log("siteUrl = ", siteUrl);
+  
+      // Step 3: PUT request
+      await axios.put(
+        `http://localhost:8080/camera-reports/${cameraReportDbId}/site`,
+        siteUrl,   // plain text URL
+        {
+          headers: {
+            "Content-Type": "text/uri-list"
+          }
+        }
       );
-      console.log("Mapping successful", response.data);
+  
+      console.log("Mapping successful!");
     } catch (error) {
       console.error("Mapping failed:", error.response?.data || error.message);
     }
   };
+  
 
   const getCategory = (recordingDays) => {
     if (recordingDays <= 7) return "Category 1 (0-7 days)";
