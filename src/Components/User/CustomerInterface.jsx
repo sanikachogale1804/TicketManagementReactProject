@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getTicketsByUser } from '../Services/TicketService';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../CSS/CustomerInterface.css';
 import NewTicketForm from '../Tickets/NewTicketForm';
 
@@ -11,6 +12,8 @@ function CustomerInterface({ userId }) {
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
   const [commentTicketId, setCommentTicketId] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -61,6 +64,11 @@ function CustomerInterface({ userId }) {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear(); // Clear localStorage on logout
+    navigate("/"); // Navigate to login page
+  };
+
   return (
     <div className="customer-interface">
       <h2>Image And Footage Request</h2>
@@ -76,6 +84,11 @@ function CustomerInterface({ userId }) {
           <option value="CLOSED">Closed</option>
         </select>
       </div>
+
+      {/* Logout Button */}
+      <button onClick={handleLogout} className="logout-btn">
+        Logout
+      </button>
 
       {loading ? (
         <p>Loading your tickets...</p>
@@ -107,7 +120,6 @@ function CustomerInterface({ userId }) {
                         <td className={`status-cell ${ticket.status.toLowerCase().replace('_', '-')}`}>
                           {ticket.status}
                         </td>
-
                         <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
                         <td>
                           <button onClick={() => handleShowComments(ticket.ticketId)} className="view-comments-btn">

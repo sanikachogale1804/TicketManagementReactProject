@@ -7,7 +7,7 @@ import {
 } from "../Services/TicketService";
 import '../CSS/AdminPanel.css';
 import axios from 'axios';
-
+import { useNavigate } from "react-router-dom";
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
@@ -22,13 +22,19 @@ function AdminPanel() {
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false); // For toggling comments visibility
   const [commentTicketId, setCommentTicketId] = useState(null);
-
-
   const [ticketStats, setTicketStats] = useState({
     open: 0,
     inProgress: 0,
     closed: 0,
   });
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear(); // Clear local storage on logout
+    navigate("/"); // Redirect to the login page
+  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -225,7 +231,8 @@ function AdminPanel() {
 
   return (
     <div className="admin-container">
-      <h2>Admin Panel</h2>
+       <h2 className="admin-title">Admin Panel</h2>
+       <button onClick={handleLogout} className="logout-button-admin">Logout</button>
 
       {/* Navbar for Filters and Ticket Assignment */}
       <div className="navbar">

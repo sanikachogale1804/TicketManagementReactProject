@@ -22,6 +22,28 @@ body, .dashboard-container {
   border-right: 1px solid #ccc;
 }
 
+.admin-container {
+  position: relative;
+  /* Ensure the container can have elements positioned relative to it */
+}
+
+
+.logout-button-admin {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  right: 10px; /* Adjust as needed */
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.logout-button-admin:hover {
+  background-color: #0056b3;
+}
 .sidebar-logo img.logo {
   width: 60px;
   margin-bottom: 20px;
@@ -67,11 +89,12 @@ body, .dashboard-container {
   gap: 10px;
 }
 
-.navbar h2 {
+/* /* Admin Panel Title Styling */
+.admin-title {
   color: white;
-  font-size: 24px;
+  font-size: 32px;
   font-weight: bold;
-  margin: 0;
+  margin-bottom: 20px;
 }
 
 /* Admin Panel Controls - Filter/Buttons */
