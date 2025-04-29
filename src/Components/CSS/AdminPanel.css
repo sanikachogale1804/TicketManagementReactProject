@@ -68,7 +68,7 @@ body, .dashboard-container {
 }
 
 .navbar h2 {
-  color: white; /* White text for the navbar heading */
+  color: white;
   font-size: 24px;
   font-weight: bold;
   margin: 0;

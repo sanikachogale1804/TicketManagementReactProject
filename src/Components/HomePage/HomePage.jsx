@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import logo from '../Image/cogent logo.jpg';
 import '../CSS/HomePage.css';
 import { getTicketsWithId } from '../Services/TicketService';
-import CalendarDashboard from './CalendarDashboard'; // Adjust path if needed
+import CalendarDashboard from './CalendarDashboard'; 
 
 function HomePage() {
   const [ticketStats, setTicketStats] = useState({
