@@ -15,6 +15,11 @@ const TeamMemberDashboard = () => {
     const navigate = useNavigate();
     const userId = localStorage.getItem("userId");
 
+    // ✅ Dynamic base URL logic
+    const baseURL = window.location.hostname === "localhost"
+        ? "http://localhost:8080"
+        : "http://192.168.1.102:8080";
+
     useEffect(() => {
         const storedUserName = localStorage.getItem("userName");
         const storedUserRole = localStorage.getItem("userRole");
@@ -37,7 +42,7 @@ const TeamMemberDashboard = () => {
                     return;
                 }
 
-                const response = await fetch(`http://localhost:8080/users/${userId}/assignedTickets`, {
+                const response = await fetch(`${baseURL}/users/${userId}/assignedTickets`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,

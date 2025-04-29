@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const Api_link="http://localhost:8080/users"
+const Api_link= window.location.hostname === "localhost"
+? `http://localhost:8080`
+: `http://192.168.1.102:8080`;
 
  
  export const getUsers = () => {
@@ -10,7 +12,7 @@ const Api_link="http://localhost:8080/users"
    };
  
   export const registerUser = (user) => {
-    return fetch('http://localhost:8080/register', {
+    return fetch(`${Api_link}/register`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,12 +33,13 @@ const Api_link="http://localhost:8080/users"
         throw error; // Return the error for further handling
       });
   };
-  const API_URL = 'http://localhost:8080';  // Update this to point to the backend server URL
+  const API_URL =window.location.hostname === "localhost"
+  ? `http://localhost:8080`
+  : `http://192.168.1.102:8080`;// Update this to point to the backend server URL
 
   export const loginUser = async (credentials) => {
     try {
-      const response = await axios.post(
-        'http://localhost:8080/login', 
+      const response = await axios.post(`${Api_link}/login`, 
         credentials, 
         {
           headers: {

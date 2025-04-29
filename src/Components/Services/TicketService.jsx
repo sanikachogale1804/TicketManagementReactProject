@@ -1,7 +1,16 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080"; // Adjust as needed
-const API_LINK = "http://localhost:8080/tickets";
+const BACKEND_IP = "192.168.1.102:8080";
+const LOCALHOST = "localhost:8080";
+
+const BASE_URL = window.location.hostname === "localhost"
+  ? `http://${LOCALHOST}`
+  : `http://${BACKEND_IP}`;
+
+const API_LINK = `${BASE_URL}/tickets`;
+
+
+
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
@@ -104,7 +113,7 @@ export const isAuthenticated = () => {
 
 export const getTickets = async () => {
   try {
-    const response = await fetch("http://localhost:8080/tickets", {
+    const response = await fetch(`${BASE_URL}/tickets`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -139,7 +148,7 @@ export const addTicket = (ticket) => {
 
 export const createTicket = async (ticketData) => {
   try {
-    const response = await axios.post("http://localhost:8080/tickets", ticketData);
+    const response = await axios.post(`${BASE_URL}/tickets`, ticketData);
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 409) {
@@ -162,7 +171,7 @@ export const updateTicket = async (ticketId, updatedTicket) => {
 
 export const createComment = async (ticketId, commentPayload, token) => {
   const response = await axios.post(
-    `http://localhost:8080/comments`,
+    `${BASE_URL}/comments`,
     commentPayload,
     {
       headers: {
@@ -177,8 +186,8 @@ export const createComment = async (ticketId, commentPayload, token) => {
 export const addCommentToTicket = async (commentId, ticketId) => {
   try {
     const response = await axios.put(
-      `http://localhost:8080/comments/${commentId}/ticket`,
-      `http://localhost:8080/tickets/${ticketId}`, // URI to the ticket resource
+      `${BASE_URL}/comments/${commentId}/ticket`,
+      `${BASE_URL}/tickets/${ticketId}`,
       {
         headers: {
           "Content-Type": "text/uri-list",
@@ -240,7 +249,7 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
       throw new Error("Ticket ID is missing!");
     }
 
-    const ticketResponse = await axios.get(`http://localhost:8080/tickets/${ticketId}`);
+    const ticketResponse = await axios.get(`${BASE_URL}/tickets/${ticketId}`);
     const existingTicket = ticketResponse.data;
 
     if (!existingTicket.createdAt) {
@@ -249,7 +258,7 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
 
     const updatedAt = new Date().toISOString(); // 🕒 Current timestamp
 
-    const response = await axios.put(`http://localhost:8080/tickets/${ticketId}`, {
+    const response = await axios.put(`${BASE_URL}/tickets/${ticketId}`, {
       ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
       iasspname: existingTicket.iasspname,
       siteID: existingTicket.siteID,

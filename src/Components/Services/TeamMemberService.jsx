@@ -1,17 +1,20 @@
 import axios from 'axios';
 
-// Make sure to configure axios base URL for your API if not already set up
+// Dynamic base URL: works for both localhost and IP
+const baseURL = window.location.hostname === "localhost"
+  ? 'http://localhost:8080'
+  : 'http://192.168.1.102:8080';
+
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080',  // Adjust the base URL as needed
+  baseURL: baseURL,
 });
 
-
 export const getAssignedTickets = async (teamMemberId) => {
-    try {
-      const response = await axiosInstance.get(`/tickets?assignedTo=${teamMemberId}`);
-      return response.data;  
-    } catch (error) {
-      console.error("Error fetching assigned tickets:", error);
-      return [];
-    }
-  };
+  try {
+    const response = await axiosInstance.get(`/tickets?assignedTo=${teamMemberId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching assigned tickets:", error);
+    return [];
+  }
+};
