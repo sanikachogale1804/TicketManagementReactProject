@@ -9,8 +9,6 @@ const BASE_URL = window.location.hostname === "localhost"
 
 const API_LINK = `${BASE_URL}/tickets`;
 
-
-
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
@@ -18,21 +16,20 @@ const getAuthToken = () => {
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getAuthToken()}`,
+    'Content-Type': 'application/json'
   },
 });
 
-axiosInstance.interceptors.response.use(
-  response => response,
-  async (error) => {
-    if (error.response && error.response.status === 401) {
-      alert("Session expired, please log in again.");
-      localStorage.removeItem('token');
-      window.location.href = "/login";
+
+axiosInstance.interceptors.request.use(
+  config => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
-    return Promise.reject(error);
-  }
+    return config;
+  },
+  error => Promise.reject(error)
 );
 
 export const getUsers = () => {
@@ -84,7 +81,7 @@ export const loginUser = async (credentials) => {
 
 export const getCurrentUser = async () => {
   try {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token'); // 🔁 Fix: use correct key
     if (!token) {
       throw new Error('No authentication token found');
     }
@@ -296,10 +293,9 @@ export const getAssignedTickets = async (userId) => {
     return [];
   }
 };
-
 export const getCommentsForTicket = async (ticketId, token) => {
   try {
-    const response = await fetch(`https://your-api.com/tickets/${ticketId}/comments`, {
+    const response = await fetch(`${BASE_URL}/tickets/${ticketId}/comments`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

@@ -87,8 +87,6 @@ function AdminPanel() {
     fetchData();
   }, []);
 
-
-
   // ✅ FIXED: Assign ticket only if all required values are set
   const handleAssignTicket = async () => {
     if (!selectedTicketId || !selectedTeamMember) {
