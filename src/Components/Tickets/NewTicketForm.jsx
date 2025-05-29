@@ -73,7 +73,8 @@ function NewTicketForm({ onTicketCreated }) {
           startDate: '',
           endDate: '',
         });
-        if (onTicketCreated) onTicketCreated(data);
+        // Add ticketId directly from the response
+        if (onTicketCreated) onTicketCreated(data);  // Pass the newly created ticket with ticketId back
         setIsSubmitting(false);
       })
       .catch((error) => {
@@ -81,6 +82,7 @@ function NewTicketForm({ onTicketCreated }) {
         setIsSubmitting(false);
         setError('❌ There was a conflict while creating the ticket. Please check the details.');
       });
+
   };
 
   return (

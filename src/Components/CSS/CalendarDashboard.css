@@ -1,15 +1,22 @@
-.calendar-container {
-  padding: 20px;
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f9fafb;
+.react-calendar {
+  width: 300px; 
+  height: 350px; 
+  overflow: hidden; 
+  display: flex;
+  justify-content: center;
+}
+
+.react-calendar__month-view {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* Always 7 columns */
+  gap: 10px;
+  height: 100%; /* Ensure the height is stretched to fill the calendar container */
 }
 
 .calendar-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 10px;
-  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .calendar-button {
@@ -163,8 +170,9 @@
   backdrop-filter: blur(14px);
   border: 1px solid rgba(203, 213, 225, 0.4);
   transition: all 0.3s ease;
+  min-width: 320px;
+  box-sizing: border-box;
 }
-
 /* React Calendar Overrides */
 .react-calendar {
   border: none;
@@ -191,7 +199,10 @@
 .react-calendar__tile {
   padding: 10px 0;
   border-radius: 10px;
-  transition: background 0.2s ease, transform 0.2s ease;
+  height: 50px; /* Ensure each tile has a consistent height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .react-calendar__tile:enabled:hover {
@@ -210,3 +221,4 @@
 .calendar-popup-exit {
   transition: all 0.3s ease-in-out;
 }
+

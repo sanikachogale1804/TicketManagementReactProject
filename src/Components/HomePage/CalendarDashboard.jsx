@@ -7,9 +7,16 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const CalendarDashboard = () => {
   const [weeks, setWeeks] = useState([]);
-  const [monthYear, setMonthYear] = useState("April 2025");
+  const currentDate = new Date();
+  const [monthYear, setMonthYear] = useState(() =>
+    currentDate.toLocaleString("default", { month: "long", year: "numeric" })
+  );
   const [totals, setTotals] = useState({ received: 0, closed: 0, pending: 0, outOfTat: 0 });
-  const [selectedMonth, setSelectedMonth] = useState("2025-04");
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const [selectedMonth, setSelectedMonth] = useState(`${currentYear}-${currentMonth}`);
+  const [year, month] = selectedMonth.split("-").map(Number);
+
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef();
 
@@ -53,12 +60,14 @@ const CalendarDashboard = () => {
       });
 
       const [year, month] = selectedMonth.split("-").map(Number);
-      const start = new Date(year, month - 1, 1);
-      const end = new Date(year, month, 0);
-      const startDate = new Date(start);
-      startDate.setDate(start.getDate() - start.getDay());
-      const endDate = new Date(end);
-      endDate.setDate(end.getDate() + (6 - end.getDay()));
+      // const start = new Date(year, month - 1, 1);
+      // const end = new Date(year, month, 0);
+      const startDate = new Date(year, month - 1, 1);
+      startDate.setDate(startDate.getDate() - startDate.getDay());
+
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 41); // Force 6 weeks (6 * 7 - 1 = 41)
+
 
       const weeksArray = [];
       let current = new Date(startDate);
@@ -128,6 +137,22 @@ const CalendarDashboard = () => {
     );
   };
 
+  // ISO Week Number Calculator
+  function getWeekNumber(date) {
+    const tempDate = new Date(date.getTime());
+    tempDate.setHours(0, 0, 0, 0);
+    tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
+    const week1 = new Date(tempDate.getFullYear(), 0, 4);
+    return (
+      1 +
+      Math.round(
+        ((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) /
+        7
+      )
+    );
+  }
+
+
   // 👇 Close calendar on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -160,7 +185,9 @@ const CalendarDashboard = () => {
                   view="month"
                   maxDetail="year"
                   showNeighboringMonth={false}
+                  showFixedNumberOfWeeks={true} // ✅ Always show 6 rows like April
                 />
+
               </motion.div>
             )}
           </AnimatePresence>
@@ -184,7 +211,7 @@ const CalendarDashboard = () => {
 
           return (
             <React.Fragment key={i}>
-              <div className="calendar-week-label">{14 + i}</div>
+              <div className="calendar-week-label">{getWeekNumber(week[0].date)}</div>
               {week.map((day, j) => (
                 <div key={j} className="calendar-day">{renderCell(day)}</div>
               ))}
@@ -199,6 +226,7 @@ const CalendarDashboard = () => {
             </React.Fragment>
           );
         })}
+
       </div>
     </div>
   );

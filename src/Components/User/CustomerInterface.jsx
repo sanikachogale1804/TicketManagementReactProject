@@ -69,11 +69,25 @@ function CustomerInterface({ userId }) {
     navigate("/"); // Navigate to login page
   };
 
+  const handleTicketCreated = async (newTicketData) => {
+    try {
+      // Assuming 'newTicketData' contains the new ticket including ticketId
+      setTickets((prevTickets) => [...prevTickets, newTicketData]);
+  
+      // Now that the ticket is created and the response includes ticketId,
+      // it should appear immediately in the UI without refresh.
+    } catch (error) {
+      console.error("Error handling ticket creation:", error);
+    }
+  };
+  
+
   return (
     <div className="customer-interface">
       <h2>Image And Footage Request</h2>
 
-      <NewTicketForm onTicketCreated={(newTicket) => setTickets((prevTickets) => [...prevTickets, newTicket])} />
+      {/* Pass the handleTicketCreated function as a prop */}
+      <NewTicketForm onTicketCreated={handleTicketCreated} />
 
       <div className="ticket-filters">
         <label>Filter by Status: </label>
