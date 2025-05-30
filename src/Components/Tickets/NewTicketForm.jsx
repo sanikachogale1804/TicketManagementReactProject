@@ -5,7 +5,7 @@ import '../CSS/NewTicketForm.css';
 function NewTicketForm({ onTicketCreated }) {
   const [ticket, setTicket] = useState({
     iasspname: '',
-    siteID: '',
+    siteId: '',
     description: '',
     startDate: '',
     endDate: '',
@@ -13,14 +13,49 @@ function NewTicketForm({ onTicketCreated }) {
 
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [siteDetails, setSiteDetails] = useState({
+    iasspname: '',
+    state: '',
+    city: ''
+  });
 
-  const handleChange = (e) => {
+
+  const handleChange = async (e) => {
     const { name, value } = e.target;
-    setTicket({ ...ticket, [name]: value });
+    setTicket((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === 'siteId' && value.trim() !== '') {
+      try {
+        const token = localStorage.getItem('token'); // adjust if you use another method
+        const response = await fetch(`http://localhost:8080/siteMasterData2/${value.trim()}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) throw new Error("Site not found");
+        const site = await response.json();
+        setSiteDetails({
+          iasspname: site.iasspName,
+          state: site.state,
+          city: site.district,
+        });
+        setTicket(prev => ({ ...prev, iasspname: site.iasspName }));
+        setError('');
+      } catch (err) {
+        setError('⚠️ Site ID not found or invalid.');
+        setSiteDetails({ iasspname: '', state: '', city: '' });
+      }
+    }
+
   };
 
+
   const validateForm = () => {
-    if (!ticket.iasspname || !ticket.siteID || !ticket.description || !ticket.startDate || !ticket.endDate) {
+    if (!ticket.iasspname || !ticket.siteId || !ticket.description || !ticket.startDate || !ticket.endDate) {
       setError('❌ Please fill out all fields.');
       return false;
     }
@@ -55,7 +90,7 @@ function NewTicketForm({ onTicketCreated }) {
     // Here, we set status to 'OPEN' by default and don't need to include it in the form
     const newTicket = {
       iasspname: ticket.iasspname,
-      siteID: ticket.siteID,
+      siteId: ticket.siteId,
       description: ticket.description,
       status: 'OPEN',  // Always 'OPEN' by default
       startDate: ticket.startDate,
@@ -68,7 +103,7 @@ function NewTicketForm({ onTicketCreated }) {
       .then((data) => {
         setTicket({
           iasspname: '',
-          siteID: '',
+          siteId: '',
           description: '',
           startDate: '',
           endDate: '',
@@ -92,32 +127,12 @@ function NewTicketForm({ onTicketCreated }) {
         <table className="ticket-form-table">
           <tbody>
             <tr>
-              <td><label>IASSP Name</label></td>
-              <td>
-                <select
-                  name="iasspname"
-                  value={ticket.iasspname}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                >
-                  <option value="">Select a company</option>
-                  <option value="Skipper Limited">Skipper Limited</option>
-                  <option value="Dinesh Engineers Limited">Dinesh Engineers Limited</option>
-                  <option value="NexGen Digital Infrastructure">NexGen Digital Infrastructure</option>
-                  <option value="Bondada Engineering Limited">Bondada Engineering Limited</option>
-                  <option value="Pace Digitek">Pace Digitek</option>
-                  <option value="Pratap Technocrats Pvt Ltd">Pratap Technocrats Pvt Ltd</option>
-                </select>
-              </td>
-            </tr>
-            <tr>
               <td><label>Site ID</label></td>
               <td>
                 <input
                   type="text"
-                  name="siteID"
-                  value={ticket.siteID}
+                  name="siteId"
+                  value={ticket.siteId}
                   onChange={handleChange}
                   className="form-input"
                   maxLength="12"
@@ -125,6 +140,19 @@ function NewTicketForm({ onTicketCreated }) {
                 />
               </td>
             </tr>
+            <tr>
+              <td><label>IASSP Name</label></td>
+              <td><input type="text" value={siteDetails.iasspname} readOnly className="form-input" /></td>
+            </tr>
+            <tr>
+              <td><label>State</label></td>
+              <td><input type="text" value={siteDetails.state} readOnly className="form-input" /></td>
+            </tr>
+            <tr>
+              <td><label>City</label></td>
+              <td><input type="text" value={siteDetails.city} readOnly className="form-input" /></td>
+            </tr>
+
             <tr>
               <td><label>Description</label></td>
               <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" required /></td>

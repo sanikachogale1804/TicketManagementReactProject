@@ -73,7 +73,7 @@ function HomePage() {
         <div className="dashboard">
           <div className="ticket-stats">
             <h2>Ticket Overview</h2>
-            <div className="stats-card open">
+            <div className="stats-card total">
               <h3>Total Tickets</h3>
               <p className="ticket-count">{ticketStats.total}</p>
             </div>
