@@ -1,123 +1,97 @@
-import React, { useState } from 'react';
-import { addTicket } from '../Services/TicketService';
+import React, { useState, useEffect } from 'react';
 import '../CSS/NewTicketForm.css';
 
-function NewTicketForm({ onTicketCreated }) {
+function NewTicketForm() {
   const [ticket, setTicket] = useState({
-    iasspname: '',
     siteId: '',
     description: '',
     startDate: '',
     endDate: '',
   });
 
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [siteDetails, setSiteDetails] = useState({
     iasspname: '',
     state: '',
-    city: ''
+    district: '',    // changed from city
   });
 
 
-  const handleChange = async (e) => {
+  const [sitesData, setSitesData] = useState([]);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetch('http://localhost:8080/siteMasterData2')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch site data');
+        return res.json();
+      })
+      .then(data => {
+        // Extract the array of sites
+        const sitesArray = data._embedded?.siteMasterData2s || [];
+        setSitesData(sitesArray);
+        console.log('Fetched site data:', sitesArray);
+      })
+      .catch(err => {
+        setError(err.message);
+      });
+  }, []);
+
+
+  // Handle form input changes
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setTicket((prev) => ({
+
+    setTicket(prev => ({
       ...prev,
       [name]: value,
     }));
 
-    if (name === 'siteId' && value.trim() !== '') {
-      try {
-        const token = localStorage.getItem('token'); // adjust if you use another method
-        const response = await fetch(`http://localhost:8080/siteMasterData2/${value.trim()}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        if (!response.ok) throw new Error("Site not found");
-        const site = await response.json();
+    if (name === 'siteId') {
+      const matchedSite = sitesData.find(site => site.siteId?.toLowerCase() === value.toLowerCase());
+      if (matchedSite) {
         setSiteDetails({
-          iasspname: site.iasspName,
-          state: site.state,
-          city: site.district,
+          iasspname: matchedSite.iasspName || '',  // Note camel case: iasspName
+          state: matchedSite.state || '',
+          district: matchedSite.district || '',    // district here instead of city
         });
-        setTicket(prev => ({ ...prev, iasspname: site.iasspName }));
-        setError('');
-      } catch (err) {
-        setError('⚠️ Site ID not found or invalid.');
-        setSiteDetails({ iasspname: '', state: '', city: '' });
+      } else {
+        setSiteDetails({
+          iasspname: '',
+          state: '',
+          district: '',
+        });
       }
     }
-
   };
 
-
-  const validateForm = () => {
-    if (!ticket.iasspname || !ticket.siteId || !ticket.description || !ticket.startDate || !ticket.endDate) {
-      setError('❌ Please fill out all fields.');
-      return false;
-    }
-
-    const start = new Date(ticket.startDate);
-    const end = new Date(ticket.endDate);
-    const differenceInMinutes = (end - start) / (1000 * 60);
-
-    if (differenceInMinutes > 30) {
-      setError('⚠️ Error: Duration cannot exceed 30 minutes.');
-      return false;
-    }
-
-    setError('');
-    return true;
-  };
-
+  // Handle form submission
   const submitHandler = (e) => {
     e.preventDefault();
-
-    if (!ticket.iasspname || ticket.iasspname.trim() === "") {
-      setError("⚠️ 'IASSP Name' cannot be empty.");
-      return;
-    }
-
-    if (!validateForm()) {
-      return;
-    }
-
+    setError('');
     setIsSubmitting(true);
 
-    // Here, we set status to 'OPEN' by default and don't need to include it in the form
-    const newTicket = {
-      iasspname: ticket.iasspname,
-      siteId: ticket.siteId,
-      description: ticket.description,
-      status: 'OPEN',  // Always 'OPEN' by default
-      startDate: ticket.startDate,
-      endDate: ticket.endDate,
-    };
+    // Example submit logic - you can adapt as needed
+    const payload = { ...ticket, ...siteDetails };
+    console.log('Submitting ticket:', payload);
 
-    console.log('🟢 Submitting new ticket:', newTicket);
-
-    addTicket(newTicket)
-      .then((data) => {
-        setTicket({
-          iasspname: '',
-          siteId: '',
-          description: '',
-          startDate: '',
-          endDate: '',
-        });
-        // Add ticketId directly from the response
-        if (onTicketCreated) onTicketCreated(data);  // Pass the newly created ticket with ticketId back
-        setIsSubmitting(false);
-      })
-      .catch((error) => {
-        console.error('❌ Failed to add ticket:', error.message);
-        setIsSubmitting(false);
-        setError('❌ There was a conflict while creating the ticket. Please check the details.');
+    // Simulate submit delay
+    setTimeout(() => {
+      setIsSubmitting(false);
+      alert('Ticket submitted!');
+      // Reset form if you want
+      setTicket({
+        siteId: '',
+        description: '',
+        startDate: '',
+        endDate: '',
       });
-
+      setSiteDetails({
+        iasspname: '',
+        state: '',
+        city: '',
+      });
+    }, 1000);
   };
 
   return (
@@ -127,10 +101,11 @@ function NewTicketForm({ onTicketCreated }) {
         <table className="ticket-form-table">
           <tbody>
             <tr>
-              <td><label>Site ID</label></td>
+              <td><label htmlFor="siteId">Site ID</label></td>
               <td>
                 <input
                   type="text"
+                  id="siteId"
                   name="siteId"
                   value={ticket.siteId}
                   onChange={handleChange}
@@ -149,21 +124,48 @@ function NewTicketForm({ onTicketCreated }) {
               <td><input type="text" value={siteDetails.state} readOnly className="form-input" /></td>
             </tr>
             <tr>
-              <td><label>City</label></td>
-              <td><input type="text" value={siteDetails.city} readOnly className="form-input" /></td>
+              <td><label>District</label></td>  {/* changed label */}
+              <td><input type="text" value={siteDetails.district} readOnly className="form-input" /></td>
             </tr>
+
 
             <tr>
               <td><label>Description</label></td>
-              <td><textarea name="description" value={ticket.description} onChange={handleChange} className="form-input" required /></td>
+              <td>
+                <textarea
+                  name="description"
+                  value={ticket.description}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </td>
             </tr>
             <tr>
               <td><label>Start Date & Time</label></td>
-              <td><input type="datetime-local" name="startDate" value={ticket.startDate} onChange={handleChange} className="form-input" required /></td>
+              <td>
+                <input
+                  type="datetime-local"
+                  name="startDate"
+                  value={ticket.startDate}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </td>
             </tr>
             <tr>
               <td><label>End Date & Time</label></td>
-              <td><input type="datetime-local" name="endDate" value={ticket.endDate} onChange={handleChange} className="form-input" required /></td>
+              <td>
+                <input
+                  type="datetime-local"
+                  name="endDate"
+                  value={ticket.endDate}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </td>
             </tr>
           </tbody>
         </table>
