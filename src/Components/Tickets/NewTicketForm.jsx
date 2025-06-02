@@ -3,8 +3,12 @@ import '../CSS/NewTicketForm.css';
 
 function NewTicketForm() {
   const [ticket, setTicket] = useState({
-    siteId: '',
+    iasspname: '',
+    siteID: '',
+    state: '',
+    district: '',
     description: '',
+    status: 'OPEN',
     startDate: '',
     endDate: '',
   });
@@ -12,9 +16,8 @@ function NewTicketForm() {
   const [siteDetails, setSiteDetails] = useState({
     iasspname: '',
     state: '',
-    district: '',    // changed from city
+    district: '',
   });
-
 
   const [sitesData, setSitesData] = useState([]);
   const [error, setError] = useState('');
@@ -27,7 +30,6 @@ function NewTicketForm() {
         return res.json();
       })
       .then(data => {
-        // Extract the array of sites
         const sitesArray = data._embedded?.siteMasterData2s || [];
         setSitesData(sitesArray);
         console.log('Fetched site data:', sitesArray);
@@ -37,61 +39,92 @@ function NewTicketForm() {
       });
   }, []);
 
-
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setTicket(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (name === 'siteId') {
+    if (name === 'siteID') {
       const matchedSite = sitesData.find(site => site.siteId?.toLowerCase() === value.toLowerCase());
       if (matchedSite) {
         setSiteDetails({
-          iasspname: matchedSite.iasspName || '',  // Note camel case: iasspName
+          iasspname: matchedSite.iasspName || '',
           state: matchedSite.state || '',
-          district: matchedSite.district || '',    // district here instead of city
+          district: matchedSite.district || '',
         });
+        setTicket(prev => ({
+          ...prev,
+          siteID: value,
+          iasspname: matchedSite.iasspName || '',
+          state: matchedSite.state || '',
+          district: matchedSite.district || '',
+        }));
       } else {
-        setSiteDetails({
+        setSiteDetails({ iasspname: '', state: '', district: '' });
+        setTicket(prev => ({
+          ...prev,
+          siteID: value,
           iasspname: '',
           state: '',
           district: '',
-        });
+        }));
       }
+    } else {
+      setTicket(prev => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
-  // Handle form submission
   const submitHandler = (e) => {
     e.preventDefault();
     setError('');
     setIsSubmitting(true);
 
-    // Example submit logic - you can adapt as needed
-    const payload = { ...ticket, ...siteDetails };
+    const payload = {
+      iasspname: siteDetails.iasspname,
+      siteID: ticket.siteID,
+      state: siteDetails.state,
+      district: siteDetails.district,
+      description: ticket.description,
+      startDate: ticket.startDate,
+      endDate: ticket.endDate,
+      status: 'OPEN'
+    };
+
     console.log('Submitting ticket:', payload);
 
-    // Simulate submit delay
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert('Ticket submitted!');
-      // Reset form if you want
-      setTicket({
-        siteId: '',
-        description: '',
-        startDate: '',
-        endDate: '',
+    fetch('http://localhost:8080/tickets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to submit ticket');
+        return res.json();
+      })
+      .then(data => {
+        alert('Ticket submitted!');
+        setIsSubmitting(false);
+        setTicket({
+          iasspname: '',
+          siteID: '',
+          state: '',
+          district: '',
+          description: '',
+          status: 'OPEN',
+          startDate: '',
+          endDate: '',
+        });
+        setSiteDetails({
+          iasspname: '',
+          state: '',
+          district: '',
+        });
+      })
+      .catch(err => {
+        setError(err.message);
+        setIsSubmitting(false);
       });
-      setSiteDetails({
-        iasspname: '',
-        state: '',
-        city: '',
-      });
-    }, 1000);
   };
 
   return (
@@ -101,13 +134,13 @@ function NewTicketForm() {
         <table className="ticket-form-table">
           <tbody>
             <tr>
-              <td><label htmlFor="siteId">Site ID</label></td>
+              <td><label htmlFor="siteID">Site ID</label></td>
               <td>
                 <input
                   type="text"
-                  id="siteId"
-                  name="siteId"
-                  value={ticket.siteId}
+                  id="siteID"
+                  name="siteID"
+                  value={ticket.siteID}
                   onChange={handleChange}
                   className="form-input"
                   maxLength="12"
@@ -124,11 +157,9 @@ function NewTicketForm() {
               <td><input type="text" value={siteDetails.state} readOnly className="form-input" /></td>
             </tr>
             <tr>
-              <td><label>District</label></td>  {/* changed label */}
+              <td><label>District</label></td>
               <td><input type="text" value={siteDetails.district} readOnly className="form-input" /></td>
             </tr>
-
-
             <tr>
               <td><label>Description</label></td>
               <td>
