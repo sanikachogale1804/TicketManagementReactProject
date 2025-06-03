@@ -5,6 +5,8 @@ import CategoryStorageChart from "./CategoryStorageChart";
 import { addNewSite } from "../Services/CameraReportService";
 import axios from "axios";
 import logo from '../Image/logo-removebg-preview.png';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -75,22 +77,22 @@ const CameraReportList = () => {
 
   const handleAddNewSite = async (event) => {
     event.preventDefault();
-  
+
     // Ensure newSiteLiveDate is in correct format DD-MM-YYYY
     const [year, month, day] = newSiteLiveDate.split("-");
     const formattedDate = `${day}-${month}-${year}`; // Change format to DD-MM-YYYY
-  
+
     // Validate date format (optional, but ensures proper input)
     if (!newSiteId || !newSiteLiveDate) {
       alert("Please provide both Site ID and Site Live Date.");
       return;
     }
-  
+
     const newSite = {
       siteId: newSiteId,
       siteLiveDate: formattedDate, // Ensure it's in DD-MM-YYYY format
     };
-  
+
     try {
       await addNewSite(newSite);
       setNewSiteId("");
@@ -154,6 +156,31 @@ const CameraReportList = () => {
 
   if (loading) return <p className="text-white">Loading camera reports...</p>;
 
+  // Add inside the component
+  const handleExportToExcel = () => {
+    const exportData = filteredReports.map((report) => ({
+      'Camera ID': report.cameraId,
+      'Start Date': report.startDate,
+      'End Date': report.endDate,
+      'Recording Days': report.recordingDays,
+      'Storage Used (GB)': report.storageUsedGB?.toFixed(2),
+      'Total Space (GB)': report.totalSpaceGB?.toFixed(2) || "N/A",
+      'Used Space (GB)': report.usedSpaceGB?.toFixed(2) || "N/A",
+      'Free Space (GB)': report.freeSpaceGB?.toFixed(2) || "N/A",
+      'Category': getCategory(report.recordingDays),
+      'Site ID': report.site?.siteId || "Not Assigned",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "CameraReports");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "CameraReports.xlsx");
+  };
+
+
   return (
     <div className="dashboard-layout">
       <main className="main-content">
@@ -203,6 +230,11 @@ const CameraReportList = () => {
             ))}
           </select>
         </div>
+
+        <button className="export-button" onClick={handleExportToExcel}>
+          📥 Export to Excel
+        </button>
+
 
         <div className="panel-card wide">
           <h4>Camera Report Table</h4>

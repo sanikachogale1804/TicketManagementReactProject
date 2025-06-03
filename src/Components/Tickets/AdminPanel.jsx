@@ -401,9 +401,7 @@ function AdminPanel() {
         )}
       </div>
 
-      {/* Comments Section */}
-      {/* ✨ COMMENTS SECTION WITH STYLING */}
-      {showComments && (
+      {/* {showComments && (
         <div className="comments-container fade-in">
           <h3>
             💬 Comments for Ticket ID:{" "}
@@ -424,7 +422,7 @@ function AdminPanel() {
             <p>No comments found for this ticket.</p>
           )}
         </div>
-      )}
+      )} */}
 
     </div>
   );

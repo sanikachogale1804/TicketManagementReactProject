@@ -256,15 +256,21 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
     const updatedAt = new Date().toISOString(); // 🕒 Current timestamp
 
     const response = await axios.put(`${BASE_URL}/tickets/${ticketId}`, {
-      ticketId: existingTicket.ticketId, // 🆔 ID ensure karo
+      ticketId: existingTicket.ticketId,
       iasspname: existingTicket.iasspname,
       siteID: existingTicket.siteID,
-      description: existingTicket.description, // 📝 Description bhi bhejo
-      status: newStatus, // ✅ Naya status
-      createdAt: existingTicket.createdAt, // 🕒 Pehla createdAt send karo
-      updatedAt: updatedAt, // 🕒 Naya updatedAt send karo
-      assignedTo: existingTicket.assignedTo // 🎯 AssignedTo bhi preserve karo
+      description: existingTicket.description,
+      district: existingTicket.district,
+      state: existingTicket.state,
+      startDate: existingTicket.startDate,
+      endDate: existingTicket.endDate,
+      status: newStatus,
+      createdAt: existingTicket.createdAt,
+      updatedAt: updatedAt,
+      assignedTo: existingTicket.assignedTo,
+      userId: existingTicket.userId // if exists and needed
     });
+
 
     return response.data;
   } catch (error) {

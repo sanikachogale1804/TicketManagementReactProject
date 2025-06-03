@@ -23,10 +23,19 @@ function CustomerInterface({ userId }) {
 
         const ticketsWithId = ticketsData.map((ticket) => {
           const ticketId = ticket.ticketId || ticket._links?.ticket?.href?.split("/").pop();
-          return { ...ticket, ticketId };
+
+          // Normalize siteID to siteId (camelCase)
+          const siteId = ticket.siteID || ticket.siteId || "";
+
+          return { ...ticket, ticketId, siteId };
         });
 
+
         setTickets(ticketsWithId);
+
+        // ✅ ADD THIS LINE HERE
+        console.log("Tickets:", ticketsWithId);
+
         setLoading(false);
       } catch (error) {
         console.error('Error fetching tickets:', error);
@@ -73,14 +82,14 @@ function CustomerInterface({ userId }) {
     try {
       // Assuming 'newTicketData' contains the new ticket including ticketId
       setTickets((prevTickets) => [...prevTickets, newTicketData]);
-  
+
       // Now that the ticket is created and the response includes ticketId,
       // it should appear immediately in the UI without refresh.
     } catch (error) {
       console.error("Error handling ticket creation:", error);
     }
   };
-  
+
 
   return (
     <div className="customer-interface">
