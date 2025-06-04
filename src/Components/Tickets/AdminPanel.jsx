@@ -34,7 +34,7 @@ function AdminPanel() {
     localStorage.clear(); // Clear local storage on logout
     navigate("/"); // Redirect to the login page
   };
-  
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -225,12 +225,20 @@ function AdminPanel() {
     }
   };
 
+  const handleGoHome = () => {
+    navigate("/homePage"); // change "/home" to your actual home route
+  };
+
+
   if (loading) return <p>Loading...</p>;
 
   return (
     <div className="admin-container">
-       <h2 className="admin-title">Admin Panel</h2>
-       <button onClick={handleLogout} className="logout-button-admin">Logout</button>
+      <h2 className="admin-title">Admin Panel</h2>
+      <div className="admin-header-buttons">
+        <button className="home-button-admin" onClick={handleGoHome}>Home</button>
+        <button className="logout-button-admin" onClick={handleLogout}>Logout</button>
+      </div>
 
       {/* Navbar for Filters and Ticket Assignment */}
       <div className="navbar">

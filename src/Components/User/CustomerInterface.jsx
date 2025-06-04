@@ -108,10 +108,14 @@ function CustomerInterface({ userId }) {
         </select>
       </div>
 
-      {/* Logout Button */}
-      <button onClick={handleLogout} className="logout-btn">
-        Logout
-      </button>
+      <div className="header-buttons">
+        <button className="home-btn" onClick={() => navigate("/")}>
+          Home
+        </button>
+        <button onClick={handleLogout} className="logout-btn">
+          Logout
+        </button>
+      </div>
 
       {loading ? (
         <p>Loading your tickets...</p>
