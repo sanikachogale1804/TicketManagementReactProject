@@ -15,9 +15,6 @@ import HomePage from './Components/HomePage/HomePage';
 import TeamMemberDashboard from './Components/User/TeamMemberDashboard';
 import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
 import CalendarDashboard from './Components/HomePage/CalendarDashboard';
-
-// 👇 Import RedirectHandler
-import RedirectHandler from './Components/Auth/ReactHandler';
 import CameraReportList from './Components/Camera/CameraReportList';
 
 // 👇 Token check function
@@ -30,12 +27,14 @@ const PrivateRoute = ({ element }) => {
   return isAuthenticated() ? element : <Navigate to="/loginPage" replace />;
 };
 
-// 👇 Define routes with protection
+// 👇 Define routes
 const routes = createBrowserRouter([
-  { path: "/", element: <RedirectHandler /> }, // 👈 updated root route
+  // { path: "/", element: <LoginPage /> }, // 👈 Direct login page
+  { path: "/", element: <HomePage /> },
   { path: "/loginPage", element: <LoginPage /> },
   { path: "/registerPage", element: <RegisterPage /> },
 
+  // Protected Routes
   { path: "/ticketForm", element: <PrivateRoute element={<TicketForm />} /> },
   { path: "/userpanel", element: <PrivateRoute element={<UserPanel />} /> },
   { path: "/ticketstatus", element: <PrivateRoute element={<TicketStatus />} /> },
@@ -51,8 +50,7 @@ const routes = createBrowserRouter([
   { path: "/calendarDashboard", element: <PrivateRoute element={<CalendarDashboard />} /> },
   { path: "/cameraReport", element: <PrivateRoute element={<CameraReportList />} /> },
 
-
-  // 👇 Redirect unmatched routes
+  // 👇 Redirect all unmatched to Login Page
   { path: "*", element: <Navigate to="/" replace /> }
 ]);
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = "http://localhost:8080"; // 🔁 Update this for production or Netlify
+const BASE_URL = "https://192.168.1.102:9080"; // 🔁 Update this for production or Netlify
 
 export const fetchCameraReports = async () => {
   try {
@@ -21,7 +21,7 @@ export const fetchStorageInfo = async () => {
 
 export const addNewSite = async (siteData) => {
   try {
-    const response = await fetch("http://localhost:8080/siteMasterData", {
+    const response = await fetch("https://192.168.1.102:9080/siteMasterData", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -42,7 +42,7 @@ export const addNewSite = async (siteData) => {
 };
 
 export const addCameraReport = async (report) => {
-  const response = await fetch("http://localhost:8080/camera-reports", {
+  const response = await fetch("https://192.168.1.102:9080/camera-reports", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(report),

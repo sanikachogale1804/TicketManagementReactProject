@@ -24,7 +24,7 @@ function NewTicketForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:8080/siteMasterData2')
+    fetch('https://192.168.1.102:9080/siteMasterData2')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch site data');
         return res.json();
@@ -93,7 +93,7 @@ function NewTicketForm() {
 
     console.log('Submitting ticket:', payload);
 
-    fetch('http://localhost:8080/tickets', {
+    fetch('https://192.168.1.102:9080/tickets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

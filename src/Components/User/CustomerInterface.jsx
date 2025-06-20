@@ -52,7 +52,7 @@ function CustomerInterface({ userId }) {
 
   const fetchComments = async (ticketId) => {
     try {
-      const response = await axios.get(`http://localhost:8080/tickets/${ticketId}/comments`);
+      const response = await axios.get(`https://192.168.1.102:8080/tickets/${ticketId}/comments`);
       const commentsData = response.data._embedded?.comments || [];
       setComments(commentsData);
       console.log("Fetched comments:", commentsData);

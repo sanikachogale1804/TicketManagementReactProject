@@ -1,11 +1,11 @@
 import axios from "axios";
 
-const BACKEND_IP = "192.168.1.102:8080";
-const LOCALHOST = "localhost:8080";
+const BACKEND_IP = "192.168.1.102:9080";
+const LOCALHOST = "localhost:9080";
 
 const BASE_URL = window.location.hostname === "localhost"
-  ? `http://${LOCALHOST}`
-  : `http://${BACKEND_IP}`;
+  ? `https://${LOCALHOST}`
+  : `https://${BACKEND_IP}`;
 
 const API_LINK = `${BASE_URL}/tickets`;
 
