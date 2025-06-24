@@ -8,6 +8,11 @@ import logo from '../Image/logo-removebg-preview.png';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+// ✅ Dynamic base URL for local/network
+const baseURL = window.location.hostname === "localhost"
+  ? "https://localhost:9080"
+  : "https://192.168.1.102:9080";
+
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +27,11 @@ const CameraReportList = () => {
 
   const fetchCameraReportsBySite = async (siteId) => {
     try {
-      const response = await fetch(`http://localhost:8080/camera-reports?siteId=${siteId}`);
+      const url = siteId
+        ? `${baseURL}/camera-reports?siteId=${siteId}`
+        : `${baseURL}/camera-reports`; 
+
+      const response = await fetch(url);
       const data = await response.json();
       return data;
     } catch (error) {
@@ -31,9 +40,10 @@ const CameraReportList = () => {
     }
   };
 
+
   const fetchSites = async () => {
     try {
-      const response = await fetch("http://localhost:8080/siteMasterData");
+      const response = await fetch(`${baseURL}/siteMasterData`);
       const data = await response.json();
       setSites(data._embedded?.siteMasterDatas || []);
     } catch (error) {
@@ -42,6 +52,8 @@ const CameraReportList = () => {
   };
 
   useEffect(() => {
+    let intervalId;
+
     const fetchAndEnrichReports = async () => {
       try {
         const data = await fetchCameraReportsBySite(selectedSiteId);
@@ -71,18 +83,27 @@ const CameraReportList = () => {
       }
     };
 
-    fetchAndEnrichReports();
-    fetchSites();
+    const fetchInitialData = async () => {
+      await fetchSites();
+      await fetchAndEnrichReports();
+    };
+
+    fetchInitialData();
+
+    intervalId = setInterval(() => {
+      fetchAndEnrichReports();
+    }, 5 * 60 * 1000); 
+
+    return () => clearInterval(intervalId);
   }, [selectedSiteId]);
+
 
   const handleAddNewSite = async (event) => {
     event.preventDefault();
 
-    // Ensure newSiteLiveDate is in correct format DD-MM-YYYY
     const [year, month, day] = newSiteLiveDate.split("-");
-    const formattedDate = `${day}-${month}-${year}`; // Change format to DD-MM-YYYY
+    const formattedDate = `${day}-${month}-${year}`;
 
-    // Validate date format (optional, but ensures proper input)
     if (!newSiteId || !newSiteLiveDate) {
       alert("Please provide both Site ID and Site Live Date.");
       return;
@@ -90,7 +111,7 @@ const CameraReportList = () => {
 
     const newSite = {
       siteId: newSiteId,
-      siteLiveDate: formattedDate, // Ensure it's in DD-MM-YYYY format
+      siteLiveDate: formattedDate,
     };
 
     try {
@@ -107,36 +128,26 @@ const CameraReportList = () => {
 
   const handleMapCameraToSite = async (cameraId, siteId) => {
     try {
-      // Step 1: Find CameraReport by cameraId
-      const response = await axios.get(`http://localhost:8080/camera-reports/search/findByCameraId?cameraId=${cameraId}`);
+      const response = await axios.get(`${baseURL}/camera-reports/search/findByCameraId?cameraId=${cameraId}`);
       const cameraReport = response.data;
       const cameraReportUrl = cameraReport._links.self.href;
       const parts = cameraReportUrl.split("/");
       const cameraReportDbId = parts[parts.length - 1];
 
-      console.log("cameraReportDbId = ", cameraReportDbId);
-
-      // Step 2: Find Site by siteId (UVTSADB00102 etc.)
-      const siteResponse = await axios.get(`http://localhost:8080/siteMasterData/search/findBySiteId?siteId=${siteId}`);
+      const siteResponse = await axios.get(`${baseURL}/siteMasterData/search/findBySiteId?siteId=${siteId}`);
       const site = siteResponse.data;
-      const siteUrl = site._links.self.href;  // This will be something like http://localhost:8080/siteMasterData/1
+      const siteUrl = site._links.self.href;
 
-      console.log("siteUrl = ", siteUrl);
-
-      // Step 3: PUT request
       await axios.put(
-        `http://localhost:8080/camera-reports/${cameraReportDbId}/site`,
-        siteUrl,   // plain text URL
-        {
-          headers: {
-            "Content-Type": "text/uri-list"
-          }
-        }
+        `${baseURL}/camera-reports/${cameraReportDbId}/site`,
+        siteUrl,
+        { headers: { "Content-Type": "text/uri-list" } }
       );
 
-      console.log("Mapping successful!");
+      alert("Camera mapped to site successfully!");
     } catch (error) {
       console.error("Mapping failed:", error.response?.data || error.message);
+      alert("Failed to map camera to site.");
     }
   };
 
@@ -156,7 +167,6 @@ const CameraReportList = () => {
 
   if (loading) return <p className="text-white">Loading camera reports...</p>;
 
-  // Add inside the component
   const handleExportToExcel = () => {
     const exportData = filteredReports.map((report) => ({
       'Camera ID': report.cameraId,
@@ -179,7 +189,6 @@ const CameraReportList = () => {
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "CameraReports.xlsx");
   };
-
 
   return (
     <div className="dashboard-layout">
@@ -234,7 +243,6 @@ const CameraReportList = () => {
         <button className="export-button" onClick={handleExportToExcel}>
           📥 Export to Excel
         </button>
-
 
         <div className="panel-card wide">
           <h4>Camera Report Table</h4>
