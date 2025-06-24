@@ -29,8 +29,8 @@ const PrivateRoute = ({ element }) => {
 
 // 👇 Define routes
 const routes = createBrowserRouter([
-  // { path: "/", element: <LoginPage /> }, // 👈 Direct login page
-  { path: "/", element: <HomePage /> },
+  { path: "/", element: <LoginPage /> }, 
+  // { path: "/", element: <HomePage /> },
   { path: "/loginPage", element: <LoginPage /> },
   { path: "/registerPage", element: <RegisterPage /> },
 
