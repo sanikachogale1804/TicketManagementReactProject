@@ -23,8 +23,13 @@ function NewTicketForm() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ✅ Dynamic Base URL (same logic as TeamMemberDashboard)
+  const baseURL = window.location.hostname === "localhost"
+    ? "https://localhost:9080"
+    : "https://192.168.1.102:9080";
+
   useEffect(() => {
-    fetch('https://192.168.1.102:9080/siteMasterData2')
+    fetch(`${baseURL}/siteMasterData2`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch site data');
         return res.json();
@@ -93,7 +98,7 @@ function NewTicketForm() {
 
     console.log('Submitting ticket:', payload);
 
-    fetch('https://192.168.1.102:9080/tickets', {
+    fetch(`${baseURL}/tickets`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -103,7 +108,7 @@ function NewTicketForm() {
         return res.json();
       })
       .then(data => {
-        alert('Ticket submitted!');
+        alert('✅ Ticket submitted!');
         setIsSubmitting(false);
         setTicket({
           iasspname: '',
@@ -201,7 +206,7 @@ function NewTicketForm() {
           </tbody>
         </table>
 
-        {error && <p className="error">{error}</p>}
+        {error && <p className="error">❌ {error}</p>}
 
         <button type="submit" className="submit-btn" disabled={isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Submit'}
