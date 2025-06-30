@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BACKEND_IP = "192.168.1.102:9080";
+const BACKEND_IP = "https://45.115.186.228:8443";
 const LOCALHOST = "localhost:9080";
 
 const BASE_URL = window.location.hostname === "localhost"

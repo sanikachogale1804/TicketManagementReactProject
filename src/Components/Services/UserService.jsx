@@ -2,7 +2,7 @@ import axios from "axios";
 
 const Api_link= window.location.hostname === "localhost"
 ? `https://localhost:9080`
-: `https://192.168.1.102:9080`;
+: `https://45.115.186.228:8443`;
 
  
  export const getUsers = () => {
@@ -35,7 +35,7 @@ const Api_link= window.location.hostname === "localhost"
   };
   const API_URL =window.location.hostname === "localhost"
   ? `https://localhost:9080`
-  : `https://192.168.1.102:9080`;// Update this to point to the backend server URL
+  : `https://45.115.186.228:8443`;// Update this to point to the backend server URL
 
   export const loginUser = async (credentials) => {
     try {

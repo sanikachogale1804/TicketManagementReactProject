@@ -182,7 +182,7 @@ function AdminPanel() {
 
   const fetchComments = async (ticketId) => {
     try {
-      const response = await axios.get(`https://192.168.1.102:9080/tickets/${ticketId}/comments`);
+      const response = await axios.get(`https://cogentmobileapp.in:8443/tickets/${ticketId}/comments`);
       const fetchedComments = response.data._embedded?.comments || [];
 
       setComments(fetchedComments);
