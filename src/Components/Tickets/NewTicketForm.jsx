@@ -25,8 +25,8 @@ function NewTicketForm() {
 
   // ✅ Dynamic Base URL (same logic as TeamMemberDashboard)
   const baseURL = window.location.hostname === "localhost"
-    ? "https://localhost:9080"
-    : "https://192.168.1.102:9080";
+    ? "http://localhost:9080"
+    : "http://192.168.1.91:9080";
 
   useEffect(() => {
     fetch(`${baseURL}/siteMasterData2`)
