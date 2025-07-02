@@ -10,8 +10,8 @@ import { saveAs } from 'file-saver';
 
 // ✅ Dynamic base URL for local/network
 const baseURL = window.location.hostname === "localhost"
-  ? "https://localhost:9080"
-  : "https://192.168.1.102:9080";
+  ? "http://localhost:9080"
+  : "http://192.168.1.91:9080";
 
 const CameraReportList = () => {
   const [reports, setReports] = useState([]);
@@ -28,11 +28,17 @@ const CameraReportList = () => {
   const fetchCameraReportsBySite = async (siteId) => {
     try {
       const url = siteId
-        ? `${baseURL}/camera-reports?siteId=${siteId}`
-        : `${baseURL}/camera-reports`; 
+        ? `${baseURL}/camera-reports/search/findBySiteId?siteId=${siteId}`
+        : `${baseURL}/camera-reports`;
 
       const response = await fetch(url);
       const data = await response.json();
+
+      // If response is HAL format, return _embedded.cameraReports
+      if (data._embedded?.cameraReports) {
+        return data._embedded.cameraReports;
+      }
+
       return data;
     } catch (error) {
       console.error("Error fetching camera reports by site:", error);
@@ -41,11 +47,12 @@ const CameraReportList = () => {
   };
 
 
+
   const fetchSites = async () => {
     try {
-      const response = await fetch(`${baseURL}/siteMasterData`);
+      const response = await fetch(`${baseURL}/siteMasterData2`);
       const data = await response.json();
-      setSites(data._embedded?.siteMasterDatas || []);
+      setSites(data._embedded?.siteMasterData2s || []);
     } catch (error) {
       console.error("Error fetching sites:", error);
     }
@@ -56,8 +63,7 @@ const CameraReportList = () => {
 
     const fetchAndEnrichReports = async () => {
       try {
-        const data = await fetchCameraReportsBySite(selectedSiteId);
-        const reports = data._embedded?.cameraReports || [];
+        const reports = await fetchCameraReportsBySite(selectedSiteId);
 
         const enrichedReports = await Promise.all(
           reports.map(async (report) => {
@@ -92,7 +98,7 @@ const CameraReportList = () => {
 
     intervalId = setInterval(() => {
       fetchAndEnrichReports();
-    }, 5 * 60 * 1000); 
+    }, 5 * 60 * 1000);
 
     return () => clearInterval(intervalId);
   }, [selectedSiteId]);
@@ -134,7 +140,7 @@ const CameraReportList = () => {
       const parts = cameraReportUrl.split("/");
       const cameraReportDbId = parts[parts.length - 1];
 
-      const siteResponse = await axios.get(`${baseURL}/siteMasterData/search/findBySiteId?siteId=${siteId}`);
+      const siteResponse = await axios.get(`${baseURL}/siteMasterData2/search/findBySiteId?siteId=${siteId}`);
       const site = siteResponse.data;
       const siteUrl = site._links.self.href;
 

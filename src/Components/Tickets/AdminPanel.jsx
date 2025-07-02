@@ -35,6 +35,13 @@ function AdminPanel() {
     navigate("/"); // Redirect to the login page
   };
 
+  const BASE_URL = (() => {
+  const hostname = window.location.hostname;
+  if (hostname === "localhost") return "http://localhost:9080";
+  if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
+  return "http://45.115.186.228:9080"; // fallback to public IP
+})();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -180,37 +187,37 @@ function AdminPanel() {
   });
 
 
-  const fetchComments = async (ticketId) => {
-    try {
-      const response = await axios.get(`https://localhost:9080/tickets/${ticketId}/comments`);
-      const fetchedComments = response.data._embedded?.comments || [];
+ const fetchComments = async (ticketId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}/tickets/${ticketId}/comments`);
+    const fetchedComments = response.data._embedded?.comments || [];
 
-      setComments(fetchedComments);
-      console.log(`✅ Comments for Ticket ${ticketId}:`, fetchedComments);
+    setComments(fetchedComments);
+    console.log(`✅ Comments for Ticket ${ticketId}:`, fetchedComments);
 
-      // 🔄 Auto-close ticket if comments exist
-      if (fetchedComments.length > 0) {
-        console.log("🚀 Auto-closing the ticket since comments exist...");
+    // 🔄 Auto-close ticket if comments exist
+    if (fetchedComments.length > 0) {
+      console.log("🚀 Auto-closing the ticket since comments exist...");
 
-        // Step 1: Update the status on the server
-        await updateTicketStatus(ticketId, "CLOSED");
+      // Step 1: Update the status on the server
+      await updateTicketStatus(ticketId, "CLOSED");
 
-        // Step 2: Update the status in UI
-        setTickets((prevTickets) =>
-          prevTickets.map((ticket) =>
-            ticket.ticket_id === ticketId
-              ? { ...ticket, status: "CLOSED" }
-              : ticket
-          )
-        );
+      // Step 2: Update the status in UI
+      setTickets((prevTickets) =>
+        prevTickets.map((ticket) =>
+          ticket.ticket_id === ticketId
+            ? { ...ticket, status: "CLOSED" }
+            : ticket
+        )
+      );
 
-        console.log(`✅ Ticket ${ticketId} status updated to CLOSED`);
-      }
-    } catch (error) {
-      console.error(`❌ Error fetching comments for Ticket ${ticketId}:`, error);
-      setComments([]);
+      console.log(`✅ Ticket ${ticketId} status updated to CLOSED`);
     }
-  };
+  } catch (error) {
+    console.error(`❌ Error fetching comments for Ticket ${ticketId}:`, error);
+    setComments([]);
+  }
+};
 
 
   // Function to handle viewing comments for a specific ticket

@@ -17,8 +17,8 @@ const TeamMemberDashboard = () => {
 
     // ✅ Dynamic base URL logic
     const baseURL = window.location.hostname === "localhost"
-        ? "https://localhost:9080"
-        : "https://45.115.186.228:8443";
+        ? "http://localhost:9080"
+        : "http://192.168.1.91:9080";
 
     useEffect(() => {
         const storedUserName = localStorage.getItem("userName");
