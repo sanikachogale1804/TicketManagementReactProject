@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../CSS/TeamMemberDashboard.css'
+import '../CSS/TeamMemberDashboard.css';
 import { addCommentToTicket, createComment } from "../Services/TicketService";
-
 
 const TeamMemberDashboard = () => {
     const [userName, setUserName] = useState("");
@@ -15,10 +14,12 @@ const TeamMemberDashboard = () => {
     const navigate = useNavigate();
     const userId = localStorage.getItem("userId");
 
-    // ✅ Dynamic base URL logic
-    const baseURL = window.location.hostname === "localhost"
-        ? "http://localhost:9080"
-        : "http://192.168.1.91:9080";
+    const Api_link = (() => {
+        const hostname = window.location.hostname;
+        if (hostname === "localhost") return "http://localhost:9080";
+        if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
+        return "http://117.250.211.51:9080"; // ✅ Public fallback for Netlify/production
+    })();
 
     useEffect(() => {
         const storedUserName = localStorage.getItem("userName");
@@ -42,7 +43,7 @@ const TeamMemberDashboard = () => {
                     return;
                 }
 
-                const response = await fetch(`${baseURL}/users/${userId}/assignedTickets`, {
+                const response = await fetch(`${Api_link}/users/${userId}/assignedTickets`, {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`,
@@ -83,18 +84,13 @@ const TeamMemberDashboard = () => {
                 createdAt: new Date().toISOString(),
             };
 
-            // ✅ Step 1: Create comment
             const newComment = await createComment(ticketId, commentPayload, token);
-            console.log("✅ Comment Created:", newComment);
-
-            // ✅ Step 2: Extract comment ID from _links.self.href
             const commentId = newComment._links?.self?.href?.split("/").pop();
 
             if (!commentId) {
                 throw new Error("❌ Failed to extract comment ID from response.");
             }
 
-            // ✅ Step 3: Assign comment to ticket
             await addCommentToTicket(commentId, ticketId);
 
             alert("✅ Comment added and ticket assigned successfully!");
@@ -103,7 +99,7 @@ const TeamMemberDashboard = () => {
             console.error("❌ Error adding comment:", error);
             alert("❌ Failed to add comment.");
         }
-    };    
+    };
 
     const handleCommentChange = (ticketId, value) => {
         setTicketComments((prevComments) => ({
@@ -112,11 +108,10 @@ const TeamMemberDashboard = () => {
         }));
     };
 
-
     return (
         <div>
             <div className="header-container">
-                <h1><span className="emoji"></span> Welcome, {userName}! <span className="emoji"></span></h1>
+                <h1>👋 Welcome, {userName}!</h1>
                 <h3>Your Role: {userRole}</h3>
             </div>
 
@@ -139,17 +134,15 @@ const TeamMemberDashboard = () => {
                         </thead>
                         <tbody>
                             {assignedTickets.map((ticket) => {
-                                const ticketId = ticket._links?.self?.href.split("/").pop();  // Extract ticket ID
+                                const ticketId = ticket._links?.self?.href.split("/").pop();
 
                                 return (
                                     <tr key={ticketId}>
                                         <td className="ticket-id">{ticketId}</td>
-                                        <td>{ticket.siteID}</td>  {/* Display Site ID */}
-                                        <td>{ticket.iasspname}</td>  {/* Display IASSP Name */}
+                                        <td>{ticket.siteID}</td>
+                                        <td>{ticket.iasspname}</td>
                                         <td>{ticket.description}</td>
-                                        <td
-                                            className={`status-${ticket.status?.toLowerCase() || "unknown"}`}
-                                        >
+                                        <td className={`status-${ticket.status?.toLowerCase() || "unknown"}`}>
                                             {ticket.status || "Unknown"}
                                         </td>
                                         <td>{new Date(ticket.createdAt).toLocaleString()}</td>
@@ -173,14 +166,16 @@ const TeamMemberDashboard = () => {
             )}
 
             <div className="logout-button-container">
-                <button className="logout-button" onClick={() => {
-                    localStorage.clear();
-                    navigate("/loginPage");
-                }}>
+                <button
+                    className="logout-button"
+                    onClick={() => {
+                        localStorage.clear();
+                        navigate("/loginPage");
+                    }}
+                >
                     Logout
                 </button>
             </div>
-
         </div>
     );
 };

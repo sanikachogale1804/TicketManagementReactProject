@@ -23,10 +23,12 @@ function NewTicketForm() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // ✅ Dynamic Base URL (same logic as TeamMemberDashboard)
-  const baseURL = window.location.hostname === "localhost"
-    ? "http://localhost:9080"
-    : "http://192.168.1.91:9080";
+ const baseURL = (() => {
+  const hostname = window.location.hostname;
+  if (hostname === "localhost") return "http://localhost:9080";
+  if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
+  return "http://117.250.211.51:9080"; // Updated public IP
+})();
 
   useEffect(() => {
     fetch(`${baseURL}/siteMasterData2`)

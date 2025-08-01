@@ -82,3 +82,15 @@
   color: #4caf50;
   margin-top: 10px;
 }
+
+.register-message {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.register-link {
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+}

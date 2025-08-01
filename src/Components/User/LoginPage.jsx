@@ -97,9 +97,19 @@ const LoginPage = () => {
               />
               <button type="submit">Login</button>
             </form>
+
             {errorMessage && <p className="login-message error">{errorMessage}</p>}
             {successMessage && <p className="login-message success">{successMessage}</p>}
+
+            <p className="register-message">
+              Don't have an account?{" "}
+              <span className="register-link" onClick={() => navigate("/registerPage")}>
+                Register here
+              </span>
+            </p>
           </>
+
+
         ) : (
           <>
             <h2>Welcome, {localStorage.getItem("userName")}!</h2>

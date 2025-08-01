@@ -1,9 +1,12 @@
 import axios from 'axios';
 
-// Dynamic base URL: works for both localhost and IP
-const baseURL = window.location.hostname === "localhost"
-  ? 'https://localhost:9080'
-  : 'http://192.168.1.91:9080';
+const baseURL = (() => {
+  const hostname = window.location.hostname;
+  if (hostname === "localhost") return "http://localhost:9080";
+  if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
+  return "http://117.250.211.51:9080"; // fallback public IP
+})();
+
 
 const axiosInstance = axios.create({
   baseURL: baseURL,

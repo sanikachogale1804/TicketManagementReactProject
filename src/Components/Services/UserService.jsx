@@ -1,12 +1,12 @@
 import axios from "axios";
 
-// Dynamic API base URL depending on current environment
 const Api_link = (() => {
   const hostname = window.location.hostname;
   if (hostname === "localhost") return "http://localhost:9080";
   if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
-  return "http://45.115.186.228:9080"; // Public IP fallback
+  return "http://117.250.211.51:9080"; // Updated public IP
 })();
+
 
 // const API_URL = Api_link; // For consistency if you need API_URL too
  export const getUsers = () => {

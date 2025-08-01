@@ -1,8 +1,9 @@
 import './App.css';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import UserPanel from './Components/User/UserPanel';
 import TicketForm from './Components/User/TicketForm';
 import TicketStatus from './Components/User/TicketStatus';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import Ticket from './Components/Tickets/Ticket';
 import NewTicketForm from './Components/Tickets/NewTicketForm';
 import RegisterPage from './Components/User/RegisterPage';
@@ -17,47 +18,46 @@ import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
 import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 import CameraReportList from './Components/Camera/CameraReportList';
 
-// 👇 Token check function
+// ✅ Token check function
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
 };
 
-// 👇 Protected route wrapper
+// ✅ Protected route wrapper
 const PrivateRoute = ({ element }) => {
   return isAuthenticated() ? element : <Navigate to="/loginPage" replace />;
 };
 
-// 👇 Define routes
-const routes = createBrowserRouter([
-  { path: "/", element: <LoginPage /> }, 
-  // { path: "/", element: <HomePage /> },
-  { path: "/loginPage", element: <LoginPage /> },
-  { path: "/registerPage", element: <RegisterPage /> },
-
-  // Protected Routes
-  { path: "/ticketForm", element: <PrivateRoute element={<TicketForm />} /> },
-  { path: "/userpanel", element: <PrivateRoute element={<UserPanel />} /> },
-  { path: "/ticketstatus", element: <PrivateRoute element={<TicketStatus />} /> },
-  { path: "/tickets", element: <PrivateRoute element={<Ticket />} /> },
-  { path: "/newticketForm", element: <PrivateRoute element={<NewTicketForm />} /> },
-  { path: "/adminPanel", element: <PrivateRoute element={<AdminPanel />} /> },
-  { path: "/customerTickets", element: <PrivateRoute element={<CustomerTickets />} /> },
-  { path: "/ticketSearch", element: <PrivateRoute element={<TicketSearch />} /> },
-  { path: "/customerInterface", element: <PrivateRoute element={<CustomerInterface />} /> },
-  { path: "/homePage", element: <PrivateRoute element={<HomePage />} /> },
-  { path: "/teamMemberDashboard", element: <PrivateRoute element={<TeamMemberDashboard />} /> },
-  { path: "/loginUserDashboard", element: <PrivateRoute element={<LoggedinUserDashboard />} /> },
-  { path: "/calendarDashboard", element: <PrivateRoute element={<CalendarDashboard />} /> },
-  { path: "/cameraReport", element: <PrivateRoute element={<CameraReportList />} /> },
-
-  // 👇 Redirect all unmatched to Login Page
-  { path: "*", element: <Navigate to="/" replace /> }
-]);
-
 function App() {
   return (
     <div>
-      <RouterProvider router={routes} />
+      <HashRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/loginPage" element={<LoginPage />} />
+          <Route path="/registerPage" element={<RegisterPage />} />
+
+          {/* Protected Routes */}
+          <Route path="/ticketForm" element={<PrivateRoute element={<TicketForm />} />} />
+          <Route path="/userpanel" element={<PrivateRoute element={<UserPanel />} />} />
+          <Route path="/ticketstatus" element={<PrivateRoute element={<TicketStatus />} />} />
+          <Route path="/tickets" element={<PrivateRoute element={<Ticket />} />} />
+          <Route path="/newticketForm" element={<PrivateRoute element={<NewTicketForm />} />} />
+          <Route path="/adminPanel" element={<PrivateRoute element={<AdminPanel />} />} />
+          <Route path="/customerTickets" element={<PrivateRoute element={<CustomerTickets />} />} />
+          <Route path="/ticketSearch" element={<PrivateRoute element={<TicketSearch />} />} />
+          <Route path="/customerInterface" element={<PrivateRoute element={<CustomerInterface />} />} />
+          <Route path="/homePage" element={<PrivateRoute element={<HomePage />} />} />
+          <Route path="/teamMemberDashboard" element={<PrivateRoute element={<TeamMemberDashboard />} />} />
+          <Route path="/loginUserDashboard" element={<PrivateRoute element={<LoggedinUserDashboard />} />} />
+          <Route path="/calendarDashboard" element={<PrivateRoute element={<CalendarDashboard />} />} />
+          <Route path="/cameraReport" element={<PrivateRoute element={<CameraReportList />} />} />
+
+          {/* Catch-all redirect */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </HashRouter>
     </div>
   );
 }
