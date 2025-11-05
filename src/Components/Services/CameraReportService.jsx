@@ -5,7 +5,7 @@ const BASE_URL = (() => {
   const hostname = window.location.hostname;
   if (hostname === "localhost") return "http://localhost:9080";
   if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
-  return "http://45.115.186.228:9080"; // fallback public IP
+  return "http://117.250.211.51:9080"; // fallback public IP
 })();
 
 // Fetch all camera reports

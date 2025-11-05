@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import "../CSS/LoginPage.css";
-import logo from "../Image/logo.png"; // ✅ Logo image
+import logo from "../Image/logo.png"; 
 import { loginUser } from "../Services/UserService";
 
 const LoginPage = () => {
@@ -121,7 +121,7 @@ const LoginPage = () => {
       </div>
 
       <footer className="login-footer">
-        All Rights Reserved Cogent Safety & Security
+        © 2025 Cogent Safety and Security Private Limited . All rights reserved.
       </footer>
     </div>
   );

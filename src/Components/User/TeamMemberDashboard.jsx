@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../CSS/TeamMemberDashboard.css';
 import { addCommentToTicket, createComment } from "../Services/TicketService";
+import * as XLSX from 'xlsx';
+import { saveAs } from "file-saver";
 
 const TeamMemberDashboard = () => {
     const [userName, setUserName] = useState("");
@@ -108,6 +110,40 @@ const TeamMemberDashboard = () => {
         }));
     };
 
+    const handleExportToExcel = async () => {
+        try {
+            if (assignedTickets.length === 0) {
+                alert("No tickets available to export!");
+                return;
+            }
+
+            const formattedTickets = assignedTickets.map(ticket => ({
+                "Ticket ID": ticket._links?.self?.href.split("/").pop(),
+                "Site ID": ticket.siteID,
+                "IASSP Name": ticket.iasspname,
+                "Description": ticket.description,
+                "Status": ticket.status,
+                "Created At": new Date(ticket.createdAt).toLocaleDateString(),
+                "Comments": ticket.comments ? ticket.comments.map(comment => comment.comment).join("; ") : "",
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(formattedTickets);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Tickets");
+
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+
+            const fileName = `Tickets_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+            saveAs(data, fileName);
+
+            console.log("Excel file downloaded successfully!");
+        } catch (error) {
+            console.error("Error exporting to Excel:", error);
+            alert("Something went wrong while exporting!");
+        }
+    };
+
     return (
         <div>
             <div className="header-container">
@@ -120,6 +156,14 @@ const TeamMemberDashboard = () => {
 
             {!loading && !error && assignedTickets.length > 0 ? (
                 <div className="ticket-list-container">
+                    <div className="table-header">
+                        <button className="export-button-team-member" onClick={handleExportToExcel}>
+                            Export to Excel
+                        </button>
+                        <h2 style={{ marginLeft: "15px" }}>Assigned Tickets</h2>
+                    </div>
+
+
                     <table className="ticket-table">
                         <thead>
                             <tr>
@@ -132,6 +176,7 @@ const TeamMemberDashboard = () => {
                                 <th>Add Comment</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {assignedTickets.map((ticket) => {
                                 const ticketId = ticket._links?.self?.href.split("/").pop();

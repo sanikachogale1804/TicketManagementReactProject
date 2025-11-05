@@ -94,3 +94,76 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* Existing styles remain above this line */
+
+/* Medium devices (tablets, 768px and up) */
+@media (max-width: 992px) {
+  .login-wrapper {
+    justify-content: center;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .login-box {
+    width: 80%;
+    margin-bottom: 150px;
+  }
+
+  .login-logo {
+    width: 70px;
+    top: 15px;
+    left: 15px;
+  }
+}
+
+/* Small devices (landscape phones, less than 768px) */
+@media (max-width: 767px) {
+  .login-wrapper {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    height: auto;
+  }
+
+  .login-box {
+    width: 90%;
+    margin: 100px 0 40px 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .login-logo {
+    position: static;
+    margin-bottom: 20px;
+    width: 60px;
+  }
+
+  .login-footer {
+    position: static;
+    margin-top: 20px;
+  }
+}
+
+/* Extra small devices (phones less than 480px) */
+@media (max-width: 480px) {
+  .login-box input {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .login-box button {
+    width: 100%;
+    margin-left: 0;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .register-message {
+    font-size: 13px;
+  }
+
+  .login-footer {
+    font-size: 0.8rem;
+  }
+}

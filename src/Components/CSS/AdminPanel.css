@@ -432,14 +432,19 @@ body, .dashboard-container {
   font-size: 14px;
 }
 
-/* Container for Date Range and Search Bar */
 .filter-search-container {
   display: flex;
-  align-items: center;  /* Align items vertically in the center */
-  gap: 15px;  /* Space between date range and search bar */
-  flex-wrap: wrap;  /* Allow wrapping on smaller screens */
+  align-items: center;
+  justify-content: flex-start; /* keeps everything in one row */
+  gap: 15px;
+  flex-wrap: nowrap; /* prevent wrapping to next line */
 }
 
+.filter-search-container .export-button-admin {
+  margin-left: auto; /* pushes Export button to the right */
+  background-color: #45a049;
+  color : white
+}
 /* Filter by Date Range */
 .filter-search-container h3 {
   margin: 0;  /* Remove any extra margins */
