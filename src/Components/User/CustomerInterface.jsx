@@ -172,8 +172,15 @@ function CustomerInterface({ userId }) {
                       <td>{ticket.siteID}</td>
                       <td>{ticket.iasspname}</td>
                       <td>{ticket.description}</td>
-                      <td className={`status-cell ${ticket.status.toLowerCase().replace('_','-')}`}>{ticket.status}</td>
-                      <td>{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                      <td className={`status-cell ${ticket.status.toLowerCase().replace('_', '-')}`}>{ticket.status}</td>
+                      <td>{new Date(ticket.createdAt).toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</td>
+
                       <td>
                         <button onClick={() => handleShowComments(ticket.ticketId)} className="view-comments-btn">
                           {commentTicketId === ticket.ticketId && showComments ? "Hide Comments" : "View Comments"}
