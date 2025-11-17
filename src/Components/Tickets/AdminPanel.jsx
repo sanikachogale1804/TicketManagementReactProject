@@ -9,7 +9,7 @@ import '../CSS/AdminPanel.css';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
-import { saveAs } from "file-saver"; 
+import { saveAs } from "file-saver";
 
 function AdminPanel() {
   const [tickets, setTickets] = useState([]);
@@ -41,7 +41,7 @@ function AdminPanel() {
     const hostname = window.location.hostname;
     if (hostname === "localhost") return "http://localhost:9080";
     if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
-    return "http://117.250.211.51:9080"; 
+    return "http://117.250.211.51:9080";
   })();
 
 
@@ -53,25 +53,28 @@ function AdminPanel() {
         const fetchedTeamMembers = await getTeamMembers();
 
         console.log("✅ Fetched Tickets:", fetchedTickets);
-
-        // 🟢 **Fetch assigned users**
         const updatedTickets = await Promise.all(
           fetchedTickets.map(async (ticket) => {
-            if (ticket._links.assignedTo) {
+
+            // 🟢 1️⃣ Case 1: backend already assignedTo object bhejta hai
+            if (ticket.assignedTo) {
+              return { ...ticket };
+            }
+
+            // 🟢 2️⃣ Case 2: backend HATEOAS format bhejta hai
+            if (ticket._links && ticket._links.assignedTo) {
               try {
                 const assignedUserResponse = await fetch(ticket._links.assignedTo.href);
                 if (assignedUserResponse.ok) {
                   const assignedUser = await assignedUserResponse.json();
                   return { ...ticket, assignedTo: assignedUser };
-                } else {
-                  console.warn(`⚠️ No assigned user found for Ticket ${ticket.ticket_id}`);
-                  return { ...ticket, assignedTo: null };
                 }
               } catch (error) {
                 console.error("❌ Error fetching assigned user:", error);
-                return { ...ticket, assignedTo: null };
               }
             }
+
+            // 🟢 3️⃣ Fallback: koi assigned user info nahi hai
             return { ...ticket, assignedTo: null };
           })
         );
@@ -245,17 +248,17 @@ function AdminPanel() {
         return;
       }
 
-    
+
       const formattedTickets = tickets.map(ticket => ({
-       "Ticket ID" : ticket.ticket_id,
-       "Site ID" : ticket.siteID || "",
-       "IASSP Name" : ticket.iasspname || "",
-       "Description" : ticket.description || "",
-       "Status" : ticket.status || "",
-       "Assigned To" : ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned",
-       "Start Date": ticket.startDate ? new Date(ticket.startDate).toLocaleDateString(): "N/A",
-       "End Date": ticket.endDate ? new Date(ticket.endDate).toLocaleDateString(): "N/A",
-       "Comments": comments.filter(comment => comment.ticketId === ticket.ticket_id).map(comment => comment.comment).join("; ")
+        "Ticket ID": ticket.ticket_id,
+        "Site ID": ticket.siteID || "",
+        "IASSP Name": ticket.iasspname || "",
+        "Description": ticket.description || "",
+        "Status": ticket.status || "",
+        "Assigned To": ticket.assignedTo ? ticket.assignedTo.userName : "Not Assigned",
+        "Start Date": ticket.startDate ? new Date(ticket.startDate).toLocaleDateString() : "N/A",
+        "End Date": ticket.endDate ? new Date(ticket.endDate).toLocaleDateString() : "N/A",
+        "Comments": comments.filter(comment => comment.ticketId === ticket.ticket_id).map(comment => comment.comment).join("; ")
       }));
 
       const worksheet = XLSX.utils.json_to_sheet(formattedTickets);
@@ -274,6 +277,8 @@ function AdminPanel() {
       alert("Something went wrong while exporting!");
     }
   };
+
+
 
 
   if (loading) return <p>Loading...</p>;

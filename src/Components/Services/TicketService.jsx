@@ -111,28 +111,33 @@ export const isAuthenticated = () => {
   return localStorage.getItem('token') !== null;
 };
 
+// TicketService.jsx
+
 export const getTickets = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/tickets`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      mode: "cors"
-    });
+    // axiosInstance already adds the token from localStorage via interceptor
+    const response = await axiosInstance.get("/tickets");
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+    // Check if data exists
+    if (!response.data) {
+      console.warn("⚠️ No tickets returned from backend");
+      return [];
     }
 
-    const data = await response.json();
-    return data;
+    console.log("✅ Fetched tickets:", response.data);
+    return response.data;
   } catch (error) {
-    console.error("Error fetching tickets:", error);
+    console.error(
+      "❌ Error fetching tickets:",
+      error.response?.status,
+      error.response?.data || error.message
+    );
+
+    // Return empty array to prevent frontend crash
     return [];
   }
 };
+
 
 export const addTicket = (ticket) => {
   return fetch(API_LINK, {
@@ -284,14 +289,16 @@ export const updateTicketStatus = async (ticketId, newStatus) => {
 
 export const getTicketsWithId = async () => {
   const data = await getTickets();
-  const formattedTickets = data._embedded?.tickets.map(ticket => ({
+
+  const formattedTickets = (data || []).map(ticket => ({
     ...ticket,
-    ticket_id: ticket._links?.self?.href.split("/").pop()
-  })) || [];
+    ticket_id: ticket.id || ticket.ticketId // use the actual field name from backend
+  }));
 
   console.log("✅ Tickets with extracted IDs:", formattedTickets);
   return formattedTickets;
 };
+
 
 export const getAssignedTickets = async (userId) => {
   try {

@@ -176,28 +176,61 @@ const CameraReportList = () => {
 
   if (loading) return <p className="text-white">Loading camera reports...</p>;
 
-  const handleExportToExcel = () => {
-    const exportData = filteredReports.map((report) => ({
-      'Camera ID': report.cameraId,
-      'Start Date': report.startDate,
-      'End Date': report.endDate,
-      'Recording Days': report.recordingDays,
-      'Storage Used (GB)': report.storageUsedGB?.toFixed(2),
-      'Total Space (GB)': report.totalSpaceGB?.toFixed(2) || "N/A",
-      'Used Space (GB)': report.usedSpaceGB?.toFixed(2) || "N/A",
-      'Free Space (GB)': report.freeSpaceGB?.toFixed(2) || "N/A",
-      'Category': getCategory(report.recordingDays),
-      'Site ID': report.site?.siteId || "Not Assigned",
-    }));
+  const handleExportToExcel = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${baseURL}/camera-reports/all`);
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "CameraReports");
+      const allReports = await response.json();
 
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "CameraReports.xlsx");
+      // Optional: Enrich with site info if your reports have _links.site.href
+      const enrichedReports = await Promise.all(
+        allReports.map(async (report) => {
+          if (report._links?.site?.href) {
+            try {
+              const siteRes = await fetch(report._links.site.href);
+              const siteData = await siteRes.json();
+              return { ...report, site: siteData };
+            } catch {
+              return report;
+            }
+          }
+          return report;
+        })
+      );
+
+      // Prepare Excel data
+      const exportData = enrichedReports.map((report) => ({
+        'Camera ID': report.cameraId,
+        'Start Date': report.startDate,
+        'End Date': report.endDate,
+        'Recording Days': report.recordingDays,
+        'Storage Used (GB)': report.storageUsedGB?.toFixed(2),
+        'Total Space (GB)': report.totalSpaceGB?.toFixed(2) || "N/A",
+        'Used Space (GB)': report.usedSpaceGB?.toFixed(2) || "N/A",
+        'Free Space (GB)': report.freeSpaceGB?.toFixed(2) || "N/A",
+        'Category': getCategory(report.recordingDays),
+        'Site ID': report.site?.siteId || "Not Assigned",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "AllCameraReports");
+
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+      saveAs(data, "AllCameraReports.xlsx");
+
+      alert(`✅ Exported ${exportData.length} camera records successfully!`);
+    } catch (error) {
+      console.error("❌ Error exporting reports:", error);
+      alert("Failed to export reports. Check console for details.");
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div className="dashboard-layout">

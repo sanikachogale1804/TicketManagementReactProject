@@ -21,33 +21,24 @@ function CustomerInterface({ userId }) {
   const [ticketIdAsc, setTicketIdAsc] = useState(true);       // Ticket ID ascending by default
   const [createdDateAsc, setCreatedDateAsc] = useState(false); // Created Date descending by default
 
-  // ---------- Fetch tickets ----------
-  useEffect(() => {
+  useEffect(()=>{
     const fetchTickets = async () => {
       try {
         const response = await getTicketsByUser(userId);
-        const ticketsData = response._embedded?.tickets || [];
+        console.log("Raw API Response:", response);
 
-        const ticketsWithId = ticketsData.map(ticket => {
-          const ticketId = ticket.ticketId || ticket._links?.ticket?.href?.split("/").pop();
-          const siteId = ticket.siteID || ticket.siteId || "";
-          return { ...ticket, ticketId, siteId };
-        });
-
-        // Sort initially: Ticket ID ascending, Created Date descending
-        const sortedByTicketId = [...ticketsWithId].sort((a, b) => a.ticketId - b.ticketId);
-        const fullySorted = [...sortedByTicketId].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-        setTickets(fullySorted);
+        const ticketsData = response._embedded?.tickets || response.tickets || response || [];
+        console.log("Extracted Tickets:", ticketsData);
+        setTickets(ticketsData);
         setLoading(false);
-      } catch (error) {
-        console.error('Error fetching tickets:', error);
+
+      }catch (error){
+        console.error("Error fetching tickets:",error);
         setLoading(false);
       }
     };
-
     fetchTickets();
-  }, [userId]);
+  },[userId])
 
   // ---------- Filter ----------
   const handleFilterChange = (e) => setFilter(e.target.value);

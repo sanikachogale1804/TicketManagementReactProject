@@ -184,3 +184,18 @@ body, .dashboard-container {
   border-radius: 10px;
 }
 
+.month-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: #f9fafb;
+}
+
+.month-card h3 {
+  margin-bottom: 8px;
+}
+
+.month-card .stats-card {
+  margin-bottom: 6px;
+}
