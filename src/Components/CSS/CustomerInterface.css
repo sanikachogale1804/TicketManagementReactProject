@@ -40,6 +40,9 @@
 
 .customer-interface h2 {
   color: white;
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 6px;
 }
 
 .ticket-filters {
@@ -145,4 +148,8 @@
 
 .status-cell.in-progress {
   color: #ff9800; /* Orange */
+}
+
+.export-button-customer{
+  background-color: #4CAF50;
 }

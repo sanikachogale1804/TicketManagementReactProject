@@ -23,12 +23,12 @@ function NewTicketForm() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
- const baseURL = (() => {
-  const hostname = window.location.hostname;
-  if (hostname === "localhost") return "http://localhost:9080";
-  if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
-  return "http://117.250.211.51:9080"; // Updated public IP
-})();
+  const baseURL = (() => {
+    const hostname = window.location.hostname;
+    if (hostname === "localhost") return "http://localhost:9080";
+    if (hostname === "192.168.1.91") return "http://192.168.1.91:9080";
+    return "http://117.250.211.51:9080"; // Updated public IP
+  })();
 
   useEffect(() => {
     fetch(`${baseURL}/siteMasterData2`)
@@ -74,6 +74,20 @@ function NewTicketForm() {
           district: '',
         }));
       }
+    } else if (name === 'endDate') {
+      const start = new Date(ticket.startDate);
+      const end = new Date(value);
+      const diffMinutes = (end - start) / (1000 * 60);
+
+      if (diffMinutes > 30) {
+        alert('❌ End Date & Time cannot exceed 30 minutes from Start Date & Time');
+        return; // Prevent updating the state
+      }
+
+      setTicket(prev => ({
+        ...prev,
+        endDate: value,
+      }));
     } else {
       setTicket(prev => ({
         ...prev,
@@ -81,6 +95,7 @@ function NewTicketForm() {
       }));
     }
   };
+
 
   const submitHandler = (e) => {
     e.preventDefault();

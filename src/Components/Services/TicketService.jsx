@@ -140,10 +140,12 @@ export const getTickets = async () => {
 
 
 export const addTicket = (ticket) => {
+  const token = localStorage.getItem("token"); // 🔑 get token
   return fetch(API_LINK, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`, // 🔑 send token
     },
     body: JSON.stringify(ticket),
   })
@@ -151,9 +153,16 @@ export const addTicket = (ticket) => {
     .then((data) => data);
 };
 
+
 export const createTicket = async (ticketData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/tickets`, ticketData);
+    const token = localStorage.getItem("token"); // 🔑 add this
+    const response = await axios.post(`${BASE_URL}/tickets`, ticketData, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`, // 🔑 add this
+      },
+    });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 409) {
@@ -163,6 +172,7 @@ export const createTicket = async (ticketData) => {
     }
   }
 };
+
 
 export const updateTicket = async (ticketId, updatedTicket) => {
   try {
@@ -174,9 +184,11 @@ export const updateTicket = async (ticketId, updatedTicket) => {
   }
 };
 
-export const createComment = async (ticketId, commentPayload, token) => {
-  const response = await axios.post(
-    `${BASE_URL}/comments`,
+export const createComment = async (commentPayload, closeTicket = false) => {
+  const token = localStorage.getItem("token");
+
+  return axios.post(
+    `${BASE_URL}/comments?closeTicket=${closeTicket}`, // ✅ true / false
     commentPayload,
     {
       headers: {
@@ -185,7 +197,6 @@ export const createComment = async (ticketId, commentPayload, token) => {
       },
     }
   );
-  return response.data;
 };
 
 export const addCommentToTicket = async (commentId, ticketId) => {

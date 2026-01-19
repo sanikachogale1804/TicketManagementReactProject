@@ -10,7 +10,7 @@ const groupTicketsByMonth = (tickets) => {
 
   tickets.forEach(ticket => {
     const date = new Date(ticket.createdAt);
-    const monthKey = date.toLocaleString("default", { month: "long", year: "numeric" });
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
     if (!monthMap[monthKey]) {
       monthMap[monthKey] = {
@@ -46,10 +46,13 @@ function HomePage() {
     outOfTat: 0,
   });
   const [monthlyStats, setMonthlyStats] = useState([]);
-    const [selectedMonth, setSelectedMonth] = useState(() => {
-      const now = new Date();
-      return now.toLocaleString("default", { month: "long", year: "numeric" });
-    });
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    return `${yyyy}-${mm}`;
+  });
+
 
 
   useEffect(() => {
@@ -136,13 +139,28 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="monthly-stats">
-            <h2>Month-wise Ticket Summary - {selectedMonth}</h2>
+          <div className="month-stats">
+            <h2>Month-wise Ticket Summary -
+              {(() => {
+                const [year, month] = selectedMonth.split("-").map(Number);
+                const displayDate = new Date(year, month - 1, 1);
+                return displayDate.toLocaleDateString("default", { month: "long", year: "numeric" });
+              })()}
+            </h2>
+
             {monthlyStats
-              .filter(monthData => monthData.month === selectedMonth) // ✅ Only selected month
+              .filter(monthData => monthData.month === selectedMonth)
+
               .map((monthData, idx) => (
-                <div key={idx} className="ticket-stats month-card">
-                  <h3>{monthData.month}</h3>
+                <div key={idx} className="month-card">
+                  {/* <h3>
+                    {(() => {
+                      const [year, month] = monthData.month.split("-").map(Number);
+                      const displayDate = new Date(year, month - 1, 1);
+                      return displayDate.toLocaleDateString("default", { month: "long" }); // only month
+                    })()}
+                  </h3> */}
+
                   <div className="stats-card total">
                     <h4>Total Tickets</h4>
                     <p className="ticket-count">{monthData.total}</p>
@@ -169,13 +187,14 @@ function HomePage() {
 
           <CalendarDashboard
             selectedMonth={selectedMonth}
-            setSelectedMonth={setSelectedMonth}
+            onMonthChange={(month) => setSelectedMonth(month)}
           />
+
 
         </div>
 
         <footer className="footer office-footer">
-          <p>&copy; 2025 TicketMS | All rights reserved</p>
+          © 2025 Cogent Safety and Security Private Limited . All rights reserved.
         </footer>
       </main>
     </div>

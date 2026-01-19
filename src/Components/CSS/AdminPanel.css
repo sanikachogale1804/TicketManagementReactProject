@@ -442,7 +442,7 @@ body, .dashboard-container {
 
 .filter-search-container .export-button-admin {
   margin-left: auto; /* pushes Export button to the right */
-  background-color: #45a049;
+  background-color: #4CAF50;
   color : white
 }
 /* Filter by Date Range */

@@ -5,20 +5,15 @@ import { CheckCircle, AlertCircle } from "lucide-react";
 import Calendar from "react-calendar";
 import { motion, AnimatePresence } from "framer-motion";
 
-const CalendarDashboard = () => {
+const CalendarDashboard = ({ selectedMonth, onMonthChange }) => {
   const [weeks, setWeeks] = useState([]);
-  const currentDate = new Date();
-  const [monthYear, setMonthYear] = useState(() =>
-    currentDate.toLocaleString("default", { month: "long", year: "numeric" })
-  );
+  const [monthYear, setMonthYear] = useState("");
   const [totals, setTotals] = useState({ received: 0, closed: 0, pending: 0, outOfTat: 0 });
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const [selectedMonth, setSelectedMonth] = useState(`${currentYear}-${currentMonth}`);
-  const [year, month] = selectedMonth.split("-").map(Number);
-
   const [showCalendar, setShowCalendar] = useState(false);
   const calendarRef = useRef();
+
+  const [year, month] = selectedMonth.split("-").map(Number);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -100,9 +95,11 @@ const CalendarDashboard = () => {
   const handleMonthChange = (date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
-    setSelectedMonth(`${year}-${month}`);
+
+    onMonthChange(`${year}-${month}`);
     setShowCalendar(false);
   };
+
 
   const formatDate = (date) => {
     return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });

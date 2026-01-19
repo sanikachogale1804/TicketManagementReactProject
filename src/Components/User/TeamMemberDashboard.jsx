@@ -71,35 +71,41 @@ const TeamMemberDashboard = () => {
     }, [userId]);
 
     const handleAddComment = async (ticket) => {
-        const token = localStorage.getItem("token");
-        const ticketId = ticket._links?.self?.href.split("/").pop();
-
-        if (!ticketId || !ticketComments[ticketId]) {
-            alert("❌ Please enter a comment before submitting.");
-            return;
-        }
-
         try {
-            const commentPayload = {
-                userId: { userId: Number(userId) },
-                comment: ticketComments[ticketId],
-                createdAt: new Date().toISOString(),
-            };
+            const token = localStorage.getItem("token");
+            const ticketId = ticket._links?.self?.href.split("/").pop();
+            const userId = localStorage.getItem("userId");
 
-            const newComment = await createComment(ticketId, commentPayload, token);
-            const commentId = newComment._links?.self?.href?.split("/").pop();
-
-            if (!commentId) {
-                throw new Error("❌ Failed to extract comment ID from response.");
+            // ✅ Validation
+            if (!ticketId || !userId) {
+                alert("❌ Ticket ID or User ID is missing!");
+                return;
             }
 
-            await addCommentToTicket(commentId, ticketId);
+            if (!ticketComments[ticketId] || ticketComments[ticketId].trim() === "") {
+                alert("❌ Please enter a comment before submitting.");
+                return;
+            }
 
-            alert("✅ Comment added and ticket assigned successfully!");
-            setTicketComments((prev) => ({ ...prev, [ticketId]: "" }));
+            const commentPayload = {
+                comment: ticketComments[ticketId],
+                ticket: { ticketId: Number(ticketId) },
+                user: { userId: Number(userId) }
+            };
+
+            await createComment(commentPayload, true);
+
+
+
+            alert("✅ Comment added successfully!");
+            setTicketComments(prev => ({ ...prev, [ticketId]: "" }));
+
+            // ✅ Optionally refresh tickets or comments
+            // fetchAssignedTickets();  <-- if you have this function
+
         } catch (error) {
-            console.error("❌ Error adding comment:", error);
-            alert("❌ Failed to add comment.");
+            console.error("❌ Error adding comment:", error.response?.data || error);
+            alert("❌ Failed to add comment. Check console for details.");
         }
     };
 

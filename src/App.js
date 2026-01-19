@@ -18,6 +18,7 @@ import LoggedinUserDashboard from './Components/User/LoginUserDashboard';
 import CalendarDashboard from './Components/HomePage/CalendarDashboard';
 import CameraReportList from './Components/Camera/CameraReportList';
 
+
 // ✅ Token check function
 const isAuthenticated = () => {
   return localStorage.getItem("token") !== null;
@@ -53,6 +54,7 @@ function App() {
           <Route path="/loginUserDashboard" element={<PrivateRoute element={<LoggedinUserDashboard />} />} />
           <Route path="/calendarDashboard" element={<PrivateRoute element={<CalendarDashboard />} />} />
           <Route path="/cameraReport" element={<PrivateRoute element={<CameraReportList />} />} />
+
 
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
